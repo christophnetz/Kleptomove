@@ -1,0 +1,213 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="cine\image.cpp">
+      <Filter>cine</Filter>
+    </ClCompile>
+    <ClCompile Include="cine\rnd.cpp">
+      <Filter>cine</Filter>
+    </ClCompile>
+    <ClCompile Include="cine\simulation.cpp">
+      <Filter>cine</Filter>
+    </ClCompile>
+    <ClCompile Include="cinema\AppWin.cpp">
+      <Filter>cinema</Filter>
+    </ClCompile>
+    <ClCompile Include="cinema\GLLandscapeWin.cpp">
+      <Filter>cinema</Filter>
+    </ClCompile>
+    <ClCompile Include="cinema\GLWin.cpp">
+      <Filter>cinema</Filter>
+    </ClCompile>
+    <ClCompile Include="cinema\stdafx.cpp">
+      <Filter>cinema</Filter>
+    </ClCompile>
+    <ClCompile Include="cinema\glsl\camera.cpp">
+      <Filter>glsl</Filter>
+    </ClCompile>
+    <ClCompile Include="cinema\glsl\debug.cpp">
+      <Filter>glsl</Filter>
+    </ClCompile>
+    <ClCompile Include="cinema\glsl\shader.cpp">
+      <Filter>glsl</Filter>
+    </ClCompile>
+    <ClCompile Include="cinema\glsl\wgl_context.cpp">
+      <Filter>glsl</Filter>
+    </ClCompile>
+    <ClCompile Include="cinema\glad\glad.c">
+      <Filter>glsl</Filter>
+    </ClCompile>
+    <ClCompile Include="cinema\glad\glad_wgl.c">
+      <Filter>glsl</Filter>
+    </ClCompile>
+    <ClCompile Include="cinema\GLAnnWin.cpp">
+      <Filter>cinema</Filter>
+    </ClCompile>
+    <ClCompile Include="cine\parameter.cpp">
+      <Filter>cine</Filter>
+    </ClCompile>
+    <ClCompile Include="cinema\glsl\bmfont.cpp">
+      <Filter>glsl</Filter>
+    </ClCompile>
+    <ClCompile Include="cinema\GLSimState.cpp">
+      <Filter>cinema</Filter>
+    </ClCompile>
+    <ClCompile Include="cine\any_ann.cpp">
+      <Filter>cine</Filter>
+    </ClCompile>
+    <ClCompile Include="cine\cnObserver.cpp">
+      <Filter>cine</Filter>
+    </ClCompile>
+    <ClCompile Include="cine\archive.cpp">
+      <Filter>cine</Filter>
+    </ClCompile>
+    <ClCompile Include="cinema\GLTimeLineWin.cpp">
+      <Filter>cinema</Filter>
+    </ClCompile>
+    <ClCompile Include="cine\analysis.cpp">
+      <Filter>cine</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="cine">
+      <UniqueIdentifier>{9c1eec07-473f-43b2-a278-152fbbe183e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cinema">
+      <UniqueIdentifier>{d2ab555a-ffa1-4913-968a-3f220ce38e41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="glsl">
+      <UniqueIdentifier>{cebb2f62-9b86-4810-b51c-590c4395f0ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{4f157162-a8bc-4621-b23c-81598d8f51cf}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cine\ann.hpp">
+      <Filter>cine</Filter>
+    </ClInclude>
+    <ClInclude Include="cine\game_watches.hpp">
+      <Filter>cine</Filter>
+    </ClInclude>
+    <ClInclude Include="cine\image.h">
+      <Filter>cine</Filter>
+    </ClInclude>
+    <ClInclude Include="cine\individuals.h">
+      <Filter>cine</Filter>
+    </ClInclude>
+    <ClInclude Include="cine\landscape.h">
+      <Filter>cine</Filter>
+    </ClInclude>
+    <ClInclude Include="cine\observer.h">
+      <Filter>cine</Filter>
+    </ClInclude>
+    <ClInclude Include="cine\parameter.h">
+      <Filter>cine</Filter>
+    </ClInclude>
+    <ClInclude Include="cine\rnd.hpp">
+      <Filter>cine</Filter>
+    </ClInclude>
+    <ClInclude Include="cine\rndutils.hpp">
+      <Filter>cine</Filter>
+    </ClInclude>
+    <ClInclude Include="cine\simulation.h">
+      <Filter>cine</Filter>
+    </ClInclude>
+    <ClInclude Include="cinema\AppWin.h">
+      <Filter>cinema</Filter>
+    </ClInclude>
+    <ClInclude Include="cinema\GLLandscapeWin.h">
+      <Filter>cinema</Filter>
+    </ClInclude>
+    <ClInclude Include="cinema\GLWin.h">
+      <Filter>cinema</Filter>
+    </ClInclude>
+    <ClInclude Include="cinema\stdafx.h">
+      <Filter>cinema</Filter>
+    </ClInclude>
+    <ClInclude Include="cinema\glsl\camera.h">
+      <Filter>glsl</Filter>
+    </ClInclude>
+    <ClInclude Include="cinema\glsl\context.h">
+      <Filter>glsl</Filter>
+    </ClInclude>
+    <ClInclude Include="cinema\glsl\debug.h">
+      <Filter>glsl</Filter>
+    </ClInclude>
+    <ClInclude Include="cinema\glsl\glsl.hpp">
+      <Filter>glsl</Filter>
+    </ClInclude>
+    <ClInclude Include="cinema\glsl\shader.h">
+      <Filter>glsl</Filter>
+    </ClInclude>
+    <ClInclude Include="cinema\glsl\stb_image.h">
+      <Filter>glsl</Filter>
+    </ClInclude>
+    <ClInclude Include="cinema\glsl\stb_image_write.h">
+      <Filter>glsl</Filter>
+    </ClInclude>
+    <ClInclude Include="cinema\glad\glad.h">
+      <Filter>glsl</Filter>
+    </ClInclude>
+    <ClInclude Include="cinema\glad\glad_wgl.h">
+      <Filter>glsl</Filter>
+    </ClInclude>
+    <ClInclude Include="cine\convolution.h">
+      <Filter>cine</Filter>
+    </ClInclude>
+    <ClInclude Include="cinema\resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="cinema\GLAnnWin.h">
+      <Filter>cinema</Filter>
+    </ClInclude>
+    <ClInclude Include="cinema\GLRenderer.h">
+      <Filter>cinema</Filter>
+    </ClInclude>
+    <ClInclude Include="cine\cmd_line.h">
+      <Filter>cine</Filter>
+    </ClInclude>
+    <ClInclude Include="cinema\glsl\bmfont.hpp">
+      <Filter>glsl</Filter>
+    </ClInclude>
+    <ClInclude Include="cinema\GLSimState.h">
+      <Filter>cinema</Filter>
+    </ClInclude>
+    <ClInclude Include="cine\any_ann.hpp">
+      <Filter>cine</Filter>
+    </ClInclude>
+    <ClInclude Include="cine\cnObserver.h">
+      <Filter>cine</Filter>
+    </ClInclude>
+    <ClInclude Include="cine\archive.hpp">
+      <Filter>cine</Filter>
+    </ClInclude>
+    <ClInclude Include="cinema\glsl\wgl_context.hpp">
+      <Filter>glsl</Filter>
+    </ClInclude>
+    <ClInclude Include="cinema\GLTimeLineWin.h">
+      <Filter>cinema</Filter>
+    </ClInclude>
+    <ClInclude Include="cine\analysis.h">
+      <Filter>cine</Filter>
+    </ClInclude>
+    <ClInclude Include="cine\histogram.hpp">
+      <Filter>cine</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="cinema\cinema.ico">
+      <Filter>Resources</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="cinema\cinema.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\settings\config.ini" />
+    <None Include="bin\settings\creativ.ini" />
+  </ItemGroup>
+</Project>

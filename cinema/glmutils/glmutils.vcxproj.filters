@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="bbox.hpp" />
+    <ClInclude Include="zero.hpp" />
+    <ClInclude Include="bbox_bbox.hpp" />
+    <ClInclude Include="bbox_plane.hpp" />
+    <ClInclude Include="bbox_ray.hpp" />
+    <ClInclude Include="clip_length.hpp" />
+    <ClInclude Include="collision_response.hpp" />
+    <ClInclude Include="dynamic_line.hpp" />
+    <ClInclude Include="eigen.hpp" />
+    <ClInclude Include="fast_eigen.hpp" />
+    <ClInclude Include="frustum.hpp" />
+    <ClInclude Include="gauss.hpp" />
+    <ClInclude Include="gram_schmidt.hpp" />
+    <ClInclude Include="hd_timer.hpp" />
+    <ClInclude Include="homogeneous.hpp" />
+    <ClInclude Include="index_min_max.hpp" />
+    <ClInclude Include="intersect_test.hpp" />
+    <ClInclude Include="istream.hpp" />
+    <ClInclude Include="local_space.hpp" />
+    <ClInclude Include="matrix_norm.hpp" />
+    <ClInclude Include="oobb.hpp" />
+    <ClInclude Include="ostream.hpp" />
+    <ClInclude Include="perp_dot.hpp" />
+    <ClInclude Include="plane.hpp" />
+    <ClInclude Include="polygon.hpp" />
+    <ClInclude Include="polygon_moments.hpp" />
+    <ClInclude Include="polygon_subdivision.hpp" />
+    <ClInclude Include="qr.hpp" />
+    <ClInclude Include="quad.hpp" />
+    <ClInclude Include="random.hpp" />
+    <ClInclude Include="ray.hpp" />
+    <ClInclude Include="row_echelon.hpp" />
+    <ClInclude Include="traits.hpp" />
+    <ClInclude Include="transform2d.hpp" />
+    <ClInclude Include="triangle.hpp" />
+    <ClInclude Include="save_normalize.hpp" />
+    <ClInclude Include="fpclassify.hpp" />
+    <ClInclude Include="avx\vec.hpp">
+      <Filter>avx</Filter>
+    </ClInclude>
+    <ClInclude Include="avx\mat3.hpp">
+      <Filter>avx</Filter>
+    </ClInclude>
+    <ClInclude Include="avx\mat4.hpp">
+      <Filter>avx</Filter>
+    </ClInclude>
+    <ClInclude Include="smootherstep.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="avx">
+      <UniqueIdentifier>{7883ee0c-07c9-4e86-ada6-5fb6cddd7c19}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

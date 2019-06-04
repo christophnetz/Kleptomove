@@ -1,0 +1,242 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{CB78E879-FE54-4DA0-9CB1-32BB0BE51783}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>cine2</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\tmp\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir);$(SolutionDir)\cinema;$(ICIncludeDir);$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\cinema\zlib\lib;$(ICLibDir);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\tmp\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir);$(SolutionDir)\cinema;$(ICIncludeDir);$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\cinema\zlib\lib;$(ICLibDir);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>NOMINMAX;GLSL_DEBUG=5;GLSL_OPENGL_MAJOR_VERSION=4;GLSL_OPENGL_MINOR_VERSION=5;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <OpenMP>GenerateSequentialCode</OpenMP>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>zlibstatd.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NOMINMAX;GLSL_OPENGL_MAJOR_VERSION=4;GLSL_OPENGL_MINOR_VERSION=5;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <OmitFramePointers>true</OmitFramePointers>
+      <OpenMPSupport>true</OpenMPSupport>
+      <OpenMP>GenerateParallelCode</OpenMP>
+      <UseIntelOptimizedHeaders>true</UseIntelOptimizedHeaders>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <Parallelization>false</Parallelization>
+      <OptimizationDiagnosticLevel>Disable</OptimizationDiagnosticLevel>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>zlibstat.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="cinema\AppWin.cpp" />
+    <ClCompile Include="cinema\glad\glad.c" />
+    <ClCompile Include="cinema\glad\glad_wgl.c" />
+    <ClCompile Include="cinema\GLAnnWin.cpp" />
+    <ClCompile Include="cinema\GLLandscapeWin.cpp" />
+    <ClCompile Include="cinema\GLSimState.cpp" />
+    <ClCompile Include="cinema\glsl\bmfont.cpp" />
+    <ClCompile Include="cinema\glsl\camera.cpp" />
+    <ClCompile Include="cinema\glsl\debug.cpp" />
+    <ClCompile Include="cinema\glsl\shader.cpp" />
+    <ClCompile Include="cinema\glsl\wgl_context.cpp" />
+    <ClCompile Include="cinema\GLTimeLineWin.cpp" />
+    <ClCompile Include="cinema\GLWin.cpp" />
+    <ClCompile Include="cinema\stdafx.cpp" />
+    <ClCompile Include="cine\analysis.cpp" />
+    <ClCompile Include="cine\any_ann.cpp" />
+    <ClCompile Include="cine\archive.cpp" />
+    <ClCompile Include="cine\cnObserver.cpp" />
+    <ClCompile Include="cine\image.cpp" />
+    <ClCompile Include="cine\parameter.cpp" />
+    <ClCompile Include="cine\rnd.cpp" />
+    <ClCompile Include="cine\simulation.cpp" />
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cinema\AppWin.h" />
+    <ClInclude Include="cinema\glad\glad.h" />
+    <ClInclude Include="cinema\glad\glad_wgl.h" />
+    <ClInclude Include="cinema\GLAnnWin.h" />
+    <ClInclude Include="cinema\GLLandscapeWin.h" />
+    <ClInclude Include="cinema\GLRenderer.h" />
+    <ClInclude Include="cinema\GLSimState.h" />
+    <ClInclude Include="cinema\glsl\bmfont.hpp" />
+    <ClInclude Include="cinema\glsl\camera.h" />
+    <ClInclude Include="cinema\glsl\context.h" />
+    <ClInclude Include="cinema\glsl\debug.h" />
+    <ClInclude Include="cinema\glsl\glsl.hpp" />
+    <ClInclude Include="cinema\glsl\shader.h" />
+    <ClInclude Include="cinema\glsl\stb_image.h" />
+    <ClInclude Include="cinema\glsl\stb_image_write.h" />
+    <ClInclude Include="cinema\glsl\wgl_context.hpp" />
+    <ClInclude Include="cinema\GLTimeLineWin.h" />
+    <ClInclude Include="cinema\GLWin.h" />
+    <ClInclude Include="cinema\resource.h" />
+    <ClInclude Include="cinema\stdafx.h" />
+    <ClInclude Include="cine\analysis.h" />
+    <ClInclude Include="cine\ann.hpp" />
+    <ClInclude Include="cine\any_ann.hpp" />
+    <ClInclude Include="cine\archive.hpp" />
+    <ClInclude Include="cine\cmd_line.h" />
+    <ClInclude Include="cine\cnObserver.h" />
+    <ClInclude Include="cine\convolution.h" />
+    <ClInclude Include="cine\game_watches.hpp" />
+    <ClInclude Include="cine\histogram.hpp" />
+    <ClInclude Include="cine\image.h" />
+    <ClInclude Include="cine\individuals.h" />
+    <ClInclude Include="cine\landscape.h" />
+    <ClInclude Include="cine\observer.h" />
+    <ClInclude Include="cine\parameter.h" />
+    <ClInclude Include="cine\rnd.hpp" />
+    <ClInclude Include="cine\rndutils.hpp" />
+    <ClInclude Include="cine\simulation.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="cinema\cinema.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="cinema\cinema.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\settings\config.ini" />
+    <None Include="bin\settings\creativ.ini" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
