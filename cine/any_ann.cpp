@@ -104,6 +104,7 @@ namespace cine2 {
 
       struct zip_eval_cell {
         float eval;
+        float eval2;
         int cell;
       };
 
@@ -128,9 +129,11 @@ namespace cine2 {
             for (int j = 0; j < ANN::input_size; ++j) {
               input[j] = iparam.input_mask[j] * noise(rnd::reng) * env_input[j][i];
             }
-            float eval = pann[p](input)[0];    // ask ANN
+            auto output = pann[p](input);    // ask ANN
+            float eval = output[0];   
+            float eval2 = output[1];
             best_eval = std::max(best_eval, eval);
-            zip[i] = { eval, i };
+            zip[i] = { eval, eval2, i };
           }
           // resolve ambiguities. bring 'best' ones to the front
           auto it = std::partition(zip.begin(), zip.end(), [=](const auto& a){ return a.eval == best_eval; }) - 1;
@@ -139,6 +142,8 @@ namespace cine2 {
             it = zip.begin() + rndutils::uniform_signed_distribution<int>(0, static_cast<int>(std::distance(zip.begin(), it)))(rnd::reng);
           }
           pop[p].pos = landscape.wrap(pos + Coordinate{short((it->cell % L) - L/2), short((it->cell / L) - L/2)});
+          pop[p].forage = (it->eval2 >= 0);
+         
         }
       }
     }

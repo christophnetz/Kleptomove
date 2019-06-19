@@ -26,22 +26,22 @@ namespace cine2 {
   >;
 
 
-  using default_activation = activation::rtlu;
+  using default_activation = activation::identity;
 
 
 	using SimpleAnn = Network<float,
-		Layer< Neuron<3, default_activation>, 1>
+		Layer< Neuron<4, default_activation>, 2>
 	>;
 
 
 	using SimpleAnnFB = Network<float,
-		Layer< Neuron<3, default_activation, feedback::direct>, 1>
+		Layer< Neuron<4, default_activation, feedback::direct>, 2>
 	>;
 
 
 	using SmartAnn = Network<float,
-		Layer< Neuron<3, default_activation>, 3>,
-		Layer< Neuron<3, default_activation>, 1>
+		Layer< Neuron<4, default_activation>, 3>,
+		Layer< Neuron<3, default_activation>, 2>
 	>;
 
 

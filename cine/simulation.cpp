@@ -44,7 +44,7 @@ namespace cine2 {
     //for (auto& p : pred_.pop) { p.pos.x = coorDist(rnd::reng); p.pos.y = coorDist(rnd::reng); }
 
     // initial occupancies and observable densities
-    landscape_.update_occupancy(Layers::prey_count, Layers::prey, Layers::pred_count, Layers::pred, prey_.pop.cbegin(), prey_.pop.cend(), param_.landscape.prey_kernel);
+    landscape_.update_occupancy(Layers::prey_count, Layers::prey, Layers::pred_count, Layers::pred, Layers::grass, prey_.pop.cbegin(), prey_.pop.cend(), param_.landscape.prey_kernel);
     //landscape_.update_occupancy(Layers::pred_count, Layers::pred, pred_.pop.cbegin(), pred_.pop.cend(), param_.landscape.pred_kernel);
 
     // optional: initialization from former runs
@@ -189,28 +189,29 @@ namespace cine2 {
     ann_assume_aligned(cover, 32);
     const float max_grass_cover = param_.landscape.max_grass_cover;
     const float grass_growth = param_.landscape.grass_growth;
-#   pragma omp parallel for schedule(static)
-    for (int i = 0; i < DD; ++i) {
-      if (std::bernoulli_distribution(abundance[i] / 100.f)(rnd::reng)) {  // altered: probability that items drop
-        cover[i] = std::min(max_grass_cover, cover[i] + grass_growth);
-
-      }
+    //#   pragma omp parallel for schedule(static)
+    //    for (int i = 0; i < DD; ++i) {
+    //      if (std::bernoulli_distribution(abundance[i] / 100.f)(rnd::reng)) {  // altered: probability that items drop
+    //        cover[i] = std::min(max_grass_cover, cover[i] + grass_growth);
+    //
+    //      }
+    //    }
+    //    cover = abundance;
+    //
+    auto last_prey = prey_.pop.data() + prey_.pop.size();
+    for (auto prey = prey_.pop.data(); prey != last_prey; ++prey) {
+      prey->do_handle();
     }
 
-
+    landscape_.update_occupancy(Layers::prey_count, Layers::prey, Layers::pred_count, Layers::pred, Layers::grass, prey_.pop.cbegin(), prey_.pop.cend(), param_.landscape.prey_kernel);
 
     // move
     prey_.ann->move(landscape_, prey_.pop, param_.prey);
     //pred_.ann->move(landscape_, pred_.pop, param_.pred);
 
     // update occupancies and observable densities
-#   pragma omp parallel sections
-    {
-#     pragma omp section
-      landscape_.update_occupancy(Layers::prey_count, Layers::prey, Layers::pred_count, Layers::pred, prey_.pop.cbegin(), prey_.pop.cend(), param_.landscape.prey_kernel);
-#     //pragma omp section
-      //landscape_.update_occupancy(Layers::pred_count, Layers::pred, pred_.pop.cbegin(), pred_.pop.cend(), param_.landscape.pred_kernel);
-    }
+
+
 
     resolve_grazing_and_attacks();
   }
@@ -246,14 +247,18 @@ namespace cine2 {
     attacked_inds.clear();
     auto last_prey = prey_.pop.data() + prey_.pop.size();
     for (auto prey = prey_.pop.data(); prey != last_prey; ++prey) {
-      prey->do_handle();
+
       if (prey->handle() == false) {
         const Coordinate pos = prey->pos;
-        if (grass(pos) >= 1.0f) {
-          prey->pick_item();
-          grass(pos) -= 1.0f;
+        //if (grass(pos) >= 1.0f) {
+        if (prey->forage) {
+          if (std::bernoulli_distribution(risk(pos))(rnd::reng)) {
+            prey->pick_item();
+            //grass(pos) -= 1.0f;
+          }
         }
-        else if (prey_count(pos) > 1.0f) {
+
+        else if (grass(pos) >= 1.0f) {
           attacking_inds_.push_back(prey);
         }
       }
@@ -266,41 +271,45 @@ namespace cine2 {
       for (auto attacked_pot = prey_.pop.data(); attacked_pot != last_prey; ++attacked_pot) {
         const Coordinate pos = attacked_pot->pos;
         if (attacking->pos == pos && attacking != attacked_pot) {  // self excluded
-
-          attacked_potentially_.push_back(attacked_pot);
+          if (attacked_pot->handle()) {
+            attacked_potentially_.push_back(attacked_pot);
+          }
         }
       }
-      std::uniform_int_distribution<int> rind(0, static_cast<int>(attacked_potentially_.size()) - 1);
-      int focal_ind = rind(rnd::reng);
-      attacked_inds.push_back(attacked_potentially_[focal_ind]);
-      attacked_potentially_.clear();
+      if (!attacked_potentially_.empty()) {
+        std::uniform_int_distribution<int> rind(0, static_cast<int>(attacked_potentially_.size() - 1));
+        int focal_ind = rind(rnd::reng);
+        attacked_inds.push_back(attacked_potentially_[focal_ind]);
+        attacked_potentially_.clear();
+      }
     }
 
     for (int i = 0; i < attacking_inds_.size(); ++i) {
 
-      float prob_to_fight;
+      float prob_to_fight = 1.0f;
 
-      if (attacked_inds[i]->handle())
-        prob_to_fight = 0.5f;
-      else
-        prob_to_fight = 0.2f;
+      //if (attacked_inds[i]->handle())
+      //  prob_to_fight = 0.5f;
+      //else
+      //  prob_to_fight = 0.2f;
 
 
       std::bernoulli_distribution fight(prob_to_fight);							//sampling whether fight occurs
-      std::bernoulli_distribution initiator_wins(0.5);							//sampling whether the initiator wins or not
+      std::bernoulli_distribution initiator_wins(1.0);							//sampling whether the initiator wins or not
 
       if (fight(rnd::reng)) {
         if (initiator_wins(rnd::reng)) {
-          attacking_inds_[i]->handling = attacked_inds[i]->handling;
-          attacking_inds_[i]->handle_time = attacked_inds[i]->handle_time;
+          //attacking_inds_[i]->handling = attacked_inds[i]->handling;
+          //attacking_inds_[i]->handle_time = attacked_inds[i]->handle_time;
+          attacking_inds_[i]->food += 1.0f;
           attacked_inds[i]->flee(landscape_);
 
         }
         else
           attacking_inds_[i]->flee(landscape_);
         //Energetic costs
-        attacking_inds_[i]->food -= 0.0f;
-        attacked_inds[i]->food -= 0.0f;
+        //attacking_inds_[i]->food -= 0.0f;
+        //attacked_inds[i]->food -= 0.0f;
 
 
       }

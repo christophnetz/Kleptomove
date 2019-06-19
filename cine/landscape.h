@@ -210,19 +210,24 @@ namespace cine2 {
     const LayerView operator[](Layers layer) const { return get_layer(layer); }
 
     template <typename IT, typename Kernel>
-    void update_occupancy(Layers count, Layers conv, Layers count2, Layers conv2, IT first, IT last, const Kernel& kernel)
+    void update_occupancy(Layers count, Layers conv, Layers count2, Layers conv2, Layers conv3, IT first, IT last, const Kernel& kernel)
     {
       LayerView vCount = get_layer(count);
       LayerView vConv = get_layer(conv);      
       LayerView vCount2 = get_layer(count2);
       LayerView vConv2 = get_layer(conv2);
+      LayerView vConv3 = get_layer(conv3);
       vCount.clear();
       vConv.clear();      
       vCount2.clear();
       vConv2.clear();
+      vConv3.clear();
       for (; first != last; ++first) {
         if (first->alive()) {
           if (first->handle()) {
+            ++vConv3(first->pos);
+          }
+          else if (first->foraging()) {
             ++vCount(first->pos);
             vConv.stamp_kernel<Kernel::k>(first->pos, kernel.K);
           }

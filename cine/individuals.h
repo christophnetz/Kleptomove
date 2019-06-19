@@ -15,7 +15,7 @@ namespace cine2 {
 
   struct Individual
   {
-    Individual() : pos(0, 0), food(0), handling(false), handle_time(0), ancestor(0)
+    Individual() : pos(0, 0), food(0), forage(false), handling(false), handle_time(0), ancestor(0)
     {
     }
 
@@ -28,6 +28,7 @@ namespace cine2 {
 
     bool alive() const { return food >= 0.f; }
     bool handle() const { return handling; }
+    bool foraging() const { return forage; }
     void pick_item() {
       handle_time = -5;
       handling = true;
@@ -49,8 +50,8 @@ namespace cine2 {
       handling = false;
       handle_time = 0;
 
-      std::uniform_int_distribution<int> dx(-1, 1);
-      std::uniform_int_distribution<int> dy(-1, 1);
+      std::uniform_int_distribution<int> dx(-100, 100);
+      std::uniform_int_distribution<int> dy(-100, 100);
 
       pos = landscape.wrap(pos + Coordinate{ short(dx(rnd::reng)), short(dy(rnd::reng)) });
 
@@ -60,6 +61,7 @@ namespace cine2 {
 
     Coordinate pos;
     float food;
+    bool forage;
     bool handling;
     int handle_time;
     int ancestor;
