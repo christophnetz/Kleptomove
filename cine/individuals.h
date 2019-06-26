@@ -50,8 +50,8 @@ namespace cine2 {
       handling = false;
       handle_time = 0;
 
-      std::uniform_int_distribution<int> dx(-100, 100);
-      std::uniform_int_distribution<int> dy(-100, 100);
+      std::uniform_int_distribution<int> dx(-10, 10);
+      std::uniform_int_distribution<int> dy(-10, 10);
 
       pos = landscape.wrap(pos + Coordinate{ short(dx(rnd::reng)), short(dy(rnd::reng)) });
 
