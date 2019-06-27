@@ -30,7 +30,7 @@ namespace cine2 {
     bool handle() const { return handling; }
     bool foraging() const { return forage; }
     void pick_item() {
-      handle_time = -5;
+      handle_time = -2;
       handling = true;
     }
     void do_handle() {
@@ -50,8 +50,8 @@ namespace cine2 {
       handling = false;
       handle_time = 0;
 
-      std::uniform_int_distribution<int> dx(-10, 10);
-      std::uniform_int_distribution<int> dy(-10, 10);
+      std::uniform_int_distribution<int> dx(-1, 1);
+      std::uniform_int_distribution<int> dy(-1, 1);
 
       pos = landscape.wrap(pos + Coordinate{ short(dx(rnd::reng)), short(dy(rnd::reng)) });
 

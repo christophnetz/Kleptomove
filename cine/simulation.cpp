@@ -214,6 +214,10 @@ namespace cine2 {
 
 
     resolve_grazing_and_attacks();
+
+
+    landscape_.update_occupancy(Layers::prey_count, Layers::prey, Layers::pred_count, Layers::pred, Layers::grass, prey_.pop.cbegin(), prey_.pop.cend(), param_.landscape.prey_kernel);
+
   }
 
 
@@ -254,7 +258,7 @@ namespace cine2 {
         if (prey->forage) {
           if (std::bernoulli_distribution(risk(pos))(rnd::reng)) {
             prey->pick_item();
-            grass(pos) += 1.0f;
+            //grass(pos) += 1.0f;
           }
         }
       }

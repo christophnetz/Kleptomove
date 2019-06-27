@@ -142,7 +142,11 @@ namespace cine2 {
             it = zip.begin() + rndutils::uniform_signed_distribution<int>(0, static_cast<int>(std::distance(zip.begin(), it)))(rnd::reng);
           }
           pop[p].pos = landscape.wrap(pos + Coordinate{short((it->cell % L) - L/2), short((it->cell / L) - L/2)});
-          pop[p].forage = (it->eval2 >= 0);
+
+          //double s_prob = 1.0 / (1.0 + exp(-static_cast<double> (it->eval2)));
+          //std::bernoulli_distribution s_decision(s_prob);
+//
+          pop[p].forage = (it->eval2 >= 0);//s_decision(rnd::reng);
          
         }
       }
