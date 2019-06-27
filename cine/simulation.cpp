@@ -310,9 +310,9 @@ namespace cine2 {
 
       if (fight(rnd::reng)) {
         if (initiator_wins(rnd::reng)) {
-          //attacking_inds_[i]->handling = attacked_inds[i]->handling;
-          //attacking_inds_[i]->handle_time = attacked_inds[i]->handle_time;
-          attacking_inds_[i]->food += 1.0f;
+          attacking_inds_[i]->handling = attacked_inds[i]->handling;
+          attacking_inds_[i]->handle_time = attacked_inds[i]->handle_time;
+          //attacking_inds_[i]->food += 1.0f;
           attacked_inds[i]->flee(landscape_);
 
         }
