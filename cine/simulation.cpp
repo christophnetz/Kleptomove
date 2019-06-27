@@ -254,17 +254,24 @@ namespace cine2 {
         if (prey->forage) {
           if (std::bernoulli_distribution(risk(pos))(rnd::reng)) {
             prey->pick_item();
-            //grass(pos) -= 1.0f;
+            grass(pos) += 1.0f;
           }
         }
-
-        else if (grass(pos) >= 1.0f) {
-          attacking_inds_.push_back(prey);
-        }
       }
-
     }
 
+    for (auto prey = prey_.pop.data(); prey != last_prey; ++prey) {
+      if (!prey->handling && !prey->forage) {
+
+        //if (grass(pos) >= 1.0f) {
+
+        const Coordinate pos = prey->pos;
+        if (grass(pos) >= 1.0f) {
+          attacking_inds_.push_back(prey);
+
+        }
+      }
+    }
 
     for (auto attacking : attacking_inds_) {
       //std::vector<Individual*> tmp_vict{};
