@@ -251,11 +251,10 @@ namespace cine2 {
     attacked_inds.clear();
     auto last_prey = prey_.pop.data() + prey_.pop.size();
     for (auto prey = prey_.pop.data(); prey != last_prey; ++prey) {
-
       if (prey->handle() == false) {
         const Coordinate pos = prey->pos;
         //if (grass(pos) >= 1.0f) {
-        if (prey->forage) {
+        if (prey->foraging) {
           if (std::bernoulli_distribution(risk(pos))(rnd::reng)) {
             prey->pick_item();
             //grass(pos) += 1.0f;
@@ -265,7 +264,7 @@ namespace cine2 {
     }
 
     for (auto prey = prey_.pop.data(); prey != last_prey; ++prey) {
-      if (!prey->handling && !prey->forage) {
+      if (!prey->handling && !prey->foraging) {
 
         //if (grass(pos) >= 1.0f) {
 
@@ -282,7 +281,7 @@ namespace cine2 {
       for (auto attacked_pot = prey_.pop.data(); attacked_pot != last_prey; ++attacked_pot) {
         const Coordinate pos = attacked_pot->pos;
         if (attacking->pos == pos && attacking != attacked_pot) {  // self excluded
-          if (attacked_pot->handle()) {
+          if (attacked_pot->handling) {
             attacked_potentially_.push_back(attacked_pot);
           }
         }
@@ -291,8 +290,10 @@ namespace cine2 {
         std::uniform_int_distribution<int> rind(0, static_cast<int>(attacked_potentially_.size() - 1));
         int focal_ind = rind(rnd::reng);
         attacked_inds.push_back(attacked_potentially_[focal_ind]);
+
         attacked_potentially_.clear();
       }
+
     }
 
     for (int i = 0; i < attacking_inds_.size(); ++i) {
@@ -307,80 +308,24 @@ namespace cine2 {
 
       std::bernoulli_distribution fight(prob_to_fight);							//sampling whether fight occurs
       std::bernoulli_distribution initiator_wins(1.0);							//sampling whether the initiator wins or not
+      if (attacked_inds[i]->handling) {
+        if (fight(rnd::reng)) {
+          if (initiator_wins(rnd::reng)) {
+            attacking_inds_[i]->handling = attacked_inds[i]->handling;
+            attacking_inds_[i]->handle_time = attacked_inds[i]->handle_time;
+            //attacking_inds_[i]->food += 1.0f;
+            attacked_inds[i]->flee(landscape_, param_.prey.flee_radius);
 
-      if (fight(rnd::reng)) {
-        if (initiator_wins(rnd::reng)) {
-          attacking_inds_[i]->handling = attacked_inds[i]->handling;
-          attacking_inds_[i]->handle_time = attacked_inds[i]->handle_time;
-          //attacking_inds_[i]->food += 1.0f;
-          attacked_inds[i]->flee(landscape_);
-
+          }
+          else
+            attacking_inds_[i]->flee(landscape_, param_.prey.flee_radius);
+          //Energetic costs
+          //attacking_inds_[i]->food -= 0.0f;
+          //attacked_inds[i]->food -= 0.0f;
         }
-        else
-          attacking_inds_[i]->flee(landscape_);
-        //Energetic costs
-        //attacking_inds_[i]->food -= 0.0f;
-        //attacked_inds[i]->food -= 0.0f;
-
 
       }
     }
-
-    /*
-    // find *attacking* predators
-    attacking_inds_.clear();
-    auto last_pred = pred_.pop.data() + pred_.pop.size();
-    for (auto pred = pred_.pop.data(); pred != last_pred; ++pred) {
-      const Coordinate pos = pred->pos;
-      if (prey_count(pos)) {
-        if (std::bernoulli_distribution(risk(pos))(rnd::reng)) {
-          attacking_inds_.push_back(pred);
-        }
-        else {
-          // non-attacking predator, remove
-          --pred_count(pos);
-        }
-      }
-    }
-
-
-
-
-    // find *attacked* prey and graze on the fly
-    attacked_potentially_.clear();
-    auto last_prey = prey_.pop.data() + prey_.pop.size();
-    for (auto prey = prey_.pop.data(); prey != last_prey; ++prey) {
-      if (prey->alive()) {
-        const Coordinate pos = prey->pos;
-        if (pred_count(pos)) {
-          attacked_potentially_.push_back(prey);
-        }
-        //*&*        prey->food += old_grass(pos) / prey_count(pos);
-        if (old_grass(pos) > grass_deplete * prey_count(pos)) { //*&* New if else statement to resolve grazing conflict
-          prey->food += grass_deplete;
-        }
-        else {
-          prey->food += old_grass(pos) / prey_count(pos);
-        }
-        //*&*        grass(pos) = 0.f;  //   depleted
-        grass(pos) -= grass_deplete; //*&*
-        if (grass(pos) < 0.f) grass(pos) = 0.f; //*&*, necessary or resolved elsewhere?
-      }
-    }
-
-    // resolve 'interactions'. This is now
-    //   O(#attacking pred * #attacked prey)
-    // instead of
-    //   O(#pred * #prey)
-    for (auto pred : attacking_inds_) {
-      for (auto prey : attacked_potentially_) {
-        const Coordinate pos = prey->pos;
-        if (pred->pos == pos) {
-          prey->die();
-          pred->food += 1.f / pred_count(pos);
-        }
-      }
-    }*/
   }
 
 

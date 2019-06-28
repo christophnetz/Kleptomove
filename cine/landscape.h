@@ -227,7 +227,7 @@ namespace cine2 {
           if (first->handle()) {
             ++vConv3(first->pos);
           }
-          else if (first->foraging()) {
+          else if (first->foraging) {
             ++vCount(first->pos);
             vConv.stamp_kernel<Kernel::k>(first->pos, kernel.K);
           }

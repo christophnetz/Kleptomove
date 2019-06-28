@@ -70,14 +70,15 @@ namespace cine2 {
       std::string ann;
 
       int sprout_radius;
+      int flee_radius;
       float mutation_prob;
       float mutation_step;
       float mutation_knockout;
       float noise_sigma;
       float cmplx_penalty;
 
-      std::array<int, 3> input_layers;
-      std::array<float, 3> input_mask;
+      std::array<int, 4> input_layers;
+      std::array<float, 4> input_mask;
     };
     
     ind_param prey;
