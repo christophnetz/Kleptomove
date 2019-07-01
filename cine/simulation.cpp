@@ -263,24 +263,24 @@ namespace cine2 {
       }
     }
 
-    for (auto prey = prey_.pop.data(); prey != last_prey; ++prey) {
-      if (!prey->handling && !prey->foraging) {
+    for (int i = 0; i < prey_.pop.size(); ++i) {
+      if (!prey_.pop[i].handling && !prey_.pop[i].foraging) {
 
         //if (grass(pos) >= 1.0f) {
 
-        const Coordinate pos = prey->pos;
+        const Coordinate pos = prey_.pop[i].pos;
         if (grass(pos) >= 1.0f) {
-          attacking_inds_.push_back(prey);
+          attacking_inds_.push_back(i);
 
         }
       }
     }
 
-    for (auto attacking : attacking_inds_) {
+    for (auto i : attacking_inds_) {
       //std::vector<Individual*> tmp_vict{};
       for (auto attacked_pot = prey_.pop.data(); attacked_pot != last_prey; ++attacked_pot) {
         const Coordinate pos = attacked_pot->pos;
-        if (attacking->pos == pos && attacking != attacked_pot) {  // self excluded
+        if (prey_.pop[i].pos == pos && &prey_.pop[i] != attacked_pot) {  // self excluded
           if (attacked_pot->handling) {
             attacked_potentially_.push_back(attacked_pot);
           }
@@ -295,6 +295,8 @@ namespace cine2 {
       }
 
     }
+
+    std::random_shuffle(attacking_inds_.begin(), attacking_inds_.end());
 
     for (int i = 0; i < attacking_inds_.size(); ++i) {
 
@@ -311,14 +313,14 @@ namespace cine2 {
       if (attacked_inds[i]->handling) {
         if (fight(rnd::reng)) {
           if (initiator_wins(rnd::reng)) {
-            attacking_inds_[i]->handling = attacked_inds[i]->handling;
-            attacking_inds_[i]->handle_time = attacked_inds[i]->handle_time;
+            prey_.pop[attacking_inds_[i]].handling = attacked_inds[i]->handling;
+            prey_.pop[attacking_inds_[i]].handle_time = attacked_inds[i]->handle_time;
             //attacking_inds_[i]->food += 1.0f;
             attacked_inds[i]->flee(landscape_, param_.prey.flee_radius);
 
           }
           else
-            attacking_inds_[i]->flee(landscape_, param_.prey.flee_radius);
+            prey_.pop[attacking_inds_[i]].flee(landscape_, param_.prey.flee_radius);
           //Energetic costs
           //attacking_inds_[i]->food -= 0.0f;
           //attacked_inds[i]->food -= 0.0f;

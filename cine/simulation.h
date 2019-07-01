@@ -70,7 +70,7 @@ namespace cine2 {
     const Param param_;
     Population prey_;
     Population pred_;
-    std::vector<Individual*> attacking_inds_;
+    std::vector<int> attacking_inds_;
     std::vector<Individual*> attacked_potentially_;
     std::vector<Individual*> attacked_inds;
     Landscape landscape_;
