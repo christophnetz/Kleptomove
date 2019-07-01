@@ -114,12 +114,13 @@ namespace cine2 {
   public:
     /// \brief  Values that represent layers in a Landscape.
     enum Layers : int {
-      prey = 0,     // convoluted prey_count
-      pred,         // convoluted pred_count
-      grass,
-      risk,       
-      prey_count,
-      pred_count,
+      foragers = 0,     // convoluted foragers_count
+      klepts,         // convoluted klepts_count
+      handlers,
+      items,
+      capacity,
+      foragers_count,
+      klepts_count,
       temp,         // scratch for computation
       max_layer
     };

@@ -46,7 +46,7 @@ namespace cine2 {
     clp_optional_val(prey.noise_sigma, 0.1f);
     clp_optional_val(prey.cmplx_penalty, 0.01f);
 
-    param.prey.input_layers = { { Layers::risk, Layers::grass, Layers::prey, Layers::pred } };
+    param.prey.input_layers = { { Layers::items, Layers::handlers, Layers::foragers, Layers::klepts } };
     clp_optional_vec(prey.input_layers, param.prey.input_layers);
     param.prey.input_mask = { { 1, 1, 1, 1 } };
     clp_optional_vec(prey.input_mask, param.prey.input_mask);
@@ -63,7 +63,7 @@ namespace cine2 {
     clp_optional_val(pred.noise_sigma, 0.1f);
     clp_optional_val(pred.cmplx_penalty, 0.01f);
 
-    param.pred.input_layers = {{ Layers::risk, Layers::grass, Layers::pred } };
+    param.pred.input_layers = {{ Layers::items, Layers::handlers, Layers::klepts } };
     clp_optional_vec(pred.input_layers, param.pred.input_layers);
     param.pred.input_mask = { { 1, 1, 1 } };
     clp_optional_vec(pred.input_mask, param.pred.input_mask);
@@ -71,9 +71,9 @@ namespace cine2 {
     clp_optional_val(landscape.max_grass_cover, 1.0f);
 	clp_optional_val(landscape.grass_growth, 0.01f);
 	clp_optional_val(landscape.grass_deplete, 1.0f); //*&*
-	clp_required(landscape.risk.image);
-    param.landscape.risk.channel = ImageChannel(clp.required<int>("landscape.risk.channel"));
-    param.landscape.risk.layer = Landscape::Layers::risk;
+	clp_required(landscape.capacity.image);
+    param.landscape.capacity.channel = ImageChannel(clp.required<int>("landscape.capacity.channel"));
+    param.landscape.capacity.layer = Landscape::Layers::capacity;
 
     clp_optional_val(gui.wait_for_close, true);
     param.gui.selected = { { true, true, true, false } };
@@ -164,8 +164,8 @@ namespace cine2 {
     stream(landscape.max_grass_cover);
 	stream(landscape.grass_growth);
 	stream(landscape.grass_deplete); //*&*
-	stream_str(landscape.risk.image);
-    stream(landscape.risk.channel);
+	stream_str(landscape.capacity.image);
+    stream(landscape.capacity.channel);
 
     return os;
   }

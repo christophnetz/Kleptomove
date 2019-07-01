@@ -96,12 +96,12 @@ namespace cine2 {
 
     struct
     {
-      image_layer risk;
+      image_layer capacity;
       float max_grass_cover;
 	  float grass_growth;
 	  float grass_deplete; //*&*
-      GaussFilter<3> prey_kernel;
-      GaussFilter<3> pred_kernel;
+      GaussFilter<3> foragers_kernel;
+      GaussFilter<3> klepts_kernel;
     } landscape;
 
     struct

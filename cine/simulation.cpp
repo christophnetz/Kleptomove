@@ -30,13 +30,22 @@ namespace cine2 {
     pred_.tmp_ann = make_any_ann(param.pred.L, param.pred.N, param.pred.ann.c_str());
 
     // initial landscape layers from image fies
-    init_layer(param_.landscape.risk);
+    init_layer(param_.landscape.capacity);
     if (landscape_.dim() < 32) throw std::runtime_error("Landscape too small");
 
     // full grass cover
-    for (auto& g : landscape_[Layers::grass]) g = param.landscape.max_grass_cover;
+    //for (auto& g : landscape_[Layers::items]) g = param.landscape.max_grass_cover;
+    const int DD = landscape_.dim() * landscape_.dim();
+    float* __restrict items = landscape_[Layers::items].data();
+    float* __restrict capacity = landscape_[Layers::capacity].data();
+    for (int i = 0; i < DD; ++i) {
+
+      items[i] = floor(capacity[i] * 10.f);
+      
+    }
+    
     //empty grass cover
-    for (auto& g : landscape_[Layers::grass]) g = 0.0f;
+    //for (auto& g : landscape_[Layers::items]) g = 0.0f;
 
     // initial positions
     auto coorDist = std::uniform_int_distribution<short>(0, short(landscape_.dim() - 1));
@@ -44,7 +53,7 @@ namespace cine2 {
     //for (auto& p : pred_.pop) { p.pos.x = coorDist(rnd::reng); p.pos.y = coorDist(rnd::reng); }
 
     // initial occupancies and observable densities
-    landscape_.update_occupancy(Layers::prey_count, Layers::prey, Layers::pred_count, Layers::pred, Layers::grass, prey_.pop.cbegin(), prey_.pop.cend(), param_.landscape.prey_kernel);
+    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers, prey_.pop.cbegin(), prey_.pop.cend(), param_.landscape.foragers_kernel);
     //landscape_.update_occupancy(Layers::pred_count, Layers::pred, pred_.pop.cbegin(), pred_.pop.cend(), param_.landscape.pred_kernel);
 
     // optional: initialization from former runs
@@ -184,26 +193,24 @@ namespace cine2 {
 
     // grass growth
     const int DD = landscape_.dim() * landscape_.dim();
-    float* __restrict cover = landscape_[Layers::grass].data();
-    float* __restrict abundance = landscape_[Layers::risk].data();
-    ann_assume_aligned(cover, 32);
+    float* __restrict items = landscape_[Layers::items].data();
+    float* __restrict abundance = landscape_[Layers::capacity].data();
+    ann_assume_aligned(items, 32);
     const float max_grass_cover = param_.landscape.max_grass_cover;
     const float grass_growth = param_.landscape.grass_growth;
     //#   pragma omp parallel for schedule(static)
-    //    for (int i = 0; i < DD; ++i) {
-    //      if (std::bernoulli_distribution(abundance[i] / 100.f)(rnd::reng)) {  // altered: probability that items drop
-    //        cover[i] = std::min(max_grass_cover, cover[i] + grass_growth);
-    //
-    //      }
-    //    }
-    //    cover = abundance;
-    //
+        for (int i = 0; i < DD; ++i) {
+          if (std::bernoulli_distribution(1.0)(rnd::reng)) {  // altered: probability that items drop
+            items[i] = std::min(floor(abundance[i] * 10.f), items[i] + 1.0f);
+          }
+        }
+    
     auto last_prey = prey_.pop.data() + prey_.pop.size();
     for (auto prey = prey_.pop.data(); prey != last_prey; ++prey) {
       prey->do_handle();
     }
 
-    landscape_.update_occupancy(Layers::prey_count, Layers::prey, Layers::pred_count, Layers::pred, Layers::grass, prey_.pop.cbegin(), prey_.pop.cend(), param_.landscape.prey_kernel);
+    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers, prey_.pop.cbegin(), prey_.pop.cend(), param_.landscape.foragers_kernel);
 
     // move
     prey_.ann->move(landscape_, prey_.pop, param_.prey);
@@ -216,7 +223,7 @@ namespace cine2 {
     resolve_grazing_and_attacks();
 
 
-    landscape_.update_occupancy(Layers::prey_count, Layers::prey, Layers::pred_count, Layers::pred, Layers::grass, prey_.pop.cbegin(), prey_.pop.cend(), param_.landscape.prey_kernel);
+    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers, prey_.pop.cbegin(), prey_.pop.cend(), param_.landscape.foragers_kernel);
 
   }
 
@@ -239,12 +246,13 @@ namespace cine2 {
   {
     using Layers = Landscape::Layers;
     const float grass_deplete = param_.landscape.grass_deplete;  //*&*
-    LayerView prey_count = landscape_[Layers::prey_count];
-    LayerView pred_count = landscape_[Layers::pred_count];
-    LayerView risk = landscape_[Layers::risk];
-    LayerView grass = landscape_[Layers::grass];
+    LayerView foragers_count = landscape_[Layers::foragers_count];
+    LayerView klepts_count = landscape_[Layers::klepts_count];
+    LayerView capacity = landscape_[Layers::capacity];
+    LayerView items = landscape_[Layers::items];
+    LayerView handlers = landscape_[Layers::handlers];
     LayerView old_grass = landscape_[Layers::temp];
-    old_grass.copy(grass);
+    old_grass.copy(handlers);
 
     attacking_inds_.clear();
     attacked_potentially_.clear();
@@ -255,9 +263,11 @@ namespace cine2 {
         const Coordinate pos = prey->pos;
         //if (grass(pos) >= 1.0f) {
         if (prey->foraging) {
-          if (std::bernoulli_distribution(risk(pos))(rnd::reng)) {
-            prey->pick_item();
-            //grass(pos) += 1.0f;
+          if (items(pos) > 1.0f){
+            if (std::bernoulli_distribution(1.0 - pow(0.9, items(pos)))(rnd::reng)) {
+              prey->pick_item();
+              items(pos) -= 1.0f;
+            }
           }
         }
       }
@@ -269,7 +279,7 @@ namespace cine2 {
         //if (grass(pos) >= 1.0f) {
 
         const Coordinate pos = prey_.pop[i].pos;
-        if (grass(pos) >= 1.0f) {
+        if (handlers(pos) >= 1.0f) {
           attacking_inds_.push_back(i);
 
         }

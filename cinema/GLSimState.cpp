@@ -90,9 +90,9 @@ namespace cinema {
     LoadTextureData(ColorMap_[4], 0, GL_TEXTURE_1D, filesystem::path(exePath_) / "../media/hsv.png");
     LoadTextureData(ColorMap_[5], 0, GL_TEXTURE_1D, filesystem::path(exePath_) / "../media/spectrum.png");
 
-    // copy risk layer
+    // copy capacity layer
     auto dst = (float*)ptr_[VBO_LAYER] + 3 * dim_ * dim_;
-    std::memcpy(dst, sim->landscape()[cine2::Landscape::Layers::risk].data(), dim_ * dim_ * sizeof(float));
+    std::memcpy(dst, sim->landscape()[cine2::Landscape::Layers::capacity].data(), dim_ * dim_ * sizeof(float));
   }
 
 
