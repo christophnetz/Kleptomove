@@ -82,24 +82,24 @@ namespace cine2 {
     };
     
     ind_param prey;
-    ind_param pred;
+    //ind_param pred;
 
     static float prey_fitness(const Individual& ind, float cmplx, float penalty)
     {
       return ind.alive() ? std::max(0.f, ind.food - cmplx * penalty) : 0.0f;
     }
 
-    static float pred_fitness(const Individual& ind, float cmplx, float penalty)
-    {
-      return std::max(0.f, ind.food - cmplx * penalty);
-    }
+    //static float pred_fitness(const Individual& ind, float cmplx, float penalty)
+    //{
+    //  return std::max(0.f, ind.food - cmplx * penalty);
+    //}
 
     struct
     {
       image_layer capacity;
-      float max_grass_cover;
-	  float grass_growth;
-	  float grass_deplete; //*&*
+      float max_item_cap;
+	  float item_growth;
+	  float detection_rate; //*&*
       GaussFilter<3> foragers_kernel;
       GaussFilter<3> klepts_kernel;
     } landscape;
@@ -111,7 +111,7 @@ namespace cine2 {
       std::array<bool, 4> selected;
     } gui;
 
-    std::string init_pred_ann;
+    //std::string init_pred_ann;
     std::string init_prey_ann;
     int initG;
   };

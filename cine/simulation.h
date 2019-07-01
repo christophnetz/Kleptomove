@@ -45,7 +45,7 @@ namespace cine2 {
     ~Simulation() {}
 
     const Population& prey() const { return prey_; }
-    const Population& pred() const { return pred_; }
+    //const Population& pred() const { return pred_; }
     const Landscape& landscape() const { return landscape_; }
     const Param& param() const { return param_; }
     const Analysis& analysis() const { return analysis_; }
@@ -69,7 +69,7 @@ namespace cine2 {
     int g_, t_;
     const Param param_;
     Population prey_;
-    Population pred_;
+    //Population pred_;
     std::vector<int> attacking_inds_;
     std::vector<Individual*> attacked_potentially_;
     std::vector<Individual*> attacked_inds;

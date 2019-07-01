@@ -44,30 +44,30 @@ import.generation <- function(G, what, stderr) {
 #   G    : generation
 generation <- function(G, stderr=F) {
   prey = import.generation(G, "prey", stderr)
-  pred = import.generation(G, "pred", stderr)
+#  pred = import.generation(G, "pred", stderr)
   list(pred=pred, prey=prey)
 }
 
 # load input estimates
 input <- function() {
   prey = matrix(import.raw(paste0(config$dir, '/prey_input.bin'), numeric(), 8), ncol=15, byrow=T)
-  pred = matrix(import.raw(paste0(config$dir, '/pred_input.bin'), numeric(), 8), ncol=15, byrow=T)
+#  pred = matrix(import.raw(paste0(config$dir, '/pred_input.bin'), numeric(), 8), ncol=15, byrow=T)
   cn <- c('min0', 'max0', 'mean0', 'std0', 'mad0', 
           'min1', 'max1', 'mean1', 'std1', 'mad1', 
           'min2', 'max2', 'mean2', 'std2', 'mad2') 
   colnames(prey) <- cn
-  colnames(pred) <- cn
-  list(prey=prey, pred=pred)
+#  colnames(pred) <- cn
+  list(prey=prey) #CN: pred excluded , pred=pred
 }
   
 # load summary
 summary <- function() {
   prey = matrix(import.raw(paste0(config$dir, '/prey_summary.bin'), numeric(), 8), ncol=5, byrow=T)
-  pred = matrix(import.raw(paste0(config$dir, '/pred_summary.bin'), numeric(), 8), ncol=5, byrow=T)
+#  pred = matrix(import.raw(paste0(config$dir, '/pred_summary.bin'), numeric(), 8), ncol=5, byrow=T)
   cn <- c('pop fitness', 'repro fitness', 'repro ind', 'repro clades', 'complexity')
   colnames(prey) <- cn
-  colnames(pred) <- cn
-  list(prey=prey, pred=pred)
+#  colnames(pred) <- cn
+  list(prey=prey) #CN: pred excluded, pred=pred
 }
   
 config$dir = getSrcDirectory(generation)[1]
@@ -96,15 +96,15 @@ config$dir = getSrcDirectory(generation)[1]
       switch (msg) {
         case msg_type::INITIALIZED:
           oa_prey_ann_.open(folder / "prey_ann.arc", sim->param().prey.ann);
-          oa_pred_ann_.open(folder / "pred_ann.arc", sim->param().pred.ann);
+//          oa_pred_ann_.open(folder / "pred_ann.arc", sim->param().pred.ann);
           oa_prey_fit_.open(folder / "prey_fit.arc", "fitness");
-          oa_pred_fit_.open(folder / "pred_fit.arc", "fitness");
+//          oa_pred_fit_.open(folder / "pred_fit.arc", "fitness");
           oa_prey_anc_.open(folder / "prey_anc.arc", "ancestors");
-          oa_pred_anc_.open(folder / "pred_anc.arc", "ancestors");
+//          oa_pred_anc_.open(folder / "pred_anc.arc", "ancestors");
           break;
         case msg_type::GENERATION:
           stream_generation(sim->prey(), oa_prey_ann_, oa_prey_fit_, oa_prey_anc_);
-          stream_generation(sim->pred(), oa_pred_ann_, oa_pred_fit_, oa_pred_anc_);
+//          stream_generation(sim->pred(), oa_pred_ann_, oa_pred_fit_, oa_pred_anc_);
           break;
         case msg_type::FINISHED:
           stream_meta(sim);
@@ -172,24 +172,24 @@ config$dir = getSrcDirectory(generation)[1]
         if (!os.is_open()) throw std::runtime_error("can't create prey_summary.bin");
         stream_summary(os, sim->param().prey.N, sim->analysis().prey_summary());
       }
-      {
-        std::ofstream os;
-        os.open(folder / "pred_summary.bin", std::ios::out | std::ios::binary); 
-        if (!os.is_open()) throw std::runtime_error("can't create pred_summary.bin");
-        stream_summary(os, sim->param().pred.N, sim->analysis().pred_summary());
-      }
+      //{
+      //  std::ofstream os;
+      //  os.open(folder / "pred_summary.bin", std::ios::out | std::ios::binary); 
+      //  if (!os.is_open()) throw std::runtime_error("can't create pred_summary.bin");
+      //  stream_summary(os, sim->param().pred.N, sim->analysis().pred_summary());
+      //}
       {
         std::ofstream os;
         os.open(folder / "prey_input.bin", std::ios::out | std::ios::binary); 
         if (!os.is_open()) throw std::runtime_error("can't create prey_input.bin");
         stream_input(os, sim->analysis().prey_input());
       }
-      {
-        std::ofstream os;
-        os.open(folder / "pred_input.bin", std::ios::out | std::ios::binary); 
-        if (!os.is_open()) throw std::runtime_error("can't create pred_input.bin");
-        stream_input(os, sim->analysis().pred_input());
-      }
+      //{
+      //  std::ofstream os;
+      //  os.open(folder / "pred_input.bin", std::ios::out | std::ios::binary); 
+      //  if (!os.is_open()) throw std::runtime_error("can't create pred_input.bin");
+      //  stream_input(os, sim->analysis().pred_input());
+      //}
     }
 
 
@@ -206,7 +206,7 @@ config$dir = getSrcDirectory(generation)[1]
         stream_parameter(os, sim->param(), "  ", ",\n", "c(", ")");
         os << "\n# Metadata\n";
         os << "  prey.ann.weights = " << sim->prey().ann->state_size() << ",\n";
-        os << "  pred.ann.weights = " << sim->pred().ann->state_size() << "\n";
+ //       os << "  pred.ann.weights = " << sim->pred().ann->state_size() << "\n";
         os << ")\n";
         os << sourceMe;
       }
@@ -223,11 +223,11 @@ config$dir = getSrcDirectory(generation)[1]
 
 	  fs::path folder;
     archive::oarch oa_prey_ann_;
-    archive::oarch oa_pred_ann_;
+//    archive::oarch oa_pred_ann_;
     archive::oarch oa_prey_fit_;
-    archive::oarch oa_pred_fit_;
+//    archive::oarch oa_pred_fit_;
     archive::oarch oa_prey_anc_;
-    archive::oarch oa_pred_anc_;
+//    archive::oarch oa_pred_anc_;
   };
 
 

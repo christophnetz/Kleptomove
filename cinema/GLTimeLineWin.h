@@ -15,7 +15,7 @@ namespace cinema {
   class GLTimeLineWin :
     public GLWin
   {
-    static const int NT = 10;
+    static const int NT = 5; //CN: before was 10
 
   public:
     GLTimeLineWin(GLSimState*);

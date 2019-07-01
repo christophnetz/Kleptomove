@@ -23,11 +23,11 @@ namespace cine2 {
     prey_.fitness = std::vector<float>(param.prey.N, 0.f);
     prey_.tmp_ann = make_any_ann(param.prey.L, param.prey.N, param.prey.ann.c_str());
 
-    pred_.pop = std::vector<Individual>(param.pred.N);
-    pred_.tmp_pop = std::vector<Individual>(param.pred.N);
-    pred_.ann = make_any_ann(param.pred.L, param.pred.N, param.pred.ann.c_str());
-    pred_.fitness = std::vector<float>(param.pred.N, 0.f);
-    pred_.tmp_ann = make_any_ann(param.pred.L, param.pred.N, param.pred.ann.c_str());
+    //pred_.pop = std::vector<Individual>(param.pred.N);
+    //pred_.tmp_pop = std::vector<Individual>(param.pred.N);
+    //pred_.ann = make_any_ann(param.pred.L, param.pred.N, param.pred.ann.c_str());
+    //pred_.fitness = std::vector<float>(param.pred.N, 0.f);
+    //pred_.tmp_ann = make_any_ann(param.pred.L, param.pred.N, param.pred.ann.c_str());
 
     // initial landscape layers from image fies
     init_layer(param_.landscape.capacity);
@@ -40,7 +40,7 @@ namespace cine2 {
     float* __restrict capacity = landscape_[Layers::capacity].data();
     for (int i = 0; i < DD; ++i) {
 
-      items[i] = floor(capacity[i] * 10.f);
+      items[i] = floor(capacity[i] * param.landscape.max_item_cap);
       
     }
     
@@ -148,7 +148,7 @@ namespace cine2 {
       //assess_fitness(); //CN: fix?
       // clear fitness
       prey_.fitness.assign(prey_.fitness.size(), 0.f);
-      //pred_.fitness.assign(pred_.fitness.size(), 0.f);
+    
       assess_fitness(); //CN: fix?
       create_new_generations();
     }
@@ -194,14 +194,14 @@ namespace cine2 {
     // grass growth
     const int DD = landscape_.dim() * landscape_.dim();
     float* __restrict items = landscape_[Layers::items].data();
-    float* __restrict abundance = landscape_[Layers::capacity].data();
+    float* __restrict capacity = landscape_[Layers::capacity].data();
     ann_assume_aligned(items, 32);
-    const float max_grass_cover = param_.landscape.max_grass_cover;
-    const float grass_growth = param_.landscape.grass_growth;
+    const float max_item_cap = param_.landscape.max_item_cap;
+    const float item_growth = param_.landscape.item_growth;
     //#   pragma omp parallel for schedule(static)
         for (int i = 0; i < DD; ++i) {
-          if (std::bernoulli_distribution(1.0)(rnd::reng)) {  // altered: probability that items drop
-            items[i] = std::min(floor(abundance[i] * 10.f), items[i] + 1.0f);
+          if (std::bernoulli_distribution(item_growth)(rnd::reng)) {  // altered: probability that items drop
+            items[i] = std::min(floor(capacity[i] * max_item_cap), items[i] + 1.0f);
           }
         }
     
@@ -214,7 +214,7 @@ namespace cine2 {
 
     // move
     prey_.ann->move(landscape_, prey_.pop, param_.prey);
-    //pred_.ann->move(landscape_, pred_.pop, param_.pred);
+  
 
     // update occupancies and observable densities
 
@@ -231,21 +231,19 @@ namespace cine2 {
   void Simulation::assess_fitness()
   {
     detail::assess_fitness(prey_, param_.prey, Param::prey_fitness);
-    //detail::assess_fitness(pred_, param_.pred, Param::pred_fitness);
   }
 
 
   void Simulation::create_new_generations()
   {
     detail::create_new_generation(landscape_, prey_, param_.prey, fixed());
-    //detail::create_new_generation(landscape_, pred_, param_.pred, fixed());
   }
 
 
   void Simulation::resolve_grazing_and_attacks()
   {
     using Layers = Landscape::Layers;
-    const float grass_deplete = param_.landscape.grass_deplete;  //*&*
+    const float detection_rate = param_.landscape.detection_rate;
     LayerView foragers_count = landscape_[Layers::foragers_count];
     LayerView klepts_count = landscape_[Layers::klepts_count];
     LayerView capacity = landscape_[Layers::capacity];
@@ -261,10 +259,10 @@ namespace cine2 {
     for (auto prey = prey_.pop.data(); prey != last_prey; ++prey) {
       if (prey->handle() == false) {
         const Coordinate pos = prey->pos;
-        //if (grass(pos) >= 1.0f) {
+
         if (prey->foraging) {
-          if (items(pos) > 1.0f){
-            if (std::bernoulli_distribution(1.0 - pow(0.9, items(pos)))(rnd::reng)) {
+          if (items(pos) >= 1.0f){
+            if (std::bernoulli_distribution(1.0 - pow((1.0f - detection_rate), items(pos)))(rnd::reng)) {
               prey->pick_item();
               items(pos) -= 1.0f;
             }
@@ -276,8 +274,6 @@ namespace cine2 {
     for (int i = 0; i < prey_.pop.size(); ++i) {
       if (!prey_.pop[i].handling && !prey_.pop[i].foraging) {
 
-        //if (grass(pos) >= 1.0f) {
-
         const Coordinate pos = prey_.pop[i].pos;
         if (handlers(pos) >= 1.0f) {
           attacking_inds_.push_back(i);
@@ -287,7 +283,7 @@ namespace cine2 {
     }
 
     for (auto i : attacking_inds_) {
-      //std::vector<Individual*> tmp_vict{};
+
       for (auto attacked_pot = prey_.pop.data(); attacked_pot != last_prey; ++attacked_pot) {
         const Coordinate pos = attacked_pot->pos;
         if (prey_.pop[i].pos == pos && &prey_.pop[i] != attacked_pot) {  // self excluded
@@ -381,10 +377,7 @@ namespace cine2 {
         std::cout << sim->analysis().prey_summary().back().repro_ann << "  (";
         std::cout << sim->analysis().prey_summary().back().complexity << ");   ";
 
-        //std::cout << sim->analysis().pred_summary().back().ave_fitness << "   ";
-        //std::cout << sim->analysis().pred_summary().back().repro_ind << "   ";
-        //std::cout << sim->analysis().pred_summary().back().repro_ann << "  (";
-        //std::cout << sim->analysis().pred_summary().back().complexity << ");   ";
+
 
         std::cout << (int)(1000 * watch_.elapsed().count()) << "ms\n";
         break;

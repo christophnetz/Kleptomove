@@ -21,10 +21,10 @@ namespace cinema {
            sim->prey().ann->state_size(),
            sim->prey().ann->stride(),
            sim->prey().ann->type_size() },
-    pred_ann_{ static_cast<int>(sim->pred().pop.size()),
-           sim->pred().ann->state_size(),
-           sim->pred().ann->stride(),
-           sim->pred().ann->type_size() },
+    //pred_ann_{ static_cast<int>(sim->pred().pop.size()),
+    //       sim->pred().ann->state_size(),
+    //       sim->pred().ann->stride(),
+    //       sim->pred().ann->type_size() },
     glctx_(hWnd),
     sim_(sim)
   {
@@ -40,9 +40,9 @@ namespace cinema {
     glNamedBufferStorage(vbo_[VBO_PREY_ANN], size, nullptr, flags);
     ptr_[VBO::VBO_PREY_ANN] = glMapNamedBufferRange(vbo_[VBO_PREY_ANN], 0, size, flags);
     
-    size = static_cast<GLsizei>(pred_ann_.type_size) * pred_ann_.N;
-    glNamedBufferStorage(vbo_[VBO_PRED_ANN], size, nullptr, flags);
-    ptr_[VBO::VBO_PRED_ANN] = glMapNamedBufferRange(vbo_[VBO_PRED_ANN], 0, size, flags);
+    //size = static_cast<GLsizei>(pred_ann_.type_size) * pred_ann_.N;
+    //glNamedBufferStorage(vbo_[VBO_PRED_ANN], size, nullptr, flags);
+    //ptr_[VBO::VBO_PRED_ANN] = glMapNamedBufferRange(vbo_[VBO_PRED_ANN], 0, size, flags);
     
     size = static_cast<GLsizei>(4 * sizeof(float) * dim_ * dim_);
     glNamedBufferStorage(vbo_[VBO_LAYER], size, nullptr, flags);
@@ -113,7 +113,7 @@ namespace cinema {
     case msg_type::INITIALIZED:
     case msg_type::NEW_GENERATION:
       std::memcpy(ptr_[VBO::VBO_PREY_ANN], sim.prey().ann->data(), prey_ann_.N * prey_ann_.type_size);
-      std::memcpy(ptr_[VBO::VBO_PRED_ANN], sim.pred().ann->data(), pred_ann_.N * pred_ann_.type_size);
+      //std::memcpy(ptr_[VBO::VBO_PRED_ANN], sim.pred().ann->data(), pred_ann_.N * pred_ann_.type_size);
     case msg_type::POST_TIMESTEP: {
       std::memcpy(ptr_[VBO::VBO_LAYER], sim.landscape().data(), 3 * dim_* dim_ * sizeof(float));
       break;

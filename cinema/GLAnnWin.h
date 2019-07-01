@@ -45,7 +45,7 @@ namespace cinema {
     GLuint annLogP1Prog_;
     GLuint colorMap_;
     bool histogram_;
-    std::array<std::unique_ptr<struct AnnRenderer>, 2> display_;
+    std::array<std::unique_ptr<struct AnnRenderer>, 1> display_;//CN: with PRED: used to be 2 
   };
 
 

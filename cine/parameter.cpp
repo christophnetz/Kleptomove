@@ -51,7 +51,7 @@ namespace cine2 {
     param.prey.input_mask = { { 1, 1, 1, 1 } };
     clp_optional_vec(prey.input_mask, param.prey.input_mask);
 
-    clp_required(pred.N);
+    /*clp_required(pred.N);
     clp_optional_val(pred.L, 3);
     clp_required(pred.ann);
 
@@ -66,11 +66,11 @@ namespace cine2 {
     param.pred.input_layers = {{ Layers::items, Layers::handlers, Layers::klepts } };
     clp_optional_vec(pred.input_layers, param.pred.input_layers);
     param.pred.input_mask = { { 1, 1, 1 } };
-    clp_optional_vec(pred.input_mask, param.pred.input_mask);
+    clp_optional_vec(pred.input_mask, param.pred.input_mask);*/
 
-    clp_optional_val(landscape.max_grass_cover, 1.0f);
-	clp_optional_val(landscape.grass_growth, 0.01f);
-	clp_optional_val(landscape.grass_deplete, 1.0f); //*&*
+    clp_optional_val(landscape.max_item_cap, 1.0f);
+	clp_optional_val(landscape.item_growth, 0.01f);
+	clp_optional_val(landscape.detection_rate, 0.1f);
 	clp_required(landscape.capacity.image);
     param.landscape.capacity.channel = ImageChannel(clp.required<int>("landscape.capacity.channel"));
     param.landscape.capacity.layer = Landscape::Layers::capacity;
@@ -147,23 +147,23 @@ namespace cine2 {
     stream_array(prey.input_mask);
     os << '\n';
 
-    stream(pred.N);
-    stream(pred.L);
-    stream_str(pred.ann);
-    stream(pred.sprout_radius);
-    stream(pred.flee_radius);
-    stream(pred.mutation_prob);
-    stream(pred.mutation_step);
-    stream(pred.mutation_knockout);
-    stream(pred.noise_sigma);
-    stream(pred.cmplx_penalty);
-    stream_array(pred.input_layers);
-    stream_array(pred.input_mask);
-    os << '\n';
+    //stream(pred.N);
+    //stream(pred.L);
+    //stream_str(pred.ann);
+    //stream(pred.sprout_radius);
+    //stream(pred.flee_radius);
+    //stream(pred.mutation_prob);
+    //stream(pred.mutation_step);
+    //stream(pred.mutation_knockout);
+    //stream(pred.noise_sigma);
+    //stream(pred.cmplx_penalty);
+    //stream_array(pred.input_layers);
+    //stream_array(pred.input_mask);
+    //os << '\n';
 
-    stream(landscape.max_grass_cover);
-	stream(landscape.grass_growth);
-	stream(landscape.grass_deplete); //*&*
+    stream(landscape.max_item_cap);
+	stream(landscape.item_growth);
+	stream(landscape.detection_rate); //*&*
 	stream_str(landscape.capacity.image);
     stream(landscape.capacity.channel);
 
