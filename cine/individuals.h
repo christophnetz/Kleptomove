@@ -29,30 +29,32 @@ namespace cine2 {
     bool alive() const { return food >= 0.f; }
     bool handle() const { return handling; }
     bool forage() const { return foraging; }
+
     void pick_item() {
-      handle_time = -2;
-      handling = true;
+      handle_time = -2;			//handling time is setted	[WE SHOULD MAKE THIS A PARAMETER IN "CONFIG.INI"]
+      handling = true;			//agend handling status is set to true
     }
+
+	//HANDLING FUNCTION (per agent)
     void do_handle() {
-      if (handle_time < 0 && handling) {
-        ++handle_time;
+      if (handle_time < 0 && handling) {		//if agent handling time is smaller than zero AND agent is handling 
+        ++handle_time;								//handling time is udpated
       }
-      if (handle_time == 0 && handling) {
-        food += 1.0f;
-        handling = false;
+      if (handle_time == 0 && handling) {		//if handling time has reached zero AND agent is handling
+        food += 1.0f;								//food is consumed
+        handling = false;							//the handling status is resetted (FALSE)
       }
-
-
+												//ELSE (agent is not handling), do nothig.
     }
 
     void flee(const Landscape& landscape, int flee_radius) {
 
-      handling = false;
-      handle_time = 0;
+      handling = false;				//handling status reset to false
+      handle_time = 0;				//handling time reset to 0 
 
-      std::uniform_int_distribution<int> dxy(-flee_radius, flee_radius);
+      std::uniform_int_distribution<int> dxy(-flee_radius, flee_radius);	//uniform distribution of the fleeing distance
 
-      pos = landscape.wrap(pos + Coordinate{ short(dxy(rnd::reng)), short(dxy(rnd::reng)) });
+      pos = landscape.wrap(pos + Coordinate{ short(dxy(rnd::reng)), short(dxy(rnd::reng)) });		//new position with difference in coordinates sampled form previous distribution
 
 
     };

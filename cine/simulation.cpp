@@ -193,33 +193,34 @@ namespace cine2 {
 
     // grass growth
     const int DD = landscape_.dim() * landscape_.dim();
-    float* __restrict items = landscape_[Layers::items].data();
-    float* __restrict capacity = landscape_[Layers::capacity].data();
+    float* __restrict items = landscape_[Layers::items].data();					//items now refers to the layer of food items (in landscape)
+    float* __restrict capacity = landscape_[Layers::capacity].data();			//capacity refers to the maximum capacity layer (in landscape)
     ann_assume_aligned(items, 32);
     const float max_item_cap = param_.landscape.max_item_cap;
     const float item_growth = param_.landscape.item_growth;
     //#   pragma omp parallel for schedule(static)
-        for (int i = 0; i < DD; ++i) {
-          if (std::bernoulli_distribution(item_growth)(rnd::reng)) {  // altered: probability that items drop
-            items[i] = std::min(floor(capacity[i] * max_item_cap), items[i] + 1.0f);
+	//[CYCLE FOR GENERATING RESOURCE ITEMS]
+        for (int i = 0; i < DD; ++i) {													//cycle through cells
+          if (std::bernoulli_distribution(item_growth)(rnd::reng)) {					//new item with probability "item_drop" [IS THIS SCRIPT LEGIT?]
+            items[i] = std::min(floor(capacity[i] * max_item_cap), items[i] + 1.0f);	//the new food-item is added, if it does not exceed the max allowed 
           }
         }
     
     auto last_prey = prey_.pop.data() + prey_.pop.size();
-    for (auto prey = prey_.pop.data(); prey != last_prey; ++prey) {
-      prey->do_handle();
+    for (auto prey = prey_.pop.data(); prey != last_prey; ++prey) {			//cycle through agents
+      prey->do_handle();													//handling function!
     }
 
+	//this function update the viewing
     landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers, prey_.pop.cbegin(), prey_.pop.cend(), param_.landscape.foragers_kernel);
 
-    // move
+    //MOVE function!
     prey_.ann->move(landscape_, prey_.pop, param_.prey);
   
 
     // update occupancies and observable densities
 
-
-
+	//RESOLVE GRAZING AND ATTACK function!
     resolve_grazing_and_attacks();
 
 
@@ -252,61 +253,62 @@ namespace cine2 {
     LayerView old_grass = landscape_[Layers::temp];
     old_grass.copy(handlers);
 
-    attacking_inds_.clear();
-    attacked_potentially_.clear();
-    attacked_inds.clear();
-    auto last_prey = prey_.pop.data() + prey_.pop.size();
-    for (auto prey = prey_.pop.data(); prey != last_prey; ++prey) {
-      if (prey->handle() == false) {
-        const Coordinate pos = prey->pos;
-
-        if (prey->foraging) {
-          if (items(pos) >= 1.0f){
-            if (std::bernoulli_distribution(1.0 - pow((1.0f - detection_rate), items(pos)))(rnd::reng)) {
-              prey->pick_item();
-              items(pos) -= 1.0f;
+    attacking_inds_.clear();			//clearing vector
+    attacked_potentially_.clear();		//clearing vector
+    attacked_inds.clear();				//clearing vector
+    auto last_prey = prey_.pop.data() + prey_.pop.size();					
+    for (auto prey = prey_.pop.data(); prey != last_prey; ++prey) {			//cycle through the population
+      if (prey->handle() == false) {										//IF THEY ARE NOT HANDLING
+        const Coordinate pos = prey->pos;										//position is considered
+        if (prey->foraging) {												//and if they are foragers
+          if (items(pos) >= 1.0f){												//if there is food
+			  if (std::bernoulli_distribution(1.0 - pow((1.0f - detection_rate), items(pos)))(rnd::reng)) {		//probability of sampling depends on the number of food item in the cell ("pos")
+																				//if they find something
+				  prey->pick_item();											//the agent pick up the item
+              items(pos) -= 1.0f;												//and the landscape is depleted
             }
           }
         }
       }
     }
 
-    for (int i = 0; i < prey_.pop.size(); ++i) {
-      if (!prey_.pop[i].handling && !prey_.pop[i].foraging) {
+    for (int i = 0; i < prey_.pop.size(); ++i) {						//again cycle through the agents
+      if (!prey_.pop[i].handling && !prey_.pop[i].foraging) {			//if agent is handling AND NOT foraging
 
-        const Coordinate pos = prey_.pop[i].pos;
-        if (handlers(pos) >= 1.0f) {
-          attacking_inds_.push_back(i);
-
+        const Coordinate pos = prey_.pop[i].pos;			//considering the position
+        if (handlers(pos) >= 1.0f) {						//if there are handlers there (layer in landscape)
+          attacking_inds_.push_back(i);							//the agent is added to the vector of agents that CAN ATTACK
         }
       }
     }
 
-    for (auto i : attacking_inds_) {
+    for (auto i : attacking_inds_) {						//cycle through the agents in that same vector
 
-      for (auto attacked_pot = prey_.pop.data(); attacked_pot != last_prey; ++attacked_pot) {
-        const Coordinate pos = attacked_pot->pos;
-        if (prey_.pop[i].pos == pos && &prey_.pop[i] != attacked_pot) {  // self excluded
-          if (attacked_pot->handling) {
-            attacked_potentially_.push_back(attacked_pot);
+      for (auto attacked_pot = prey_.pop.data(); attacked_pot != last_prey; ++attacked_pot) {		//cycle through all the agents
+        const Coordinate pos = attacked_pot->pos;											//considering the cell
+        if (prey_.pop[i].pos == pos && &prey_.pop[i] != attacked_pot) {  // self excluded (if agent is not the same of the vector)
+          if (attacked_pot->handling) {									//and if the agent is handling
+            attacked_potentially_.push_back(attacked_pot);					//add him to the POTENTIALLY ATTACKED vector
           }
         }
       }
-      if (!attacked_potentially_.empty()) {
-        std::uniform_int_distribution<int> rind(0, static_cast<int>(attacked_potentially_.size() - 1));
-        int focal_ind = rind(rnd::reng);
-        attacked_inds.push_back(attacked_potentially_[focal_ind]);
+      if (!attacked_potentially_.empty()) {								//if then that vector is NOT empty
+        std::uniform_int_distribution<int> rind(0, static_cast<int>(attacked_potentially_.size() - 1));		//sample one (random)
+        int focal_ind = rind(rnd::reng);																	//now called "focal_ind"
+        attacked_inds.push_back(attacked_potentially_[focal_ind]);			//added to the vector of ACTUALLY ATTACKED.
 
-        attacked_potentially_.clear();
+        attacked_potentially_.clear();										//clearing the POTENTIALLY ATTACKED vector
       }
 
     }
 
-    std::random_shuffle(attacking_inds_.begin(), attacking_inds_.end());
+    std::random_shuffle(attacking_inds_.begin(), attacking_inds_.end());	///OHH NO. no no no. {I think problems arise form this}
+																			///since both the vectors are ordered, we should shuffle both 
+																			///"attaking_inds" and "attaked_inds" in the same way, or they are not
+																			///paired anymore.
 
-    for (int i = 0; i < attacking_inds_.size(); ++i) {
-
-      float prob_to_fight = 1.0f;
+    for (int i = 0; i < attacking_inds_.size(); ++i) {				//cycle through the agents who attack
+      float prob_to_fight = 1.0f;									//they always fight
 
       //if (attacked_inds[i]->handle())
       //  prob_to_fight = 0.5f;
@@ -314,20 +316,21 @@ namespace cine2 {
       //  prob_to_fight = 0.2f;
 
 
-      std::bernoulli_distribution fight(prob_to_fight);							//sampling whether fight occurs
-      std::bernoulli_distribution initiator_wins(1.0);							//sampling whether the initiator wins or not
-      if (attacked_inds[i]->handling) {
+      std::bernoulli_distribution fight(prob_to_fight);								//sampling whether fight occurs
+      std::bernoulli_distribution initiator_wins(1.0)/*initiator always wins*/;		//sampling whether the initiator wins or not
+      if (attacked_inds[i]->handling) {			///isn't this always true?
         if (fight(rnd::reng)) {
           if (initiator_wins(rnd::reng)) {
-            prey_.pop[attacking_inds_[i]].handling = attacked_inds[i]->handling;
-            prey_.pop[attacking_inds_[i]].handle_time = attacked_inds[i]->handle_time;
+            prey_.pop[attacking_inds_[i]].handling = attacked_inds[i]->handling;			//the klepto gets the handling status
+            prey_.pop[attacking_inds_[i]].handle_time = attacked_inds[i]->handle_time;		//and the handling time from the victim
             //attacking_inds_[i]->food += 1.0f;
-            attacked_inds[i]->flee(landscape_, param_.prey.flee_radius);
+            attacked_inds[i]->flee(landscape_, param_.prey.flee_radius);					//the victim flee (inside this also the handling parameters are resetted)
 
           }
           else
-            prey_.pop[attacking_inds_[i]].flee(landscape_, param_.prey.flee_radius);
-          //Energetic costs
+            prey_.pop[attacking_inds_[i]].flee(landscape_, param_.prey.flee_radius);		//if initiator loses, he flees 
+
+          //Energetic costs																	//energetic costs for conflict
           //attacking_inds_[i]->food -= 0.0f;
           //attacked_inds[i]->food -= 0.0f;
         }
