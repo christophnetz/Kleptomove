@@ -68,8 +68,8 @@ namespace cine2 {
     param.pred.input_mask = { { 1, 1, 1 } };
     clp_optional_vec(pred.input_mask, param.pred.input_mask);*/
 
-    clp_optional_val(landscape.max_item_cap, 1.0f);
-	clp_optional_val(landscape.item_growth, 0.01f);
+    clp_optional_val(landscape.max_item_cap, /*1.0f*/10.0f);
+	clp_optional_val(landscape.item_growth,/*0.01f*/0.01f);
 	clp_optional_val(landscape.detection_rate, 0.1f);
 	clp_required(landscape.capacity.image);
     param.landscape.capacity.channel = ImageChannel(clp.required<int>("landscape.capacity.channel"));
