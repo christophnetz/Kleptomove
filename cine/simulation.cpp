@@ -17,20 +17,16 @@ namespace cine2 {
   {
     using Layers = Landscape::Layers;
 
-    prey_.pop = std::vector<Individual>(param.prey.N);
-    prey_.tmp_pop = std::vector<Individual>(param.prey.N);
-    prey_.ann = make_any_ann(param.prey.L, param.prey.N, param.prey.ann.c_str());
-    prey_.fitness = std::vector<float>(param.prey.N, 0.f);
-    prey_.tmp_ann = make_any_ann(param.prey.L, param.prey.N, param.prey.ann.c_str());
+    agents_.pop = std::vector<Individual>(param.agents.N);
+    agents_.tmp_pop = std::vector<Individual>(param.agents.N);
+    agents_.ann = make_any_ann(param.agents.L, param.agents.N, param.agents.ann.c_str());
+    agents_.fitness = std::vector<float>(param.agents.N, 0.f);
+    agents_.tmp_ann = make_any_ann(param.agents.L, param.agents.N, param.agents.ann.c_str());
 
-    //pred_.pop = std::vector<Individual>(param.pred.N);
-    //pred_.tmp_pop = std::vector<Individual>(param.pred.N);
-    //pred_.ann = make_any_ann(param.pred.L, param.pred.N, param.pred.ann.c_str());
-    //pred_.fitness = std::vector<float>(param.pred.N, 0.f);
-    //pred_.tmp_ann = make_any_ann(param.pred.L, param.pred.N, param.pred.ann.c_str());
+
 
     // initial landscape layers from image fies
-    init_layer(param_.landscape.capacity);
+    init_layer(param_.landscape.capacity); //capacity
     if (landscape_.dim() < 32) throw std::runtime_error("Landscape too small");
 
     // full grass cover
@@ -41,7 +37,8 @@ namespace cine2 {
     for (int i = 0; i < DD; ++i) {
 
       items[i] = floor(capacity[i] * param.landscape.max_item_cap);
-      
+      //items[i] = capacity[i];
+
     }
     
     //empty grass cover
@@ -49,16 +46,16 @@ namespace cine2 {
 
     // initial positions
     auto coorDist = std::uniform_int_distribution<short>(0, short(landscape_.dim() - 1));
-    for (auto& p : prey_.pop) { p.pos.x = coorDist(rnd::reng); p.pos.y = coorDist(rnd::reng); }
+    for (auto& p : agents_.pop) { p.pos.x = coorDist(rnd::reng); p.pos.y = coorDist(rnd::reng); }
     //for (auto& p : pred_.pop) { p.pos.x = coorDist(rnd::reng); p.pos.y = coorDist(rnd::reng); }
 
     // initial occupancies and observable densities
-    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers, prey_.pop.cbegin(), prey_.pop.cend(), param_.landscape.foragers_kernel);
+    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers, agents_.pop.cbegin(), agents_.pop.cend(), param_.landscape.foragers_kernel);
     //landscape_.update_occupancy(Layers::pred_count, Layers::pred, pred_.pop.cbegin(), pred_.pop.cend(), param_.landscape.pred_kernel);
 
     // optional: initialization from former runs
-    if (!param_.init_prey_ann.empty()) {
-      init_anns_from_archive(prey_, archive::iarch(param_.init_prey_ann));
+    if (!param_.init_agents_ann.empty()) {
+      init_anns_from_archive(agents_, archive::iarch(param_.init_agents_ann));
     }
     //if (!param_.init_pred_ann.empty()) {
     //  init_anns_from_archive(pred_, archive::iarch(param_.init_pred_ann));
@@ -147,7 +144,7 @@ namespace cine2 {
 
       //assess_fitness(); //CN: fix?
       // clear fitness
-      prey_.fitness.assign(prey_.fitness.size(), 0.f);
+      agents_.fitness.assign(agents_.fitness.size(), 0.f);
     
       assess_fitness(); //CN: fix?
       create_new_generations();
@@ -164,7 +161,7 @@ namespace cine2 {
         if (g_ == 50 && t_ == 25) {
           Image screenshot2(std::string("../settings/screenshot.png"));
 
-          layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::prey_count], blue);
+          layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::agents_count], blue);
           layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::pred_count], red);
           layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::grass], green);
           save_image(screenshot2, std::string("../settings/screenshot.png"));
@@ -201,19 +198,21 @@ namespace cine2 {
     //#   pragma omp parallel for schedule(static)
         for (int i = 0; i < DD; ++i) {
           if (std::bernoulli_distribution(item_growth)(rnd::reng)) {  // altered: probability that items drop
-            items[i] = std::min(floor(capacity[i] * max_item_cap), items[i] + 1.0f);
+            //items[i] = std::min(floor(capacity[i] * max_item_cap), items[i] + 1.0f);
+            items[i] = std::min(floor(capacity[i] * max_item_cap), floor(items[i] + 1.0f));
+            //items[i] = std::min(capacity[i], items[i] + 1.0f/ max_item_cap);
           }
         }
     
-    auto last_prey = prey_.pop.data() + prey_.pop.size();
-    for (auto prey = prey_.pop.data(); prey != last_prey; ++prey) {
-      prey->do_handle();
+    auto last_agents = agents_.pop.data() + agents_.pop.size();
+    for (auto agents = agents_.pop.data(); agents != last_agents; ++agents) {
+      agents->do_handle();
     }
 
-    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers, prey_.pop.cbegin(), prey_.pop.cend(), param_.landscape.foragers_kernel);
+    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers, agents_.pop.cbegin(), agents_.pop.cend(), param_.landscape.foragers_kernel);
 
     // move
-    prey_.ann->move(landscape_, prey_.pop, param_.prey);
+    agents_.ann->move(landscape_, agents_.pop, param_.agents);
   
 
     // update occupancies and observable densities
@@ -223,20 +222,20 @@ namespace cine2 {
     resolve_grazing_and_attacks();
 
 
-    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers, prey_.pop.cbegin(), prey_.pop.cend(), param_.landscape.foragers_kernel);
+    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers, agents_.pop.cbegin(), agents_.pop.cend(), param_.landscape.foragers_kernel);
 
   }
 
 
   void Simulation::assess_fitness()
   {
-    detail::assess_fitness(prey_, param_.prey, Param::prey_fitness);
+    detail::assess_fitness(agents_, param_.agents, Param::agents_fitness);
   }
 
 
   void Simulation::create_new_generations()
   {
-    detail::create_new_generation(landscape_, prey_, param_.prey, fixed());
+    detail::create_new_generation(landscape_, agents_, param_.agents, fixed());
   }
 
 
@@ -255,15 +254,15 @@ namespace cine2 {
     attacking_inds_.clear();
     attacked_potentially_.clear();
     attacked_inds.clear();
-    auto last_prey = prey_.pop.data() + prey_.pop.size();
-    for (auto prey = prey_.pop.data(); prey != last_prey; ++prey) {
-      if (prey->handle() == false) {
-        const Coordinate pos = prey->pos;
+    auto last_agents = agents_.pop.data() + agents_.pop.size();
+    for (auto agents = agents_.pop.data(); agents != last_agents; ++agents) {
+      if (agents->handle() == false) {
+        const Coordinate pos = agents->pos;
 
-        if (prey->foraging) {
+        if (agents->foraging) {
           if (items(pos) >= 1.0f){
-            if (std::bernoulli_distribution(1.0 - pow((1.0f - detection_rate), items(pos)))(rnd::reng)) {
-              prey->pick_item();
+            if (std::bernoulli_distribution(1.0 - pow((1.0f - detection_rate), items(pos)))(rnd::reng)) { // Ind searching for items
+              agents->pick_item();
               items(pos) -= 1.0f;
             }
           }
@@ -271,10 +270,10 @@ namespace cine2 {
       }
     }
 
-    for (int i = 0; i < prey_.pop.size(); ++i) {
-      if (!prey_.pop[i].handling && !prey_.pop[i].foraging) {
+    for (int i = 0; i < agents_.pop.size(); ++i) {
+      if (!agents_.pop[i].handling && !agents_.pop[i].foraging) {
 
-        const Coordinate pos = prey_.pop[i].pos;
+        const Coordinate pos = agents_.pop[i].pos;
         if (handlers(pos) >= 1.0f) {
           attacking_inds_.push_back(i);
 
@@ -284,9 +283,9 @@ namespace cine2 {
 
     for (auto i : attacking_inds_) {
 
-      for (auto attacked_pot = prey_.pop.data(); attacked_pot != last_prey; ++attacked_pot) {
+      for (auto attacked_pot = agents_.pop.data(); attacked_pot != last_agents; ++attacked_pot) {
         const Coordinate pos = attacked_pot->pos;
-        if (prey_.pop[i].pos == pos && &prey_.pop[i] != attacked_pot) {  // self excluded
+        if (agents_.pop[i].pos == pos && &agents_.pop[i] != attacked_pot) {  // self excluded
           if (attacked_pot->handling) {
             attacked_potentially_.push_back(attacked_pot);
           }
@@ -319,14 +318,14 @@ namespace cine2 {
       if (attacked_inds[i]->handling) {
         if (fight(rnd::reng)) {
           if (initiator_wins(rnd::reng)) {
-            prey_.pop[attacking_inds_[i]].handling = attacked_inds[i]->handling;
-            prey_.pop[attacking_inds_[i]].handle_time = attacked_inds[i]->handle_time;
+            agents_.pop[attacking_inds_[i]].handling = attacked_inds[i]->handling;
+            agents_.pop[attacking_inds_[i]].handle_time = attacked_inds[i]->handle_time;
             //attacking_inds_[i]->food += 1.0f;
-            attacked_inds[i]->flee(landscape_, param_.prey.flee_radius);
+            attacked_inds[i]->flee(landscape_, param_.agents.flee_radius);
 
           }
           else
-            prey_.pop[attacking_inds_[i]].flee(landscape_, param_.prey.flee_radius);
+            agents_.pop[attacking_inds_[i]].flee(landscape_, param_.agents.flee_radius);
           //Energetic costs
           //attacking_inds_[i]->food -= 0.0f;
           //attacked_inds[i]->food -= 0.0f;
@@ -372,10 +371,10 @@ namespace cine2 {
         break;
       }
       case msg_type::GENERATION: {
-        std::cout << sim->analysis().prey_summary().back().ave_fitness << "   ";
-        std::cout << sim->analysis().prey_summary().back().repro_ind << "   ";
-        std::cout << sim->analysis().prey_summary().back().repro_ann << "  (";
-        std::cout << sim->analysis().prey_summary().back().complexity << ");   ";
+        std::cout << sim->analysis().agents_summary().back().ave_fitness << "   ";
+        std::cout << sim->analysis().agents_summary().back().repro_ind << "   ";
+        std::cout << sim->analysis().agents_summary().back().repro_ann << "  (";
+        std::cout << sim->analysis().agents_summary().back().complexity << ");   ";
 
 
 

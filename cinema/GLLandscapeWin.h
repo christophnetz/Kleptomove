@@ -42,7 +42,7 @@ namespace cinema {
       SELECTION_FORAGERS,
       SELECTION_KLEPTS,
       SELECTION_HANDLERS,
-      SELECTION_CAPACITY,
+      SELECTION_ITEMS,
       MAX_SELECTION
     };
 
@@ -50,7 +50,7 @@ namespace cinema {
       LAYER_FORAGERS,
       LAYER_KLEPTS,
       LAYER_HANDLERS,
-      LAYER_CAPACITY,
+      LAYER_ITEMS,
       MAX_LAYER
     };
 

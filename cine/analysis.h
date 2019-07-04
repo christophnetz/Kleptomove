@@ -34,9 +34,9 @@ namespace cine2 {
 
     void generation(const class Simulation* sim) const;
     
-    const std::vector<Summary>& prey_summary() const { return summary_[0]; }
+    const std::vector<Summary>& agents_summary() const { return summary_[0]; }
     //const std::vector<Summary>& pred_summary() const { return summary_[1]; }
-    const std::array<std::vector<Input>, 3>& prey_input() const { return input_[0]; }
+    const std::array<std::vector<Input>, 3>& agents_input() const { return input_[0]; }
     //const std::array<std::vector<Input>, 3>& pred_input() const { return input_[1]; }
 
   private:

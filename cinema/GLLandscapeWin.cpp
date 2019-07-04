@@ -186,7 +186,7 @@ namespace cinema {
     cine2::Landscape::Layers::foragers,
     cine2::Landscape::Layers::klepts,
     cine2::Landscape::Layers::handlers,
-    cine2::Landscape::Layers::capacity
+    cine2::Landscape::Layers::items
   };
 
 
@@ -194,7 +194,7 @@ namespace cinema {
     "foragers",
     "klepts",
     "handlers",
-    "risk"
+    "items"
   };
 
 

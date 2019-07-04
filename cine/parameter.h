@@ -81,10 +81,10 @@ namespace cine2 {
       std::array<float, 4> input_mask;
     };
     
-    ind_param prey;
+    ind_param agents;
     //ind_param pred;
 
-    static float prey_fitness(const Individual& ind, float cmplx, float penalty)
+    static float agents_fitness(const Individual& ind, float cmplx, float penalty)
     {
       return ind.alive() ? std::max(0.f, ind.food - cmplx * penalty) : 0.0f;
     }
@@ -112,7 +112,7 @@ namespace cine2 {
     } gui;
 
     //std::string init_pred_ann;
-    std::string init_prey_ann;
+    std::string init_agents_ann;
     int initG;
   };
 
