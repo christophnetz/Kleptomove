@@ -190,13 +190,14 @@ namespace cine2 {
 
     // grass growth
     const int DD = landscape_.dim() * landscape_.dim();
-    float* __restrict items = landscape_[Layers::items].data();
-    float* __restrict capacity = landscape_[Layers::capacity].data();
+    float* __restrict items = landscape_[Layers::items].data();					//items now refers to the layer of food items (in landscape)
+    float* __restrict capacity = landscape_[Layers::capacity].data();			//capacity refers to the maximum capacity layer (in landscape)
     ann_assume_aligned(items, 32);
     const float max_item_cap = param_.landscape.max_item_cap;
     const float item_growth = param_.landscape.item_growth;
     //#   pragma omp parallel for schedule(static)
-        for (int i = 0; i < DD; ++i) {
+
+    for (int i = 0; i < DD; ++i) {
           if (std::bernoulli_distribution(item_growth)(rnd::reng)) {  // altered: probability that items drop
             //items[i] = std::min(floor(capacity[i] * max_item_cap), items[i] + 1.0f);
             items[i] = std::min(floor(capacity[i] * max_item_cap), floor(items[i] + 1.0f));
@@ -213,12 +214,12 @@ namespace cine2 {
 
     // move
     agents_.ann->move(landscape_, agents_.pop, param_.agents);
+
   
 
     // update occupancies and observable densities
 
-
-
+	//RESOLVE GRAZING AND ATTACK function!
     resolve_grazing_and_attacks();
 
 
@@ -264,6 +265,7 @@ namespace cine2 {
             if (std::bernoulli_distribution(1.0 - pow((1.0f - detection_rate), items(pos)))(rnd::reng)) { // Ind searching for items
               agents->pick_item();
               items(pos) -= 1.0f;
+
             }
           }
         }
@@ -281,31 +283,34 @@ namespace cine2 {
       }
     }
 
-    for (auto i : attacking_inds_) {
+    for (auto i : attacking_inds_) {						//cycle through the agents in that same vector
 
       for (auto attacked_pot = agents_.pop.data(); attacked_pot != last_agents; ++attacked_pot) {
         const Coordinate pos = attacked_pot->pos;
         if (agents_.pop[i].pos == pos && &agents_.pop[i] != attacked_pot) {  // self excluded
           if (attacked_pot->handling) {
             attacked_potentially_.push_back(attacked_pot);
+
           }
         }
       }
-      if (!attacked_potentially_.empty()) {
-        std::uniform_int_distribution<int> rind(0, static_cast<int>(attacked_potentially_.size() - 1));
-        int focal_ind = rind(rnd::reng);
-        attacked_inds.push_back(attacked_potentially_[focal_ind]);
+      if (!attacked_potentially_.empty()) {								//if then that vector is NOT empty
+        std::uniform_int_distribution<int> rind(0, static_cast<int>(attacked_potentially_.size() - 1));		//sample one (random)
+        int focal_ind = rind(rnd::reng);																	//now called "focal_ind"
+        attacked_inds.push_back(attacked_potentially_[focal_ind]);			//added to the vector of ACTUALLY ATTACKED.
 
-        attacked_potentially_.clear();
+        attacked_potentially_.clear();										//clearing the POTENTIALLY ATTACKED vector
       }
 
     }
 
-    std::random_shuffle(attacking_inds_.begin(), attacking_inds_.end());
+    std::random_shuffle(attacking_inds_.begin(), attacking_inds_.end());	///OHH NO. no no no. {I think problems arise form this}
+																			///since both the vectors are ordered, we should shuffle both 
+																			///"attaking_inds" and "attaked_inds" in the same way, or they are not
+																			///paired anymore.
 
-    for (int i = 0; i < attacking_inds_.size(); ++i) {
-
-      float prob_to_fight = 1.0f;
+    for (int i = 0; i < attacking_inds_.size(); ++i) {				//cycle through the agents who attack
+      float prob_to_fight = 1.0f;									//they always fight
 
       //if (attacked_inds[i]->handle())
       //  prob_to_fight = 0.5f;
@@ -313,9 +318,9 @@ namespace cine2 {
       //  prob_to_fight = 0.2f;
 
 
-      std::bernoulli_distribution fight(prob_to_fight);							//sampling whether fight occurs
-      std::bernoulli_distribution initiator_wins(1.0);							//sampling whether the initiator wins or not
-      if (attacked_inds[i]->handling) {
+      std::bernoulli_distribution fight(prob_to_fight);								//sampling whether fight occurs
+      std::bernoulli_distribution initiator_wins(1.0)/*initiator always wins*/;		//sampling whether the initiator wins or not
+      if (attacked_inds[i]->handling) {			///isn't this always true?
         if (fight(rnd::reng)) {
           if (initiator_wins(rnd::reng)) {
             agents_.pop[attacking_inds_[i]].handling = attacked_inds[i]->handling;
@@ -327,6 +332,7 @@ namespace cine2 {
           else
             agents_.pop[attacking_inds_[i]].flee(landscape_, param_.agents.flee_radius);
           //Energetic costs
+
           //attacking_inds_[i]->food -= 0.0f;
           //attacked_inds[i]->food -= 0.0f;
         }

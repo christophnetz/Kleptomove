@@ -114,11 +114,11 @@ namespace cine2 {
   public:
     /// \brief  Values that represent layers in a Landscape.
     enum Layers : int {
-      foragers = 0,     // convoluted foragers_count
-      klepts,         // convoluted klepts_count
-      handlers,
-      items,
-      capacity,
+      foragers = 0,     //convoluted foragers_count
+      klepts,			//convoluted klepts_count
+      handlers,			//handlers
+      items,			//food items
+      capacity,			//maximum capacity of the landscape
       foragers_count,
       klepts_count,
       temp,         // scratch for computation
@@ -218,23 +218,25 @@ namespace cine2 {
       LayerView vCount2 = get_layer(count2);
       LayerView vConv2 = get_layer(conv2);
       LayerView vConv3 = get_layer(conv3);
+	  
+	  //clearing the vectors before the visualization of the current timestep
       vCount.clear();
       vConv.clear();      
       vCount2.clear();
       vConv2.clear();
       vConv3.clear();
-      for (; first != last; ++first) {
-        if (first->alive()) {
-          if (first->handle()) {
-            ++vConv3(first->pos);
+      for (; first != last; ++first) {		//cycle trough the agensta
+        if (first->alive()) {				//if alive
+          if (first->handle()) {				//and handling
+            ++vConv3(first->pos);					//position stored in the vector3 (for handlers apparently)
           }
-          else if (first->foraging) {
-            ++vCount(first->pos);
-            vConv.stamp_kernel<Kernel::k>(first->pos, kernel.K);
+          else if (first->foraging) {			//if not handling, but foraging
+            ++vCount(first->pos);					//position stored in vector1 (for foragers)
+            vConv.stamp_kernel<Kernel::k>(first->pos, kernel.K); //[NO IDEA] ASSUMING IS FOR THE CONVOLUTED STATE POSITION?!?
           }
-          else {
-            ++vCount2(first->pos);
-            vConv2.stamp_kernel<Kernel::k>(first->pos, kernel.K);
+          else {								//if not handling and not foragers (they are kleptoparasytes)
+            ++vCount2(first->pos);					//position stored in vector2 (for klepts)
+            vConv2.stamp_kernel<Kernel::k>(first->pos, kernel.K);//[AGAIN, NO IDEA]
           }
 
         }
