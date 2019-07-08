@@ -256,6 +256,7 @@ namespace cine2 {
     attacking_inds_.clear();			//clearing vector
     attacked_potentially_.clear();		//clearing vector
     attacked_inds.clear();				//clearing vector
+
     auto last_prey = prey_.pop.data() + prey_.pop.size();					
     for (auto prey = prey_.pop.data(); prey != last_prey; ++prey) {			//cycle through the population
       if (prey->handle() == false) {										//IF THEY ARE NOT HANDLING
@@ -302,10 +303,17 @@ namespace cine2 {
 
     }
 
-    std::random_shuffle(attacking_inds_.begin(), attacking_inds_.end());	///OHH NO. no no no. {I think problems arise form this}
+    //std::random_shuffle(attacking_inds_.begin(), attacking_inds_.end());	///OHH NO. no no no. {I think problems arise form this}
 																			///since both the vectors are ordered, we should shuffle both 
 																			///"attaking_inds" and "attaked_inds" in the same way, or they are not
 																			///paired anymore.
+	
+	
+	std::vector<std::pair<int, Individual*>> conflicts_v(attacking_inds_.size());
+	for (int i = 0; i < attacking_inds_.size(); ++i) {
+		conflicts_v[i] = { attacking_inds_[i], attacked_inds[i] };
+	}
+	std::shuffle(conflicts_v.begin(), conflicts_v.end(), rnd::reng);
 
     for (int i = 0; i < attacking_inds_.size(); ++i) {				//cycle through the agents who attack
       float prob_to_fight = 1.0f;									//they always fight
@@ -318,25 +326,28 @@ namespace cine2 {
 
       std::bernoulli_distribution fight(prob_to_fight);								//sampling whether fight occurs
       std::bernoulli_distribution initiator_wins(1.0)/*initiator always wins*/;		//sampling whether the initiator wins or not
-      if (attacked_inds[i]->handling) {			///isn't this always true?
+      if (conflicts_v[i].second->handling) {			///isn't this always true?
         if (fight(rnd::reng)) {
           if (initiator_wins(rnd::reng)) {
-            prey_.pop[attacking_inds_[i]].handling = attacked_inds[i]->handling;			//the klepto gets the handling status
-            prey_.pop[attacking_inds_[i]].handle_time = attacked_inds[i]->handle_time;		//and the handling time from the victim
-            //attacking_inds_[i]->food += 1.0f;
-            attacked_inds[i]->flee(landscape_, param_.prey.flee_radius);					//the victim flee (inside this also the handling parameters are resetted)
+            prey_.pop[conflicts_v[i].first].handling = conflicts_v[i].second->handling;			//the klepto gets the handling status
+            prey_.pop[conflicts_v[i].first].handle_time = conflicts_v[i].second->handle_time;		//and the handling time from the victim
+            //conflicts_v[i].first->food += 1.0f;
+            conflicts_v[i].second->flee(landscape_, param_.prey.flee_radius);					//the victim flee (inside this also the handling parameters are resetted)
 
           }
           else
-            prey_.pop[attacking_inds_[i]].flee(landscape_, param_.prey.flee_radius);		//if initiator loses, he flees 
+            prey_.pop[conflicts_v[i].first].flee(landscape_, param_.prey.flee_radius);		//if initiator loses, he flees 
 
           //Energetic costs																	//energetic costs for conflict
-          //attacking_inds_[i]->food -= 0.0f;
-          //attacked_inds[i]->food -= 0.0f;
+          //conflicts_v[i].first->food -= 0.0f;
+          //conflicts_v[i].second->food -= 0.0f;
+
+
         }
 
       }
     }
+	conflicts_v.clear();
   }
 
 

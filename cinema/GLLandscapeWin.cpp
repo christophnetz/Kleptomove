@@ -16,7 +16,7 @@ namespace cinema {
     pUniBlk_(nullptr)
   {
     LayerTex_ = GL_NONE;
-    selected_.assign(false);
+    selected_.fill(false);
   }
 
   

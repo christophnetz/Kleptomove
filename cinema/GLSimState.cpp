@@ -70,7 +70,7 @@ namespace cinema {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_1D, ColorMap_[0]);
     std::array<GLubyte, 4 * 512> gradient;
-    gradient.assign(0);
+    gradient.fill(0);
     for (int i=0; i < 256; ++i) {
       gradient[4*i+2] = GLubyte(i);
       gradient[4*i+3] = 255;
