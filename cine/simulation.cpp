@@ -304,10 +304,12 @@ namespace cine2 {
 
     }
 
-    std::random_shuffle(attacking_inds_.begin(), attacking_inds_.end());	///OHH NO. no no no. {I think problems arise form this}
-																			///since both the vectors are ordered, we should shuffle both 
-																			///"attaking_inds" and "attaked_inds" in the same way, or they are not
-																			///paired anymore.
+    // Shuffling
+    std::vector<std::pair<int, Individual*>> conflicts_v(attacking_inds_.size());
+    for (int i = 0; i < attacking_inds_.size(); ++i) {
+      conflicts_v[i] = { attacking_inds_[i], attacked_inds[i] };
+    }
+    std::shuffle(conflicts_v.begin(), conflicts_v.end(), rnd::reng);
 
     for (int i = 0; i < attacking_inds_.size(); ++i) {				//cycle through the agents who attack
       float prob_to_fight = 1.0f;									//they always fight
@@ -339,6 +341,8 @@ namespace cine2 {
 
       }
     }
+    conflicts_v.clear();
+
   }
 
 
