@@ -3,7 +3,7 @@
 #include "simulation.h"
 #include "game_watches.hpp"
 #include "cmd_line.h"
-
+#include "cassert"
 
 namespace filesystem = std::experimental::filesystem;
 
@@ -214,6 +214,7 @@ namespace cine2 {
   
 
     // update occupancies and observable densities
+    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers_count, Layers::handlers, agents_.pop.cbegin(), agents_.pop.cend(), param_.landscape.foragers_kernel);
 
 	//RESOLVE GRAZING AND ATTACK function!
     resolve_grazing_and_attacks();
@@ -244,7 +245,7 @@ namespace cine2 {
     LayerView klepts_count = landscape_[Layers::klepts_count];
     LayerView capacity = landscape_[Layers::capacity];
     LayerView items = landscape_[Layers::items];
-    LayerView handlers = landscape_[Layers::handlers];
+    LayerView handlers = landscape_[Layers::handlers_count];
     LayerView old_grass = landscape_[Layers::temp];
     old_grass.copy(handlers);
 
@@ -299,6 +300,8 @@ namespace cine2 {
       }
 
     }
+
+    assert(attacked_inds.size() == attacking_inds_.size() && "vector lengths uneven");
 
     // Shuffling
     std::vector<std::pair<int, Individual*>> conflicts_v(attacking_inds_.size());

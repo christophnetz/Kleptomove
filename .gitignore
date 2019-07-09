@@ -2,3 +2,4 @@
 .vs/
 bin/
 tmp/
+!bin/settings/config.ini

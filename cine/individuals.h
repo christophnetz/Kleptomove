@@ -31,7 +31,7 @@ namespace cine2 {
     bool forage() const { return foraging; }
 
     void pick_item() {
-      handle_time = -2;			//handling time is setted	[WE SHOULD MAKE THIS A PARAMETER IN "CONFIG.INI"]
+      handle_time = -5;			//handling time is setted	[WE SHOULD MAKE THIS A PARAMETER IN "CONFIG.INI"]
       handling = true;			//agend handling status is set to true
     }
 
