@@ -37,7 +37,6 @@ namespace cine2 {
     for (int i = 0; i < DD; ++i) {
 
       items[i] = floor(capacity[i] * param.landscape.max_item_cap);
-      //items[i] = capacity[i];
 
     }
     
@@ -47,11 +46,10 @@ namespace cine2 {
     // initial positions
     auto coorDist = std::uniform_int_distribution<short>(0, short(landscape_.dim() - 1));
     for (auto& p : agents_.pop) { p.pos.x = coorDist(rnd::reng); p.pos.y = coorDist(rnd::reng); }
-    //for (auto& p : pred_.pop) { p.pos.x = coorDist(rnd::reng); p.pos.y = coorDist(rnd::reng); }
 
     // initial occupancies and observable densities
-    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers_count, Layers::handlers, agents_.pop.cbegin(), agents_.pop.cend(), param_.landscape.foragers_kernel);
-    //landscape_.update_occupancy(Layers::pred_count, Layers::pred, pred_.pop.cbegin(), pred_.pop.cend(), param_.landscape.pred_kernel);
+    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, 
+      Layers::klepts, Layers::handlers_count, Layers::handlers, agents_.pop.cbegin(), agents_.pop.cend(), param_.landscape.foragers_kernel);
 
     // optional: initialization from former runs
     if (!param_.init_agents_ann.empty()) {
@@ -199,9 +197,7 @@ namespace cine2 {
 
     for (int i = 0; i < DD; ++i) {
           if (std::bernoulli_distribution(item_growth)(rnd::reng)) {  // altered: probability that items drop
-            //items[i] = std::min(floor(capacity[i] * max_item_cap), items[i] + 1.0f);
             items[i] = std::min(floor(capacity[i] * max_item_cap), floor(items[i] + 1.0f));
-            //items[i] = std::min(capacity[i], items[i] + 1.0f/ max_item_cap);
           }
         }
     

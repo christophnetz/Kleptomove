@@ -115,7 +115,7 @@ namespace cinema {
       std::memcpy(ptr_[VBO::VBO_AGENTS_ANN], sim.agents().ann->data(), agents_ann_.N * agents_ann_.type_size);
       //std::memcpy(ptr_[VBO::VBO_PRED_ANN], sim.pred().ann->data(), pred_ann_.N * pred_ann_.type_size);
     case msg_type::POST_TIMESTEP: {
-      std::memcpy(ptr_[VBO::VBO_LAYER], sim.landscape().data(), 3 * dim_* dim_ * sizeof(float));
+      std::memcpy(ptr_[VBO::VBO_LAYER], sim.landscape().data(), 4 * dim_* dim_ * sizeof(float));  // CN: changed from 3 to 4, to update items layer!!
       break;
     }
     }
