@@ -48,25 +48,10 @@ namespace cine2 {
 
     param.agents.input_layers = { { Layers::items, Layers::handlers, Layers::foragers, Layers::klepts } };
     clp_optional_vec(agents.input_layers, param.agents.input_layers);
-    param.agents.input_mask = { { 1, 1, 1, 1 } };
+    param.agents.input_mask = { { 1, 1, 1} };
     clp_optional_vec(agents.input_mask, param.agents.input_mask);
 
-    /*clp_required(pred.N);
-    clp_optional_val(pred.L, 3);
-    clp_required(pred.ann);
 
-    clp_optional_val(pred.sprout_radius, 10000);
-    clp_optional_val(pred.flee_radius, 10);
-    clp_optional_val(pred.mutation_prob, 0.001f);
-    clp_optional_val(pred.mutation_step, 0.001f);
-    clp_optional_val(pred.mutation_knockout, 0.001f);
-    clp_optional_val(pred.noise_sigma, 0.1f);
-    clp_optional_val(pred.cmplx_penalty, 0.01f);
-
-    param.pred.input_layers = {{ Layers::items, Layers::handlers, Layers::klepts } };
-    clp_optional_vec(pred.input_layers, param.pred.input_layers);
-    param.pred.input_mask = { { 1, 1, 1 } };
-    clp_optional_vec(pred.input_mask, param.pred.input_mask);*/
 
     clp_optional_val(landscape.max_item_cap, 1.0f);
 	clp_optional_val(landscape.item_growth, 0.01f);

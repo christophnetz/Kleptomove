@@ -30,17 +30,17 @@ namespace cine2 {
 
 
 	using SimpleAnn = Network<float,
-		Layer< Neuron<4, default_activation>, 2>
+		Layer< Neuron<3, default_activation>, 2>
 	>;
 
 
 	using SimpleAnnFB = Network<float,
-		Layer< Neuron<4, default_activation, feedback::direct>, 2>
+		Layer< Neuron<3, default_activation, feedback::direct>, 2>
 	>;
 
 
 	using SmartAnn = Network<float,
-		Layer< Neuron<4, default_activation>, 3>,
+		Layer< Neuron<3, default_activation>, 3>,
 		Layer< Neuron<3, default_activation>, 2>
 	>;
 
@@ -78,7 +78,7 @@ namespace cine2 {
       float cmplx_penalty;
 
       std::array<int, 4> input_layers;
-      std::array<float, 4> input_mask;
+      std::array<float, 3> input_mask;
     };
     
     ind_param agents;
