@@ -45,7 +45,7 @@ import.generation <- function(G, what, stderr) {
 generation <- function(G, stderr=F) {
   agents = import.generation(G, "agents", stderr)
 #  pred = import.generation(G, "pred", stderr)
-  list(pred=pred, agents=agents)
+  list(agents=agents)
 }
 
 # load input estimates
@@ -198,7 +198,7 @@ config$dir = getSrcDirectory(generation)[1]
         os << "config = list(\n";
         stream_parameter(os, sim->param(), "  ", ",\n", "c(", ")");
         os << "\n# Metadata\n";
-        os << "  agents.ann.weights = " << sim->agents().ann->state_size() << ",\n";
+        os << "  agents.ann.weights = " << sim->agents().ann->state_size() << "\n";
         os << ")\n";
         os << sourceMe;
       }

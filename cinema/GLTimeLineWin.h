@@ -47,7 +47,7 @@ namespace cinema {
     void snap_camera();
     
     static const std::array<const char*, 5+1> title_;
-    static const std::array<glm::vec4, NT> color_;
+    static const std::array<glm::vec4, NT> color_;    // RGBA values
 
     int G_, g_;
     float max_[NT];

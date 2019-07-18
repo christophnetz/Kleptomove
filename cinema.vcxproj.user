@@ -8,6 +8,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>--gui config="../settings/config.ini" G=100000 omp_threads=4</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>--gui config="../settings/config.ini" G=10 outdir="dummy"</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>
