@@ -40,6 +40,7 @@ namespace cine2 {
 
     clp_optional_val(agents.sprout_radius, 10000);
     clp_optional_val(agents.flee_radius, 10);
+    clp_optional_val(agents.handling_time, 5);
     clp_optional_val(agents.mutation_prob, 0.001f);
     clp_optional_val(agents.mutation_step, 0.001f);
     clp_optional_val(agents.mutation_knockout, 0.001f);
@@ -123,6 +124,7 @@ namespace cine2 {
     stream_str(agents.ann);
     stream(agents.sprout_radius);
     stream(agents.flee_radius);
+    stream(agents.handling_time);
     stream(agents.mutation_prob);
     stream(agents.mutation_step);
     stream(agents.mutation_knockout);

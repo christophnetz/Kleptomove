@@ -260,9 +260,8 @@ namespace cine2 {
         if (agents->foraging) {
           if (items(pos) >= 1.0f){
             if (std::bernoulli_distribution(1.0 - pow((1.0f - detection_rate), items(pos)))(rnd::reng)) { // Ind searching for items
-              agents->pick_item();
+              agents->pick_item(param_.agents.handling_time);
               items(pos) -= 1.0f;
-
             }
           }
         }

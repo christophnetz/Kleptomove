@@ -71,6 +71,7 @@ namespace cine2 {
 
       int sprout_radius;
       int flee_radius;
+      int handling_time;
       float mutation_prob;
       float mutation_step;
       float mutation_knockout;
