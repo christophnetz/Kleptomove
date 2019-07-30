@@ -17,10 +17,10 @@ namespace cinema {
 
   GLSimState::GLSimState(HWND hWnd, const cine2::Simulation* sim)
   : dim_(sim->dim()),
-    prey_ann_{ static_cast<int>(sim->prey().pop.size()),
-           sim->prey().ann->state_size(),
-           sim->prey().ann->stride(),
-           sim->prey().ann->type_size() },
+    agents_ann_{ static_cast<int>(sim->agents().pop.size()),
+           sim->agents().ann->state_size(),
+           sim->agents().ann->stride(),
+           sim->agents().ann->type_size() },
     //pred_ann_{ static_cast<int>(sim->pred().pop.size()),
     //       sim->pred().ann->state_size(),
     //       sim->pred().ann->stride(),
@@ -28,7 +28,7 @@ namespace cinema {
     glctx_(hWnd),
     sim_(sim)
   {
-    ColorMap_.assign(GL_NONE);
+    ColorMap_.fill(GL_NONE);
     glctx_.MakeCurrent();
 #ifdef GLSL_DEBUG
     glEnable(GL_DEBUG_OUTPUT);
@@ -36,9 +36,9 @@ namespace cinema {
 #endif
     glCreateBuffers(VBO_MAX, vbo_.data());
     const auto flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
-    GLsizei size = static_cast<GLsizei>(prey_ann_.type_size) * prey_ann_.N;
-    glNamedBufferStorage(vbo_[VBO_PREY_ANN], size, nullptr, flags);
-    ptr_[VBO::VBO_PREY_ANN] = glMapNamedBufferRange(vbo_[VBO_PREY_ANN], 0, size, flags);
+    GLsizei size = static_cast<GLsizei>(agents_ann_.type_size) * agents_ann_.N;
+    glNamedBufferStorage(vbo_[VBO_AGENTS_ANN], size, nullptr, flags);
+    ptr_[VBO::VBO_AGENTS_ANN] = glMapNamedBufferRange(vbo_[VBO_AGENTS_ANN], 0, size, flags);
     
     //size = static_cast<GLsizei>(pred_ann_.type_size) * pred_ann_.N;
     //glNamedBufferStorage(vbo_[VBO_PRED_ANN], size, nullptr, flags);
@@ -92,7 +92,7 @@ namespace cinema {
 
     // copy capacity layer
     auto dst = (float*)ptr_[VBO_LAYER] + 3 * dim_ * dim_;
-    std::memcpy(dst, sim->landscape()[cine2::Landscape::Layers::capacity].data(), dim_ * dim_ * sizeof(float));
+    std::memcpy(dst, sim->landscape()[cine2::Landscape::Layers::items].data(), dim_ * dim_ * sizeof(float));
   }
 
 
@@ -112,10 +112,10 @@ namespace cinema {
     switch (msg) {
     case msg_type::INITIALIZED:
     case msg_type::NEW_GENERATION:
-      std::memcpy(ptr_[VBO::VBO_PREY_ANN], sim.prey().ann->data(), prey_ann_.N * prey_ann_.type_size);
+      std::memcpy(ptr_[VBO::VBO_AGENTS_ANN], sim.agents().ann->data(), agents_ann_.N * agents_ann_.type_size);
       //std::memcpy(ptr_[VBO::VBO_PRED_ANN], sim.pred().ann->data(), pred_ann_.N * pred_ann_.type_size);
     case msg_type::POST_TIMESTEP: {
-      std::memcpy(ptr_[VBO::VBO_LAYER], sim.landscape().data(), 3 * dim_* dim_ * sizeof(float));
+      std::memcpy(ptr_[VBO::VBO_LAYER], sim.landscape().data(), 4 * dim_* dim_ * sizeof(float));  // CN: changed from 3 to 4, to update items layer!!
       break;
     }
     }

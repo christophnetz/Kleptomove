@@ -65,15 +65,15 @@ namespace cinema {
         const auto& analysis = sim_state_->sim()->analysis();
         float* p = (float*)pbuf_ + g_ * NT;
         float y = 0.f;
-        auto s = analysis.prey_summary().back();
+        auto s = analysis.agents_summary().back();
         p[0] = y = s.ave_fitness; max_[0] = std::max(max_[0], y);
-        p[1] = y = (s.ave_fitness * sim_state_->sim()->param().prey.N) / s.repro_ind; max_[1] = std::max(max_[1], y);
+        p[1] = y = (s.ave_fitness * sim_state_->sim()->param().agents.N) / s.repro_ind; max_[1] = std::max(max_[1], y);
         p[2] = y = static_cast<float>(s.repro_ind); max_[2] = std::max(max_[2], y);
         p[3] = y = static_cast<float>(s.repro_ann); max_[3] = std::max(max_[3], y);
         p[4] = y = s.complexity; 
         //s = analysis.pred_summary().back();
         //p[5] = y = s.ave_fitness; max_[5] = std::max(max_[5], y);
-        //p[6] = y = (s.ave_fitness * sim_state_->sim()->param().prey.N) / s.repro_ind; max_[6] = std::max(max_[6], y);
+        //p[6] = y = (s.ave_fitness * sim_state_->sim()->param().agents.N) / s.repro_ind; max_[6] = std::max(max_[6], y);
         //p[7] = y = static_cast<float>(s.repro_ind); max_[7] = std::max(max_[7], y);
         //p[8] = y = static_cast<float>(s.repro_ann); max_[8] = max_[8] = std::max(max_[8], y);
         //p[9] = y = s.complexity;

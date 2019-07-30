@@ -30,10 +30,9 @@ namespace cine2 {
     bool handle() const { return handling; }
     bool forage() const { return foraging; }
 
-    void pick_item() {
-	  //std::uniform_int_distribution<int> h_t(2, 10);
-      //handle_time = -h_t(rnd::reng);			//handling time is setted	[WE SHOULD MAKE THIS A PARAMETER IN "CONFIG.INI"]
-	  handle_time = -7;			//handling time is setted	[WE SHOULD MAKE THIS A PARAMETER IN "CONFIG.INI"]
+    void pick_item(int h_time) {
+      handle_time = -h_time;			//handling time is setted	[WE SHOULD MAKE THIS A PARAMETER IN "CONFIG.INI"]
+
       handling = true;			//agend handling status is set to true
     }
 

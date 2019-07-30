@@ -171,7 +171,7 @@ namespace cinema {
     colorMap_(3),
     histogram_(true) 
   {
-    display_[0].reset(new AnnRenderer(sim_state->prey_ann()));
+    display_[0].reset(new AnnRenderer(sim_state->agents_ann()));
     //display_[1].reset(new AnnRenderer(sim_state->pred_ann()));
   }
 
@@ -296,20 +296,20 @@ namespace cinema {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_1D, sim_state_->colortex(colorMap_));
     if (histogram_) {
-      display_[0]->render_hist(annLogP1Prog_, rectProg_, (const float*)sim_state_->ptr(GLSimState::VBO_PREY_ANN));
+      display_[0]->render_hist(annLogP1Prog_, rectProg_, (const float*)sim_state_->ptr(GLSimState::VBO_AGENTS_ANN));
       //display_[1]->render_hist(annLogP1Prog_, rectProg_, (const float*)sim_state_->ptr(GLSimState::VBO_PRED_ANN));
       return;
     }
     GLuint vbo0/*, vbo1*/;
-    GLint preyPack/*, predPack*/;
+    GLint agentsPack/*, predPack*/;
     {
       //std::lock_guard<std::recursive_mutex> _(mutex_);
-      vbo0 = sim_state_->vbo(GLSimState::VBO_PREY_ANN);
+      vbo0 = sim_state_->vbo(GLSimState::VBO_AGENTS_ANN);
       //vbo1 = sim_state_->vbo(GLSimState::VBO_PRED_ANN);
-      preyPack = sim_state_->prey_ann().type_size / sizeof(float);
+      agentsPack = sim_state_->agents_ann().type_size / sizeof(float);
       //predPack = sim_state_->pred_ann().type_size / sizeof(float);
     }
-    display_[0]->render(annTanhProg_, rectProg_, vbo0, preyPack, (const float*)sim_state_->ptr(GLSimState::VBO_PREY_ANN));
+    display_[0]->render(annTanhProg_, rectProg_, vbo0, agentsPack, (const float*)sim_state_->ptr(GLSimState::VBO_AGENTS_ANN));
     //display_[1]->render(annTanhProg_, rectProg_, vbo1, predPack, (const float*)sim_state_->ptr(GLSimState::VBO_PRED_ANN));
   }
 

@@ -3,7 +3,7 @@
 #include "simulation.h"
 #include "game_watches.hpp"
 #include "cmd_line.h"
-
+#include "cassert"
 
 namespace filesystem = std::experimental::filesystem;
 
@@ -17,20 +17,16 @@ namespace cine2 {
   {
     using Layers = Landscape::Layers;
 
-    prey_.pop = std::vector<Individual>(param.prey.N);
-    prey_.tmp_pop = std::vector<Individual>(param.prey.N);
-    prey_.ann = make_any_ann(param.prey.L, param.prey.N, param.prey.ann.c_str());
-    prey_.fitness = std::vector<float>(param.prey.N, 0.f);
-    prey_.tmp_ann = make_any_ann(param.prey.L, param.prey.N, param.prey.ann.c_str());
+    agents_.pop = std::vector<Individual>(param.agents.N);
+    agents_.tmp_pop = std::vector<Individual>(param.agents.N);
+    agents_.ann = make_any_ann(param.agents.L, param.agents.N, param.agents.ann.c_str());
+    agents_.fitness = std::vector<float>(param.agents.N, 0.f);
+    agents_.tmp_ann = make_any_ann(param.agents.L, param.agents.N, param.agents.ann.c_str());
 
-    //pred_.pop = std::vector<Individual>(param.pred.N);
-    //pred_.tmp_pop = std::vector<Individual>(param.pred.N);
-    //pred_.ann = make_any_ann(param.pred.L, param.pred.N, param.pred.ann.c_str());
-    //pred_.fitness = std::vector<float>(param.pred.N, 0.f);
-    //pred_.tmp_ann = make_any_ann(param.pred.L, param.pred.N, param.pred.ann.c_str());
+
 
     // initial landscape layers from image fies
-    init_layer(param_.landscape.capacity);
+    init_layer(param_.landscape.capacity); //capacity
     if (landscape_.dim() < 32) throw std::runtime_error("Landscape too small");
 
     // full grass cover
@@ -41,7 +37,7 @@ namespace cine2 {
     for (int i = 0; i < DD; ++i) {
 
       items[i] = floor(capacity[i] * param.landscape.max_item_cap);
-      
+
     }
     
     //empty grass cover
@@ -49,16 +45,15 @@ namespace cine2 {
 
     // initial positions
     auto coorDist = std::uniform_int_distribution<short>(0, short(landscape_.dim() - 1));
-    for (auto& p : prey_.pop) { p.pos.x = coorDist(rnd::reng); p.pos.y = coorDist(rnd::reng); }
-    //for (auto& p : pred_.pop) { p.pos.x = coorDist(rnd::reng); p.pos.y = coorDist(rnd::reng); }
+    for (auto& p : agents_.pop) { p.pos.x = coorDist(rnd::reng); p.pos.y = coorDist(rnd::reng); }
 
     // initial occupancies and observable densities
-    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers, prey_.pop.cbegin(), prey_.pop.cend(), param_.landscape.foragers_kernel);
-    //landscape_.update_occupancy(Layers::pred_count, Layers::pred, pred_.pop.cbegin(), pred_.pop.cend(), param_.landscape.pred_kernel);
+    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, 
+      Layers::klepts, Layers::handlers_count, Layers::handlers, agents_.pop.cbegin(), agents_.pop.cend(), param_.landscape.foragers_kernel);
 
     // optional: initialization from former runs
-    if (!param_.init_prey_ann.empty()) {
-      init_anns_from_archive(prey_, archive::iarch(param_.init_prey_ann));
+    if (!param_.init_agents_ann.empty()) {
+      init_anns_from_archive(agents_, archive::iarch(param_.init_agents_ann));
     }
     //if (!param_.init_pred_ann.empty()) {
     //  init_anns_from_archive(pred_, archive::iarch(param_.init_pred_ann));
@@ -147,7 +142,7 @@ namespace cine2 {
 
       //assess_fitness(); //CN: fix?
       // clear fitness
-      prey_.fitness.assign(prey_.fitness.size(), 0.f);
+      agents_.fitness.assign(agents_.fitness.size(), 0.f);
     
       assess_fitness(); //CN: fix?
       create_new_generations();
@@ -164,7 +159,7 @@ namespace cine2 {
         if (g_ == 50 && t_ == 25) {
           Image screenshot2(std::string("../settings/screenshot.png"));
 
-          layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::prey_count], blue);
+          layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::agents_count], blue);
           layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::pred_count], red);
           layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::grass], green);
           save_image(screenshot2, std::string("../settings/screenshot.png"));
@@ -199,45 +194,46 @@ namespace cine2 {
     const float max_item_cap = param_.landscape.max_item_cap;
     const float item_growth = param_.landscape.item_growth;
     //#   pragma omp parallel for schedule(static)
-	//[CYCLE FOR GENERATING RESOURCE ITEMS]
-        for (int i = 0; i < DD; ++i) {													//cycle through cells
-          if (std::bernoulli_distribution(item_growth)(rnd::reng)) {					//new item with probability "item_drop" [IS THIS SCRIPT LEGIT?]
-            items[i] = std::min(floor(capacity[i] * max_item_cap), items[i] + 1.0f);	//the new food-item is added, if it does not exceed the max allowed 
+
+    for (int i = 0; i < DD; ++i) {
+          if (std::bernoulli_distribution(item_growth)(rnd::reng)) {  // altered: probability that items drop
+            items[i] = std::min(floor(capacity[i] * max_item_cap), floor(items[i] + 1.0f));
           }
         }
     
-    auto last_prey = prey_.pop.data() + prey_.pop.size();
-    for (auto prey = prey_.pop.data(); prey != last_prey; ++prey) {			//cycle through agents
-      prey->do_handle();													//handling function!
+    auto last_agents = agents_.pop.data() + agents_.pop.size();
+    for (auto agents = agents_.pop.data(); agents != last_agents; ++agents) {
+      agents->do_handle();
     }
 
-	//this function update the viewing
-    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers, prey_.pop.cbegin(), prey_.pop.cend(), param_.landscape.foragers_kernel);
+    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers_count, Layers::handlers, agents_.pop.cbegin(), agents_.pop.cend(), param_.landscape.foragers_kernel);
 
-    //MOVE function!
-    prey_.ann->move(landscape_, prey_.pop, param_.prey);
+    // move
+    agents_.ann->move(landscape_, agents_.pop, param_.agents);
+
   
 
     // update occupancies and observable densities
+    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers_count, Layers::handlers, agents_.pop.cbegin(), agents_.pop.cend(), param_.landscape.foragers_kernel);
 
 	//RESOLVE GRAZING AND ATTACK function!
     resolve_grazing_and_attacks();
 
 
-    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers, prey_.pop.cbegin(), prey_.pop.cend(), param_.landscape.foragers_kernel);
+    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers_count, Layers::handlers, agents_.pop.cbegin(), agents_.pop.cend(), param_.landscape.foragers_kernel);
 
   }
 
 
   void Simulation::assess_fitness()
   {
-    detail::assess_fitness(prey_, param_.prey, Param::prey_fitness);
+    detail::assess_fitness(agents_, param_.agents, Param::agents_fitness);
   }
 
 
   void Simulation::create_new_generations()
   {
-    detail::create_new_generation(landscape_, prey_, param_.prey, fixed());
+    detail::create_new_generation(landscape_, agents_, param_.agents, fixed());
   }
 
 
@@ -249,47 +245,50 @@ namespace cine2 {
     LayerView klepts_count = landscape_[Layers::klepts_count];
     LayerView capacity = landscape_[Layers::capacity];
     LayerView items = landscape_[Layers::items];
-    LayerView handlers = landscape_[Layers::handlers];
+    LayerView handlers = landscape_[Layers::handlers_count];
     LayerView old_grass = landscape_[Layers::temp];
     old_grass.copy(handlers);
 
-    attacking_inds_.clear();			//clearing vector
-    attacked_potentially_.clear();		//clearing vector
-    attacked_inds.clear();				//clearing vector
 
-    auto last_prey = prey_.pop.data() + prey_.pop.size();					
-    for (auto prey = prey_.pop.data(); prey != last_prey; ++prey) {			//cycle through the population
-      if (prey->handle() == false) {										//IF THEY ARE NOT HANDLING
-        const Coordinate pos = prey->pos;										//position is considered
-        if (prey->foraging) {												//and if they are foragers
-          if (items(pos) >= 1.0f){												//if there is food
-			  if (std::bernoulli_distribution(1.0 - pow((1.0f - detection_rate), items(pos)))(rnd::reng)) {		//probability of sampling depends on the number of food item in the cell ("pos")
-																				//if they find something
-				  prey->pick_item();											//the agent pick up the item
-              items(pos) -= 1.0f;												//and the landscape is depleted
+    attacking_inds_.clear();
+    attacked_potentially_.clear();
+    attacked_inds.clear();
+    auto last_agents = agents_.pop.data() + agents_.pop.size();
+    for (auto agents = agents_.pop.data(); agents != last_agents; ++agents) {
+      if (agents->handle() == false) {
+        const Coordinate pos = agents->pos;
+
+        if (agents->foraging) {
+          if (items(pos) >= 1.0f){
+            if (std::bernoulli_distribution(1.0 - pow((1.0f - detection_rate), items(pos)))(rnd::reng)) { // Ind searching for items
+              agents->pick_item(param_.agents.handling_time);
+              items(pos) -= 1.0f;
+
             }
           }
         }
       }
     }
 
-    for (int i = 0; i < prey_.pop.size(); ++i) {						//again cycle through the agents
-      if (!prey_.pop[i].handling && !prey_.pop[i].foraging) {			//if agent is handling AND NOT foraging
+    for (int i = 0; i < agents_.pop.size(); ++i) {
+      if (!agents_.pop[i].handling && !agents_.pop[i].foraging) {
 
-        const Coordinate pos = prey_.pop[i].pos;			//considering the position
-        if (handlers(pos) >= 1.0f) {						//if there are handlers there (layer in landscape)
-          attacking_inds_.push_back(i);							//the agent is added to the vector of agents that CAN ATTACK
+        const Coordinate pos = agents_.pop[i].pos;
+        if (handlers(pos) >= 1.0f) {
+          attacking_inds_.push_back(i);
+
         }
       }
     }
 
     for (auto i : attacking_inds_) {						//cycle through the agents in that same vector
 
-      for (auto attacked_pot = prey_.pop.data(); attacked_pot != last_prey; ++attacked_pot) {		//cycle through all the agents
-        const Coordinate pos = attacked_pot->pos;											//considering the cell
-        if (prey_.pop[i].pos == pos && &prey_.pop[i] != attacked_pot) {  // self excluded (if agent is not the same of the vector)
-          if (attacked_pot->handling) {									//and if the agent is handling
-            attacked_potentially_.push_back(attacked_pot);					//add him to the POTENTIALLY ATTACKED vector
+      for (auto attacked_pot = agents_.pop.data(); attacked_pot != last_agents; ++attacked_pot) {
+        const Coordinate pos = attacked_pot->pos;
+        if (agents_.pop[i].pos == pos && &agents_.pop[i] != attacked_pot) {  // self excluded
+          if (attacked_pot->handling) {
+            attacked_potentially_.push_back(attacked_pot);
+
           }
         }
       }
@@ -303,17 +302,16 @@ namespace cine2 {
 
     }
 
-    //std::random_shuffle(attacking_inds_.begin(), attacking_inds_.end());	///OHH NO. no no no. {I think problems arise form this}
-																			///since both the vectors are ordered, we should shuffle both 
-																			///"attaking_inds" and "attaked_inds" in the same way, or they are not
-																			///paired anymore.
-	
-	
-	std::vector<std::pair<int, Individual*>> conflicts_v(attacking_inds_.size());
-	for (int i = 0; i < attacking_inds_.size(); ++i) {
-		conflicts_v[i] = { attacking_inds_[i], attacked_inds[i] };
-	}
-	std::shuffle(conflicts_v.begin(), conflicts_v.end(), rnd::reng);
+
+    assert(attacked_inds.size() == attacking_inds_.size() && "vector lengths uneven");
+
+    // Shuffling
+    std::vector<std::pair<int, Individual*>> conflicts_v(attacking_inds_.size());
+    for (int i = 0; i < attacking_inds_.size(); ++i) {
+      conflicts_v[i] = { attacking_inds_[i], attacked_inds[i] };
+    }
+    std::shuffle(conflicts_v.begin(), conflicts_v.end(), rnd::reng);
+
 
     for (int i = 0; i < attacking_inds_.size(); ++i) {				//cycle through the agents who attack
       float prob_to_fight = 1.0f;									//they always fight
@@ -329,25 +327,27 @@ namespace cine2 {
       if (conflicts_v[i].second->handling) {			///isn't this always true?
         if (fight(rnd::reng)) {
           if (initiator_wins(rnd::reng)) {
-            prey_.pop[conflicts_v[i].first].handling = conflicts_v[i].second->handling;			//the klepto gets the handling status
-            prey_.pop[conflicts_v[i].first].handle_time = conflicts_v[i].second->handle_time;		//and the handling time from the victim
-            //conflicts_v[i].first->food += 1.0f;
-            conflicts_v[i].second->flee(landscape_, param_.prey.flee_radius);					//the victim flee (inside this also the handling parameters are resetted)
+
+            agents_.pop[attacking_inds_[i]].handling = attacked_inds[i]->handling;
+            agents_.pop[attacking_inds_[i]].handle_time = attacked_inds[i]->handle_time;
+            //attacking_inds_[i]->food += 1.0f;
+            attacked_inds[i]->flee(landscape_, param_.agents.flee_radius);
 
           }
           else
-            prey_.pop[conflicts_v[i].first].flee(landscape_, param_.prey.flee_radius);		//if initiator loses, he flees 
+            agents_.pop[attacking_inds_[i]].flee(landscape_, param_.agents.flee_radius);
+          //Energetic costs
 
-          //Energetic costs																	//energetic costs for conflict
-          //conflicts_v[i].first->food -= 0.0f;
-          //conflicts_v[i].second->food -= 0.0f;
-
+          //attacking_inds_[i]->food -= 0.0f;
+          //attacked_inds[i]->food -= 0.0f;
 
         }
 
       }
     }
-	conflicts_v.clear();
+
+    conflicts_v.clear();
+
   }
 
 
@@ -386,10 +386,10 @@ namespace cine2 {
         break;
       }
       case msg_type::GENERATION: {
-        std::cout << sim->analysis().prey_summary().back().ave_fitness << "   ";
-        std::cout << sim->analysis().prey_summary().back().repro_ind << "   ";
-        std::cout << sim->analysis().prey_summary().back().repro_ann << "  (";
-        std::cout << sim->analysis().prey_summary().back().complexity << ");   ";
+        std::cout << sim->analysis().agents_summary().back().ave_fitness << "   ";
+        std::cout << sim->analysis().agents_summary().back().repro_ind << "   ";
+        std::cout << sim->analysis().agents_summary().back().repro_ann << "  (";
+        std::cout << sim->analysis().agents_summary().back().complexity << ");   ";
 
 
 
