@@ -249,6 +249,7 @@ namespace cine2 {
     LayerView old_grass = landscape_[Layers::temp];
     old_grass.copy(handlers);
 
+
     attacking_inds_.clear();
     attacked_potentially_.clear();
     attacked_inds.clear();
@@ -262,6 +263,7 @@ namespace cine2 {
             if (std::bernoulli_distribution(1.0 - pow((1.0f - detection_rate), items(pos)))(rnd::reng)) { // Ind searching for items
               agents->pick_item(param_.agents.handling_time);
               items(pos) -= 1.0f;
+
             }
           }
         }
@@ -300,6 +302,7 @@ namespace cine2 {
 
     }
 
+
     assert(attacked_inds.size() == attacking_inds_.size() && "vector lengths uneven");
 
     // Shuffling
@@ -308,6 +311,7 @@ namespace cine2 {
       conflicts_v[i] = { attacking_inds_[i], attacked_inds[i] };
     }
     std::shuffle(conflicts_v.begin(), conflicts_v.end(), rnd::reng);
+
 
     for (int i = 0; i < attacking_inds_.size(); ++i) {				//cycle through the agents who attack
       float prob_to_fight = 1.0f;									//they always fight
@@ -320,9 +324,10 @@ namespace cine2 {
 
       std::bernoulli_distribution fight(prob_to_fight);								//sampling whether fight occurs
       std::bernoulli_distribution initiator_wins(1.0)/*initiator always wins*/;		//sampling whether the initiator wins or not
-      if (attacked_inds[i]->handling) {			///isn't this always true?
+      if (conflicts_v[i].second->handling) {			///isn't this always true?
         if (fight(rnd::reng)) {
           if (initiator_wins(rnd::reng)) {
+
             agents_.pop[attacking_inds_[i]].handling = attacked_inds[i]->handling;
             agents_.pop[attacking_inds_[i]].handle_time = attacked_inds[i]->handle_time;
             //attacking_inds_[i]->food += 1.0f;
@@ -335,10 +340,12 @@ namespace cine2 {
 
           //attacking_inds_[i]->food -= 0.0f;
           //attacked_inds[i]->food -= 0.0f;
+
         }
 
       }
     }
+
     conflicts_v.clear();
 
   }

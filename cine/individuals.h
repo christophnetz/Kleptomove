@@ -32,6 +32,7 @@ namespace cine2 {
 
     void pick_item(int h_time) {
       handle_time = -h_time;			//handling time is setted	[WE SHOULD MAKE THIS A PARAMETER IN "CONFIG.INI"]
+
       handling = true;			//agend handling status is set to true
     }
 
