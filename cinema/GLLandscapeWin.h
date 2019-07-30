@@ -39,18 +39,18 @@ namespace cinema {
     glm::dvec2 landscape_coor(int x, int y);
     
     enum SELECTION {
-      SELECTION_PREY,
-      SELECTION_PRED,
-      SELECTION_GRASS,
-      SELECTION_RISK,
+      SELECTION_FORAGERS,
+      SELECTION_KLEPTS,
+      SELECTION_HANDLERS,
+      SELECTION_ITEMS,
       MAX_SELECTION
     };
 
     enum LAYERS {
-      LAYER_PREY,
-      LAYER_PRED,
-      LAYER_GRASS,
-      LAYER_RISK,
+      LAYER_FORAGERS,
+      LAYER_KLEPTS,
+      LAYER_HANDLERS,
+      LAYER_ITEMS,
       MAX_LAYER
     };
 

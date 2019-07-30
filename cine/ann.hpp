@@ -247,7 +247,7 @@ namespace feedback {
 template <size_t Input, 
           typename Activation, 
           typename Feedback = feedback::none, 
-          bool Biased = true
+          bool Biased = false
 >
 struct Neuron
 {

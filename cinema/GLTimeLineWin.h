@@ -15,7 +15,7 @@ namespace cinema {
   class GLTimeLineWin :
     public GLWin
   {
-    static const int NT = 10;
+    static const int NT = 5; //CN: before was 10
 
   public:
     GLTimeLineWin(GLSimState*);
@@ -47,7 +47,7 @@ namespace cinema {
     void snap_camera();
     
     static const std::array<const char*, 5+1> title_;
-    static const std::array<glm::vec4, NT> color_;
+    static const std::array<glm::vec4, NT> color_;    // RGBA values
 
     int G_, g_;
     float max_[NT];

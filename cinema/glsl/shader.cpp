@@ -81,14 +81,14 @@ namespace shader {
     void main(void)
     {
       vec3(gTex.x, gTex.y, 0);
-      float prey = layer_mask.x * texture(Texture, vec3(gTex.x, gTex.y, 0)).r;
-      float pred = layer_mask.y * texture(Texture, vec3(gTex.x, gTex.y, 1)).r;
-      float grass = layer_mask.z * texture(Texture, vec3(gTex.x, gTex.y, 2)).r;
-      float risk = layer_mask.w * texture(Texture, vec3(gTex.x, gTex.y, 3)).r;
+      float foragers = layer_mask.x * texture(Texture, vec3(gTex.x, gTex.y, 0)).r;
+      float klepts = layer_mask.y * texture(Texture, vec3(gTex.x, gTex.y, 1)).r;
+      float handlers = layer_mask.z * texture(Texture, vec3(gTex.x, gTex.y, 2)).r;
+      float capacity = layer_mask.w * texture(Texture, vec3(gTex.x, gTex.y, 3)).r;
       
-      // draw grass below pred & prey
-      //grass *= (0.0 < (prey + pred)) ? 0.0 : 1.0;
-      FragColor.rgb = vec3(pred, grass, prey) + risk;
+      // draw handlers below klepts & foragers
+      //handlers *= (0.0 < (foragers + klepts)) ? 0.0 : 1.0;
+      FragColor.rgb = vec3(klepts, handlers, foragers) + capacity;
     }
 
   )glsl";

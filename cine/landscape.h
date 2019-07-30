@@ -114,12 +114,14 @@ namespace cine2 {
   public:
     /// \brief  Values that represent layers in a Landscape.
     enum Layers : int {
-      prey = 0,     // convoluted prey_count
-      pred,         // convoluted pred_count
-      grass,
-      risk,       
-      prey_count,
-      pred_count,
+      foragers = 0,     //convoluted foragers_count
+      klepts,			//convoluted klepts_count
+      handlers,			//handlers
+      items,			//food items
+      capacity,			//maximum capacity of the landscape
+      foragers_count,
+      klepts_count,
+      handlers_count,
       temp,         // scratch for computation
       max_layer
     };
@@ -210,24 +212,34 @@ namespace cine2 {
     const LayerView operator[](Layers layer) const { return get_layer(layer); }
 
     template <typename IT, typename Kernel>
-    void update_occupancy(Layers count, Layers conv, Layers count2, Layers conv2, IT first, IT last, const Kernel& kernel)
+    void update_occupancy(Layers count, Layers conv, Layers count2, Layers conv2, Layers count3, Layers conv3, IT first, IT last, const Kernel& kernel)
     {
       LayerView vCount = get_layer(count);
       LayerView vConv = get_layer(conv);      
       LayerView vCount2 = get_layer(count2);
       LayerView vConv2 = get_layer(conv2);
+      LayerView vCount3 = get_layer(count3);
+      LayerView vConv3 = get_layer(conv3);
+	  
+	  //clearing the vectors before the visualization of the current timestep
       vCount.clear();
       vConv.clear();      
       vCount2.clear();
       vConv2.clear();
-      for (; first != last; ++first) {
-        if (first->alive()) {
-          if (first->handle()) {
-            ++vCount(first->pos);
-            vConv.stamp_kernel<Kernel::k>(first->pos, kernel.K);
+      vCount3.clear();
+      vConv3.clear();
+      for (; first != last; ++first) {		//cycle trough the agensta
+        if (first->alive()) {				//if alive
+          if (first->handle()) {				//and handling
+            ++vCount3(first->pos);					//position stored in the vector3 (for handlers apparently)
+            vConv3.stamp_kernel<Kernel::k>(first->pos, kernel.K);
           }
-          else {
-            ++vCount2(first->pos);
+          else if (first->foraging) {			//if not handling, but foraging
+            ++vCount(first->pos);					//position stored in vector1 (for foragers)
+            vConv.stamp_kernel<Kernel::k>(first->pos, kernel.K); 
+          }
+          else {								//if not handling and not foragers (they are kleptoparasytes)
+            ++vCount2(first->pos);					//position stored in vector2 (for klepts)
             vConv2.stamp_kernel<Kernel::k>(first->pos, kernel.K);
           }
 

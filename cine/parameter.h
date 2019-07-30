@@ -26,22 +26,22 @@ namespace cine2 {
   >;
 
 
-  using default_activation = activation::rtlu;
+  using default_activation = activation::identity;
 
 
 	using SimpleAnn = Network<float,
-		Layer< Neuron<3, default_activation>, 1>
+		Layer< Neuron<3, default_activation>, 2>
 	>;
 
 
 	using SimpleAnnFB = Network<float,
-		Layer< Neuron<3, default_activation, feedback::direct>, 1>
+		Layer< Neuron<3, default_activation, feedback::direct>, 2>
 	>;
 
 
 	using SmartAnn = Network<float,
 		Layer< Neuron<3, default_activation>, 3>,
-		Layer< Neuron<3, default_activation>, 1>
+		Layer< Neuron<3, default_activation>, 2>
 	>;
 
 
@@ -70,37 +70,39 @@ namespace cine2 {
       std::string ann;
 
       int sprout_radius;
+      int flee_radius;
+      int handling_time;
       float mutation_prob;
       float mutation_step;
       float mutation_knockout;
       float noise_sigma;
       float cmplx_penalty;
 
-      std::array<int, 3> input_layers;
+      std::array<int, 4> input_layers;
       std::array<float, 3> input_mask;
     };
     
-    ind_param prey;
-    ind_param pred;
+    ind_param agents;
+    //ind_param pred;
 
-    static float prey_fitness(const Individual& ind, float cmplx, float penalty)
+    static float agents_fitness(const Individual& ind, float cmplx, float penalty)
     {
       return ind.alive() ? std::max(0.f, ind.food - cmplx * penalty) : 0.0f;
     }
 
-    static float pred_fitness(const Individual& ind, float cmplx, float penalty)
-    {
-      return std::max(0.f, ind.food - cmplx * penalty);
-    }
+    //static float pred_fitness(const Individual& ind, float cmplx, float penalty)
+    //{
+    //  return std::max(0.f, ind.food - cmplx * penalty);
+    //}
 
     struct
     {
-      image_layer risk;
-      float max_grass_cover;
-	  float grass_growth;
-	  float grass_deplete; //*&*
-      GaussFilter<3> prey_kernel;
-      GaussFilter<3> pred_kernel;
+      image_layer capacity;
+      float max_item_cap;
+	  float item_growth;
+	  float detection_rate; //*&*
+      GaussFilter<3> foragers_kernel;
+      GaussFilter<3> klepts_kernel;
     } landscape;
 
     struct
@@ -110,8 +112,8 @@ namespace cine2 {
       std::array<bool, 4> selected;
     } gui;
 
-    std::string init_pred_ann;
-    std::string init_prey_ann;
+    //std::string init_pred_ann;
+    std::string init_agents_ann;
     int initG;
   };
 
