@@ -3,3 +3,4 @@
 bin/
 tmp/
 !bin/settings/config.ini
+.Rproj.user
