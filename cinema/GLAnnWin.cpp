@@ -171,8 +171,8 @@ namespace cinema {
     colorMap_(3),
     histogram_(true) 
   {
-    display_[0].reset(new AnnRenderer(sim_state->prey_ann()));
-    display_[1].reset(new AnnRenderer(sim_state->pred_ann()));
+    display_[0].reset(new AnnRenderer(sim_state->agents_ann()));
+    //display_[1].reset(new AnnRenderer(sim_state->pred_ann()));
   }
 
   
@@ -201,7 +201,7 @@ namespace cinema {
     annTanhProg_ = shader::ProgFromLiterals(shader::annVert, shader::annTanhFrag);
     annLogP1Prog_ = shader::ProgFromLiterals(shader::annVert, shader::annLogP1Frag);
     display_[0]->init_glsl();
-    display_[1]->init_glsl();
+//    display_[1]->init_glsl();
   }
 
 
@@ -212,7 +212,7 @@ namespace cinema {
     glDeleteProgram(annTanhProg_);
     glDeleteProgram(annLogP1Prog_);
     display_[0]->destroy_glsl();
-    display_[1]->destroy_glsl();
+//    display_[1]->destroy_glsl();
   }
 
 
@@ -239,9 +239,9 @@ namespace cinema {
       if (selection < 6) colorMap_ = selection;
       if (selection == 6) histogram_ = !histogram_;
       display_[0]->scale = 1.0;
-      display_[1]->scale = 1.0;
+//      display_[1]->scale = 1.0;
       display_[0]->zoom = 1.0;
-      display_[1]->zoom = 1.0;
+//      display_[1]->zoom = 1.0;
     }
     ::InvalidateRect(m_hWnd, NULL, TRUE);
     return 1;
@@ -251,7 +251,7 @@ namespace cinema {
   void GLAnnWin::on_size()
   {
     display_[0]->on_size(glm::ivec4(10, 10, (winW_ / 2) - 15, winH_ - 20));
-    display_[1]->on_size(glm::ivec4((winW_ / 2) + 5, 10, (winW_ / 2) - 15, winH_ - 20));
+//    display_[1]->on_size(glm::ivec4((winW_ / 2) + 5, 10, (winW_ / 2) - 15, winH_ - 20));
     ::InvalidateRect(m_hWnd, NULL, TRUE);
   }
 
@@ -269,10 +269,10 @@ namespace cinema {
       display_[0]->on_mouse_track(dx, dy, this);
       ::InvalidateRect(m_hWnd, NULL, TRUE);
     }
-    else if (hit_test(trackStartX_, trackStartY_, display_[1]->camera->viewport())) {
-      display_[1]->on_mouse_track(dx, dy, this);
-      ::InvalidateRect(m_hWnd, NULL, TRUE);
-    }
+    //else if (hit_test(trackStartX_, trackStartY_, display_[1]->camera->viewport())) {
+    //  display_[1]->on_mouse_track(dx, dy, this);
+    //  ::InvalidateRect(m_hWnd, NULL, TRUE);
+    //}
   }
 
 
@@ -282,10 +282,10 @@ namespace cinema {
       display_[0]->on_zoom(zDelta);
       ::InvalidateRect(m_hWnd, NULL, TRUE);
     }
-    else if (hit_test(mouseX_, mouseY_, display_[1]->camera->viewport())) {
-      display_[1]->on_zoom(zDelta);
-      ::InvalidateRect(m_hWnd, NULL, TRUE);
-    }
+    //else if (hit_test(mouseX_, mouseY_, display_[1]->camera->viewport())) {
+    //  display_[1]->on_zoom(zDelta);
+    //  ::InvalidateRect(m_hWnd, NULL, TRUE);
+    //}
   }
 
 
@@ -296,21 +296,21 @@ namespace cinema {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_1D, sim_state_->colortex(colorMap_));
     if (histogram_) {
-      display_[0]->render_hist(annLogP1Prog_, rectProg_, (const float*)sim_state_->ptr(GLSimState::VBO_PREY_ANN));
-      display_[1]->render_hist(annLogP1Prog_, rectProg_, (const float*)sim_state_->ptr(GLSimState::VBO_PRED_ANN));
+      display_[0]->render_hist(annLogP1Prog_, rectProg_, (const float*)sim_state_->ptr(GLSimState::VBO_AGENTS_ANN));
+      //display_[1]->render_hist(annLogP1Prog_, rectProg_, (const float*)sim_state_->ptr(GLSimState::VBO_PRED_ANN));
       return;
     }
-    GLuint vbo0, vbo1;
-    GLint preyPack, predPack;
+    GLuint vbo0/*, vbo1*/;
+    GLint agentsPack/*, predPack*/;
     {
       //std::lock_guard<std::recursive_mutex> _(mutex_);
-      vbo0 = sim_state_->vbo(GLSimState::VBO_PREY_ANN);
-      vbo1 = sim_state_->vbo(GLSimState::VBO_PRED_ANN);
-      preyPack = sim_state_->prey_ann().type_size / sizeof(float);
-      predPack = sim_state_->pred_ann().type_size / sizeof(float);
+      vbo0 = sim_state_->vbo(GLSimState::VBO_AGENTS_ANN);
+      //vbo1 = sim_state_->vbo(GLSimState::VBO_PRED_ANN);
+      agentsPack = sim_state_->agents_ann().type_size / sizeof(float);
+      //predPack = sim_state_->pred_ann().type_size / sizeof(float);
     }
-    display_[0]->render(annTanhProg_, rectProg_, vbo0, preyPack, (const float*)sim_state_->ptr(GLSimState::VBO_PREY_ANN));
-    display_[1]->render(annTanhProg_, rectProg_, vbo1, predPack, (const float*)sim_state_->ptr(GLSimState::VBO_PRED_ANN));
+    display_[0]->render(annTanhProg_, rectProg_, vbo0, agentsPack, (const float*)sim_state_->ptr(GLSimState::VBO_AGENTS_ANN));
+    //display_[1]->render(annTanhProg_, rectProg_, vbo1, predPack, (const float*)sim_state_->ptr(GLSimState::VBO_PRED_ANN));
   }
 
 

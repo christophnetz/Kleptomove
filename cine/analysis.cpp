@@ -26,8 +26,8 @@ namespace cine2 {
   void Analysis::generation(const Simulation * sim) const
   {
     assess_input(sim);
-    summary_[0].push_back(assess_summary(sim->prey()));
-    summary_[1].push_back(assess_summary(sim->pred()));
+    summary_[0].push_back(assess_summary(sim->agents()));
+    //summary_[1].push_back(assess_summary(sim->pred()));
   }
 
 
@@ -66,12 +66,10 @@ namespace cine2 {
   void Analysis::assess_input(const Simulation* sim) const
   {
     LayerView tmp = sim->landscape()[Landscape::Layers::temp];
-    input_[0][0].push_back( reduce(sim->landscape()[static_cast<Landscape::Layers>(sim->param().prey.input_layers[0])], tmp) );
-    input_[0][1].push_back( reduce(sim->landscape()[static_cast<Landscape::Layers>(sim->param().prey.input_layers[1])], tmp) );
-    input_[0][2].push_back( reduce(sim->landscape()[static_cast<Landscape::Layers>(sim->param().prey.input_layers[2])], tmp) );
-    input_[1][0].push_back( reduce(sim->landscape()[static_cast<Landscape::Layers>(sim->param().pred.input_layers[0])], tmp) );
-    input_[1][1].push_back( reduce(sim->landscape()[static_cast<Landscape::Layers>(sim->param().pred.input_layers[1])], tmp) );
-    input_[1][2].push_back( reduce(sim->landscape()[static_cast<Landscape::Layers>(sim->param().pred.input_layers[2])], tmp) );
+    input_[0][0].push_back( reduce(sim->landscape()[static_cast<Landscape::Layers>(sim->param().agents.input_layers[0])], tmp) );
+    input_[0][1].push_back( reduce(sim->landscape()[static_cast<Landscape::Layers>(sim->param().agents.input_layers[1])], tmp) );
+    input_[0][2].push_back( reduce(sim->landscape()[static_cast<Landscape::Layers>(sim->param().agents.input_layers[2])], tmp) );
+
   }
 
 

@@ -24,8 +24,8 @@ namespace cinema {
   public:
     enum VBO
     {
-      VBO_PREY_ANN,
-      VBO_PRED_ANN,
+      VBO_AGENTS_ANN,
+      //VBO_PRED_ANN,
       VBO_LAYER,
       VBO_DUMMY,
       VBO_MAX,
@@ -55,8 +55,8 @@ namespace cinema {
     ~GLSimState();
 
     int dim() const { return dim_; }
-    const ann_meta& prey_ann() const { return prey_ann_; }
-    const ann_meta& pred_ann() const { return pred_ann_; }
+    const ann_meta& agents_ann() const { return agents_ann_; }
+    //const ann_meta& pred_ann() const { return pred_ann_; }
 
     void* ptr(VBO vbo) const { return ptr_[vbo]; }
     GLuint vbo(VBO vbo) const { return vbo_[vbo]; }
@@ -71,8 +71,8 @@ namespace cinema {
 
   private:
     const int dim_;
-    const ann_meta prey_ann_;
-    const ann_meta pred_ann_;
+    const ann_meta agents_ann_;
+    //const ann_meta pred_ann_;
     std::array<void*, VBO_MAX> ptr_;
     std::array<GLuint, VBO_MAX> vbo_;
     std::array<GLuint, VAO_MAX> vao_;
