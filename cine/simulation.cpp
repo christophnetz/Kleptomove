@@ -21,6 +21,8 @@ namespace cine2 {
     agents_.tmp_pop = std::vector<Individual>(param.agents.N);
     agents_.ann = make_any_ann(param.agents.L, param.agents.N, param.agents.ann.c_str());
     agents_.fitness = std::vector<float>(param.agents.N, 0.f);
+    agents_.foraged = std::vector<float>(param.agents.N, 0);
+    agents_.handled = std::vector<float>(param.agents.N, 0);
     agents_.tmp_ann = make_any_ann(param.agents.L, param.agents.N, param.agents.ann.c_str());
 
 
@@ -39,7 +41,7 @@ namespace cine2 {
       items[i] = floor(capacity[i] * param.landscape.max_item_cap);
 
     }
-    
+
     //empty grass cover
     //for (auto& g : landscape_[Layers::items]) g = 0.0f;
 
@@ -48,7 +50,7 @@ namespace cine2 {
     for (auto& p : agents_.pop) { p.pos.x = coorDist(rnd::reng); p.pos.y = coorDist(rnd::reng); }
 
     // initial occupancies and observable densities
-    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, 
+    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count,
       Layers::klepts, Layers::handlers_count, Layers::handlers, agents_.pop.cbegin(), agents_.pop.cend(), param_.landscape.foragers_kernel);
 
     // optional: initialization from former runs
@@ -121,6 +123,21 @@ namespace cine2 {
       swap(population.ann, population.tmp_ann);
     }
 
+
+    void assess_inds(Population& population) {
+
+      const auto& pop = population.pop;
+      auto& foraged = population.foraged;
+      auto& handled = population.handled;
+
+      const int N = static_cast<int>(pop.size());
+
+      for (int i = 0; i < N; ++i) {
+        foraged[i] = pop[i].forage_count;
+        handled[i] = pop[i].handle_count;
+      }
+    }
+
   }
 
 
@@ -128,7 +145,7 @@ namespace cine2 {
   if ((observer ? !observer->notify(this, msg) : true)) return false
 
 
-  bool Simulation::run(Observer* observer)
+  bool Simulation::run(Observer * observer)
   {
     // burn-in
     simulation_observer_notify(INITIALIZED);
@@ -143,7 +160,7 @@ namespace cine2 {
       //assess_fitness(); //CN: fix?
       // clear fitness
       agents_.fitness.assign(agents_.fitness.size(), 0.f);
-    
+
       assess_fitness(); //CN: fix?
       create_new_generations();
     }
@@ -171,6 +188,7 @@ namespace cine2 {
 
 
       assess_fitness();
+      assess_inds();
       analysis_.generation(this);
       simulation_observer_notify(GENERATION);
       create_new_generations();
@@ -196,27 +214,24 @@ namespace cine2 {
     //#   pragma omp parallel for schedule(static)
 
     for (int i = 0; i < DD; ++i) {
-          if (std::bernoulli_distribution(item_growth)(rnd::reng)) {  // altered: probability that items drop
-            items[i] = std::min(floor(capacity[i] * max_item_cap), floor(items[i] + 1.0f));
-          }
-        }
-    
-    auto last_agents = agents_.pop.data() + agents_.pop.size();
-    for (auto agents = agents_.pop.data(); agents != last_agents; ++agents) {
-      agents->do_handle();
+      if (std::bernoulli_distribution(item_growth)(rnd::reng)) {  // altered: probability that items drop
+        items[i] = std::min(floor(capacity[i] * max_item_cap), floor(items[i] + 1.0f));
+      }
     }
+
+
 
     landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers_count, Layers::handlers, agents_.pop.cbegin(), agents_.pop.cend(), param_.landscape.foragers_kernel);
 
     // move
     agents_.ann->move(landscape_, agents_.pop, param_.agents);
 
-  
+
 
     // update occupancies and observable densities
     landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers_count, Layers::handlers, agents_.pop.cbegin(), agents_.pop.cend(), param_.landscape.foragers_kernel);
 
-	//RESOLVE GRAZING AND ATTACK function!
+    //RESOLVE GRAZING AND ATTACK function!
     resolve_grazing_and_attacks();
 
 
@@ -230,6 +245,11 @@ namespace cine2 {
     detail::assess_fitness(agents_, param_.agents, Param::agents_fitness);
   }
 
+  void Simulation::assess_inds()
+  {
+
+    detail::assess_inds(agents_);
+  }
 
   void Simulation::create_new_generations()
   {
@@ -252,21 +272,9 @@ namespace cine2 {
     attacking_inds_.clear();
     attacked_potentially_.clear();
     attacked_inds.clear();
-    auto last_agents = agents_.pop.data() + agents_.pop.size();
-    for (auto agents = agents_.pop.data(); agents != last_agents; ++agents) {
-      if (agents->handle() == false) {
-        const Coordinate pos = agents->pos;
 
-        if (agents->foraging) {
-          if (items(pos) >= 1.0f){
-            if (std::bernoulli_distribution(1.0 - pow((1.0f - detection_rate), items(pos)))(rnd::reng)) { // Ind searching for items
-              agents->pick_item(param_.agents.handling_time);
-              items(pos) -= 1.0f;
-            }
-          }
-        }
-      }
-    }
+    auto last_agents = agents_.pop.data() + agents_.pop.size();
+
 
     for (int i = 0; i < agents_.pop.size(); ++i) {
       if (!agents_.pop[i].handling && !agents_.pop[i].foraging) {
@@ -340,6 +348,28 @@ namespace cine2 {
       }
     }
     conflicts_v.clear();
+
+    for (auto agents = agents_.pop.data(); agents != last_agents; ++agents) {
+      if (agents->handle() == false) {
+        const Coordinate pos = agents->pos;
+
+        if (agents->foraging) {
+          if (items(pos) >= 1.0f) {
+            if (std::bernoulli_distribution(1.0 - pow((1.0f - detection_rate), items(pos)))(rnd::reng)) { // Ind searching for items
+              agents->pick_item(param_.agents.handling_time);
+              items(pos) -= 1.0f;
+            }
+          }
+        }
+      }
+
+      else {
+        agents->do_handle();
+
+      }
+    }
+
+
 
   }
 

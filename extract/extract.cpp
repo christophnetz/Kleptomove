@@ -40,6 +40,8 @@ int main(int argc, const char** argv)
     auto tmp = dir / "tmp";
     fs::create_directory(tmp);
     convert<float, double>(tmp / (what + "_fit.tmp"), dir / (what + "_fit.arc"), G);
+    convert<float, double>(tmp / (what + "_foa.tmp"), dir / (what + "_foa.arc"), G);
+    convert<float, double>(tmp / (what + "_han.tmp"), dir / (what + "_han.arc"), G);
     convert<int, int>(tmp / (what + "_anc.tmp"), dir / (what + "_anc.arc"), G);
     convert<float, double>(tmp / (what + "_ann.tmp"), dir / (what + "_ann.arc"), G);
     return 0;
