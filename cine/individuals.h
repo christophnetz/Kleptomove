@@ -15,7 +15,7 @@ namespace cine2 {
 
   struct Individual
   {
-    Individual() : pos(0, 0), food(0), foraging(false), handling(false), handle_time(0), ancestor(0)
+    Individual() : pos(0, 0), food(0), foraging(false), handling(false), handle_time(0), forage_count(0.f), handle_count(0), ancestor(0)
     {
     }
 
@@ -23,23 +23,32 @@ namespace cine2 {
     {
       pos = Pos;
       food = 0.f;
+      handle_count = 0;
+      forage_count = 0;
       ancestor = ancestor_idx;
     }
 
     bool alive() const { return food >= 0.f; }
     bool handle() const { return handling; }
-    bool forage() const { return foraging; }
+    void forage(bool decision)  { 
+      foraging = decision;
+      if (decision) {
+        forage_count += 1.f;
+      }
+    }
 
     void pick_item(int h_time) {
       handle_time = -h_time;			//handling time is setted	[WE SHOULD MAKE THIS A PARAMETER IN "CONFIG.INI"]
 
       handling = true;			//agend handling status is set to true
+
     }
 
 	//HANDLING FUNCTION (per agent)
     void do_handle() {
       if (handle_time < 0 && handling) {		//if agent handling time is smaller than zero AND agent is handling 
         ++handle_time;								//handling time is udpated
+        handle_count += 1.f;
       }
       if (handle_time == 0 && handling) {		//if handling time has reached zero AND agent is handling
         food += 1.0f;								//food is consumed
@@ -66,6 +75,8 @@ namespace cine2 {
     bool foraging;
     bool handling;
     int handle_time;
+    float handle_count;
+    float forage_count;
     int ancestor;
   };
 
