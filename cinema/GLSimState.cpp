@@ -5,6 +5,12 @@
 #include <glsl/debug.h>
 
 
+// For Luis: force the execution on the GPU, and therefore allow openGL compatibility.
+extern "C" {
+	__declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+}
+
+
 namespace bmf = glsl::bmfont;
 namespace filesystem = std::experimental::filesystem;
 
