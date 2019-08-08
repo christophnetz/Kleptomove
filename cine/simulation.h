@@ -23,6 +23,7 @@ namespace cine2 {
     std::unique_ptr<any_ann> tmp_ann;   // new Anns during reproduction, ancestors Anns otherwise
     std::vector<float> foraged;         // fitness after last timestep
     std::vector<float> handled;         // fitness after last timestep
+	int conflicts;
     std::vector<float> fitness;         // fitness after last timestep
     rndutils::mutable_discrete_distribution<int, rndutils::all_zero_policy_uni> rdist;  // reproduction distr.
   };

@@ -102,6 +102,8 @@ namespace cine2 {
       shandle += x;
     }
 
+
+
     return { 
       static_cast<float>(sfit / Pop.fitness.size()), 
       cfit, 
@@ -109,6 +111,7 @@ namespace cine2 {
       static_cast<float>(complexity / unique_ann.size()),
       static_cast<float>(sforage),
       static_cast<float>(shandle),
+	  Pop.conflicts
     };
   }
 

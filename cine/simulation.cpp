@@ -23,6 +23,7 @@ namespace cine2 {
     agents_.fitness = std::vector<float>(param.agents.N, 0.f);
     agents_.foraged = std::vector<float>(param.agents.N, 0);
     agents_.handled = std::vector<float>(param.agents.N, 0);
+	agents_.conflicts = 0;
     agents_.tmp_ann = make_any_ann(param.agents.L, param.agents.N, param.agents.ann.c_str());
 
 
@@ -118,6 +119,8 @@ namespace cine2 {
       }
       population.tmp_ann->mutate(iparam, fixed);
 
+	  population.conflicts = 0;
+
       using std::swap;
       swap(population.pop, population.tmp_pop);
       swap(population.ann, population.tmp_ann);
@@ -173,7 +176,7 @@ namespace cine2 {
         simulation_observer_notify(POST_TIMESTEP);
         // to print one screenshot
         /*
-        if (g_ == 50 && t_ == 25) {
+        if (g_ % 10 == 0  && t_ == 25) {
           Image screenshot2(std::string("../settings/screenshot.png"));
 
           layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::agents_count], blue);
@@ -367,6 +370,8 @@ namespace cine2 {
       }
     }
 
+	agents_.conflicts += conflicts_v.size();
+
     conflicts_v.clear();
 
     for (auto agents = agents_.pop.data(); agents != last_agents; ++agents) {
@@ -432,9 +437,9 @@ namespace cine2 {
         std::cout << sim->analysis().agents_summary().back().ave_fitness << "   ";
         std::cout << sim->analysis().agents_summary().back().repro_ind << "   ";
         std::cout << sim->analysis().agents_summary().back().repro_ann << "  (";
-        std::cout << sim->analysis().agents_summary().back().complexity << ");   ";
-
-
+        std::cout << sim->analysis().agents_summary().back().complexity << ");   \t\t";
+		std::cout << sim->analysis().agents_summary().back().foragers << "   ";
+		std::cout << sim->analysis().agents_summary().back().handlers << "   \t";
 
         std::cout << (int)(1000 * watch_.elapsed().count()) << "ms\n";
         break;

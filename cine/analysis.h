@@ -29,6 +29,7 @@ namespace cine2 {
       float complexity;
       float foragers;
       float handlers;
+	  int conflicts;
     };
 
   public:

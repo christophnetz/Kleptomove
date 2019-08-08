@@ -63,8 +63,8 @@ input <- function() {
   
 # load summary
 summary <- function() {
-  agents = matrix(import.raw(paste0(config$dir, '/agents_summary.bin'), numeric(), 8), ncol=7, byrow=T)
-  cn <- c('pop fitness', 'repro fitness', 'repro ind', 'repro clades', 'complexity', 'foraging', 'handling')
+  agents = matrix(import.raw(paste0(config$dir, '/agents_summary.bin'), numeric(), 8), ncol=8, byrow=T)
+  cn <- c('pop fitness', 'repro fitness', 'repro ind', 'repro clades', 'complexity', 'foraging', 'handling', 'conflicts')
   colnames(agents) <- cn
 #  colnames(pred) <- cn
   list(agents=agents) #CN: pred excluded, pred=pred
@@ -153,8 +153,9 @@ config$dir = getSrcDirectory(generation)[1]
         val = summary[i].repro_ann; os.write((const char*)&val, sizeof(double));
         val = summary[i].complexity; os.write((const char*)& val, sizeof(double));
         val = summary[i].foragers; os.write((const char*)& val, sizeof(double));
-        val = summary[i].handlers; os.write((const char*)& val, sizeof(double));
-      }
+		val = summary[i].handlers; os.write((const char*)& val, sizeof(double));
+		val = summary[i].conflicts; os.write((const char*)& val, sizeof(double));
+	  }
     }
 
 
