@@ -25,6 +25,26 @@ plot(data[,`repro ind`], type = "l")
 repro_ind <- data[,`repro ind`][c(1:1000)]
 plot(repro_ind, type = "l")
 
+#Looking at foraging and handling events
+hand <- data[,`handling`][c(1:120)]
+forag <- data[,`foraging`][c(1:120)]
+con <- data[,`conflicts`][c(1:120)]
+
+plot(hand, type = "l", col="red", ylim = c(0,680000))
+lines(forag,type = "l", col="green")
+
+par(new=TRUE)
+plot(con, type = "l", axes = FALSE)
+axis(side = 4)
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+data[,stealing:=1000000-(foraging+handling)]
+data
+kk <- data[, c("handling", "foraging", "stealing", "conflicts")]
+kk[, rapporto:=stealing/conflicts]
+rap <- kk[,`rapporto`]
+plot(rap)
+
 #§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 #Here we want to visualize the number of agents which have the same fitness in each generation
 
@@ -109,5 +129,35 @@ ar <- vector()
 for (i in seq_along(parents)){
   ar[i] <- parents[[i]][1]
 }
-
+ar
 plot(ar, type = "l")
+
+## I think this version is better (if it works)
+# parents <- vector()
+# for (i in 0:dim(data)[1]){
+#   a <- generation(i)
+#   b <- a$agents$anc
+#   parents[i] <- length(unique(b))
+# }
+# parents
+
+#Checking out in a specific generation some stuff
+p <- generation(23)
+pfoa <- p$agents$foa
+phan <- p$agents$han
+pstl <- 100-(pfoa+phan)
+
+pstl
+
+library(tidyverse)
+pstl_tidy <- as_tibble(pstl)
+zum <- pstl_tidy %>% 
+  mutate(id=c(1:nrow(pstl_tidy))) %>% 
+  group_by(value) %>% 
+  summarize(num=n_distinct(id))
+
+arrange(zum, desc(value))
+
+b <- pstl_tidy %>% 
+  mutate(id=c(1:nrow(pstl_tidy)))
+
