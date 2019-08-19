@@ -63,6 +63,22 @@ namespace cine2 {
   }
 
 
+  void layer_to_image_channel_2(Image& dst, const LayerView& src, ImageChannel channel, float scale)
+  {
+	  if (!(dst.width() == src.dim() && dst.height() == src.dim())) {
+		  throw std::runtime_error("assign_layer_to_image_channel: dimensions don't match");
+	  }
+	  auto set_channel = [=](unsigned char& c, float val) {
+		  c = static_cast<unsigned char>(std::max(0.0f, std::min((val / scale), 1.0f)) * 255.0f);
+	  };
+	  const int n = dst.width() * dst.height();
+	  unsigned char* pdst = (unsigned char*)(dst.data()) + channel;
+	  const float* psrc = src.data();
+	  for (int i = 0; i < n; ++i, pdst += 4, ++psrc) {
+		  set_channel(*pdst, *psrc);
+	  }
+  }
+
   void save_image(const Image& image, const std::string& filename)
   {
     int stride = image.width() * sizeof(unsigned);
