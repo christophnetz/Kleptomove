@@ -7,16 +7,16 @@ namespace cine2 {
 
 
   any_ann::any_ann(int N, int state_size, int size)
-  : N_(N), 
-    state_size_(state_size), 
-    size_(size), 
+  : N_(N),
+    state_size_(state_size),
+    size_(size),
     state_(nullptr)
   {
     state_ = (float*)_mm_malloc(N_ * size_ * sizeof(float), 16);
     std::memset(state_, 0, N_ * size_ * sizeof(float));
   }
 
-  
+
   any_ann::~any_ann()
   {
     _mm_free(state_);
@@ -115,7 +115,7 @@ namespace cine2 {
   #   pragma omp parallel for schedule(static,128)
       for (int p = 0; p < N; ++p) {							//cycle thrugh the agents
         if (pop[p].alive() && !(pop[p].handle())) {			//conditions for movement (alive and not handling)
-          
+
 		  //gather information from landscape
           Coordinate pos = pop[p].pos;							//gather position agent
           std::array<env_info_t, ANN::input_size + 1> env_input;	//[input number definition stuff]
@@ -142,7 +142,7 @@ namespace cine2 {
             auto output = pann[p](input);   // ask ANN
             float eval = output[0];			//first output, named eval
             float eval2 = output[1];		//second output, named eval2
-            best_eval = std::max(best_eval, eval);		//best_eval is updated, 
+            best_eval = std::max(best_eval, eval);		//best_eval is updated,
             zip[i] = { eval, eval2, i };				//structure filled with evaluation
           }
 
@@ -159,7 +159,7 @@ namespace cine2 {
           std::bernoulli_distribution s_decision(s_prob);							//this become the probability of adopting foraging strategy
 		  pop[p].forage = s_decision(rnd::reng);				//if condition apply, foraging of agent set to TRUE
 		  */
-          pop[p].forage(/*true*/it->eval2 >= 0);
+          pop[p].forage(true/*it->eval2 >= 0*/);
 		  
         }
       }
@@ -186,7 +186,7 @@ namespace cine2 {
     return std::unique_ptr<any_ann>( new concrete_ann<L, ANN>(N) );
   }
 
-    
+
   template <int L>
   std::unique_ptr<any_ann> make_any_ann_1(int N, const char* ann_descr)
   {
@@ -210,6 +210,6 @@ namespace cine2 {
     std::runtime_error("Unknown Ann type");
     return nullptr;
   }
-  
+
 
 }
