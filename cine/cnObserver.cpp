@@ -35,8 +35,10 @@ import.generation <- function(G, what, stderr) {
                 ncol=config[[paste0(what, ".ann.weights")]], byrow=T)
   fit <- import.raw(paste0(config$dir, "/tmp/", what, "_fit.tmp"), numeric(), 8)
   anc <- import.raw(paste0(config$dir, "/tmp/", what, "_anc.tmp"), integer(), 4)
+  foa <- import.raw(paste0(config$dir, "/tmp/", what, "_foa.tmp"), numeric(), 8)
+  han <- import.raw(paste0(config$dir, "/tmp/", what, "_han.tmp"), numeric(), 8)
   system2(extractor, paste0("dir=", config$dir, " --cleanup"))
-  list(ann=ann, fit=fit, anc=anc)
+  list(ann=ann, fit=fit, anc=anc, foa=foa, han=han)
 }
 
 # extract generation
@@ -44,7 +46,6 @@ import.generation <- function(G, what, stderr) {
 #   G    : generation
 generation <- function(G, stderr=F) {
   agents = import.generation(G, "agents", stderr)
-#  pred = import.generation(G, "pred", stderr)
   list(agents=agents)
 }
 
@@ -62,9 +63,8 @@ input <- function() {
   
 # load summary
 summary <- function() {
-  agents = matrix(import.raw(paste0(config$dir, '/agents_summary.bin'), numeric(), 8), ncol=5, byrow=T)
-#  pred = matrix(import.raw(paste0(config$dir, '/pred_summary.bin'), numeric(), 8), ncol=5, byrow=T)
-  cn <- c('pop fitness', 'repro fitness', 'repro ind', 'repro clades', 'complexity')
+  agents = matrix(import.raw(paste0(config$dir, '/agents_summary.bin'), numeric(), 8), ncol=8, byrow=T)
+  cn <- c('pop fitness', 'repro fitness', 'repro ind', 'repro clades', 'complexity', 'foraging', 'handling', 'conflicts')
   colnames(agents) <- cn
 #  colnames(pred) <- cn
   list(agents=agents) #CN: pred excluded, pred=pred
@@ -98,10 +98,12 @@ config$dir = getSrcDirectory(generation)[1]
           oa_agents_ann_.open(folder / "agents_ann.arc", sim->param().agents.ann);
           oa_agents_fit_.open(folder / "agents_fit.arc", "fitness");
           oa_agents_anc_.open(folder / "agents_anc.arc", "ancestors");
+          oa_agents_foa_.open(folder / "agents_foa.arc", "forage");
+          oa_agents_han_.open(folder / "agents_han.arc", "handle");
 
           break;
         case msg_type::GENERATION:
-          stream_generation(sim->agents(), oa_agents_ann_, oa_agents_fit_, oa_agents_anc_);
+          stream_generation(sim->agents(), oa_agents_ann_, oa_agents_fit_, oa_agents_anc_, oa_agents_foa_, oa_agents_han_);
 
           break;
         case msg_type::FINISHED:
@@ -117,7 +119,9 @@ config$dir = getSrcDirectory(generation)[1]
     void stream_generation(const Population& Pop, 
                            archive::oarch& oa_ann, 
                            archive::oarch& oa_fit, 
-                           archive::oarch& oa_anc)
+                           archive::oarch& oa_anc,
+                           archive::oarch& oa_foa,
+                           archive::oarch& oa_han)
     {
       oa_ann.insert(archive::compress(Pop.ann->data(),
                                       Pop.ann->N(),
@@ -130,6 +134,12 @@ config$dir = getSrcDirectory(generation)[1]
                                       Pop.pop.size(),
                                       sizeof(int),
                                       sizeof(Individual)));
+      oa_foa.insert(archive::compress(Pop.foraged.data(),
+                                      Pop.foraged.size(),
+                                      sizeof(float)));
+      oa_han.insert(archive::compress(Pop.handled.data(),
+                                      Pop.handled.size(),
+                                      sizeof(float)));
     }
 
 
@@ -141,8 +151,11 @@ config$dir = getSrcDirectory(generation)[1]
         val = (summary[i].ave_fitness * N)/ summary[i].repro_ind; os.write((const char*)&val, sizeof(double));
         val = summary[i].repro_ind; os.write((const char*)&val, sizeof(double));
         val = summary[i].repro_ann; os.write((const char*)&val, sizeof(double));
-        val = summary[i].complexity; os.write((const char*)&val, sizeof(double));
-      }
+        val = summary[i].complexity; os.write((const char*)& val, sizeof(double));
+        val = summary[i].foragers; os.write((const char*)& val, sizeof(double));
+		val = summary[i].handlers; os.write((const char*)& val, sizeof(double));
+		val = summary[i].conflicts; os.write((const char*)& val, sizeof(double));
+	  }
     }
 
 
@@ -217,6 +230,8 @@ config$dir = getSrcDirectory(generation)[1]
     archive::oarch oa_agents_ann_;
     archive::oarch oa_agents_fit_;
     archive::oarch oa_agents_anc_;
+    archive::oarch oa_agents_foa_;
+    archive::oarch oa_agents_han_;
 
   };
 

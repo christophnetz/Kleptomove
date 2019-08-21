@@ -27,6 +27,9 @@ namespace cine2 {
       int repro_ind;
       int repro_ann;
       float complexity;
+      float foragers;
+      float handlers;
+	  int conflicts;
     };
 
   public:

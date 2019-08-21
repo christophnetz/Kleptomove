@@ -91,11 +91,27 @@ namespace cine2 {
         complexity += tmp_ann->complexity(idx);
       }
     }
+
+    double sforage = 0.0;
+    for (auto x : Pop.foraged) {
+      sforage += x;
+    }
+
+    double shandle = 0.0;
+    for (auto x : Pop.handled) {
+      shandle += x;
+    }
+
+
+
     return { 
       static_cast<float>(sfit / Pop.fitness.size()), 
       cfit, 
       static_cast<int>(unique_ann.size()), 
-      static_cast<float>(complexity / unique_ann.size()) 
+      static_cast<float>(complexity / unique_ann.size()),
+      static_cast<float>(sforage),
+      static_cast<float>(shandle),
+	  Pop.conflicts
     };
   }
 

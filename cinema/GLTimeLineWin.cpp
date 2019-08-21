@@ -22,11 +22,11 @@ namespace cinema {
 
 
   const std::array<glm::vec4, GLTimeLineWin::NT> GLTimeLineWin::color_ = {
-    glm::vec4(0,0,1,1),
-    glm::vec4(0,0,1,1),
-    glm::vec4(0,0,1,1),
-    glm::vec4(0,0,1,1),
-    glm::vec4(0,0,1,1),
+    glm::vec4(1,1,0,1),
+    glm::vec4(1,1,0,1),
+    glm::vec4(1,1,0,1),
+    glm::vec4(1,1,0,1),
+    glm::vec4(1,1,0,1),
     //glm::vec4(1,0,0,1),
     //glm::vec4(1,0,0,1),
     //glm::vec4(1,0,0,1),

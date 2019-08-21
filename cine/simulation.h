@@ -21,6 +21,9 @@ namespace cine2 {
     std::vector<Individual> tmp_pop;    // new generation during reproduction, ancestors otherwise
     std::unique_ptr<any_ann> ann;       // Ann's of current population
     std::unique_ptr<any_ann> tmp_ann;   // new Anns during reproduction, ancestors Anns otherwise
+    std::vector<float> foraged;         // fitness after last timestep
+    std::vector<float> handled;         // fitness after last timestep
+	int conflicts;
     std::vector<float> fitness;         // fitness after last timestep
     rndutils::mutable_discrete_distribution<int, rndutils::all_zero_policy_uni> rdist;  // reproduction distr.
   };
@@ -60,6 +63,7 @@ namespace cine2 {
   private:
     void simulate_timestep();
     void assess_fitness();
+    void assess_inds();
     void create_new_generations();
     void resolve_grazing_and_attacks();
     void init_layer(image_layer imla);
