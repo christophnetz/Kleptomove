@@ -188,7 +188,7 @@ namespace cine2 {
 
 		  Image screenshot3(std::string("../settings/emptyPNG.png"));
 		  layer_to_image_channel_2(screenshot3, (landscape_[Landscape::Layers::items]), green, param_.landscape.max_item_cap);
-		  save_image(screenshot3, std::string("../settings/foodlandscape" + strGen + ".png"));
+		  save_image(screenshot3, std::string("../settings/foodlandscape" + strGen + param_.outdir + ".png"));
 
         }
 	    
