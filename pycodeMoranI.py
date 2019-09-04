@@ -89,7 +89,7 @@ def funcReadAndMoran (x):
 imgMoran = list(map(funcReadAndMoran, imgFilesToProcess))
 
 # get as numpy array
-dfarray = np.asarray(dfMoran)
+dfarray = np.asarray(imgMoran)
 
 # add array as pd df
 imgId['morani'] = dfarray
