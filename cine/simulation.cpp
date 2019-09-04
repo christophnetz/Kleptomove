@@ -286,7 +286,7 @@ namespace cine2 {
 
     auto last_agents = agents_.pop.data() + agents_.pop.size();
 
-
+	//OK, so we have the stealers that attack first and then all the foragers forage.
 /*
         if (agents->foraging) {
           if (items(pos) >= 1.0f){
@@ -381,6 +381,7 @@ namespace cine2 {
 
     conflicts_v.clear();
 
+	// do they forage in order? OH, SHIT.
     for (auto agents = agents_.pop.data(); agents != last_agents; ++agents) {
       if (agents->handle() == false) {
         const Coordinate pos = agents->pos;

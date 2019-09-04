@@ -1,7 +1,7 @@
 #This script is intended to analyze the changing in the ANN, during the generations
 
 x <- list()
-g <- seq(0,500,10)
+g <- seq(0,1000,10)
 for (i in 1:length(g)){
   x[i] <- generation(g[i])
 }
@@ -28,7 +28,7 @@ for (i in 1:length(x)){
 # a <- y[[8]]
 # a
 # 
-# library(reshape2)
+library(reshape2)
 # df.m <- melt(a,"id")
 # 
 # ggplot(df.m, aes(x = value,y=1))+
@@ -60,8 +60,12 @@ ggplot(b,aes(x=gen, y=bin, fill=count))+
   #scale_fill_viridis_c(direction = -1)
   #scale_fill_distiller(palette="Blues", direction = 1)
   
-
-
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+#for checking how many individuals are being discarded in the plot:
+#test <- arrange(b, desc(bin))
+#View(test)
+#the frist n rows and the last m rows that are outside the limists in the plot, are not represented in the plot
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 ####################################
 #This code is taken from something christoph wrote.

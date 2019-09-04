@@ -1,4 +1,5 @@
 #After having started the analysis with the SourceMe.R file
+
 library(data.table)
 ##example("data.table")
 data <- summary()
@@ -44,6 +45,14 @@ kk <- data[, c("handling", "foraging", "stealing", "conflicts")]
 kk[, rapporto:=stealing/conflicts]
 rap <- kk[,`rapporto`]
 plot(rap)
+
+#here we visualize something weird:
+#the plot shows on the x from 0 to 1000 the descrease in the ratio of stealing individuals and conflicts
+#while on the y we have the generation that has that particular ratio.
+desc_rap <- kk[,generation:=c(1:1000)]
+desc_rap <- desc_rap[order(-rapporto)]
+desc_rap <- desc_rap[,generation]
+plot(desc_rap, type="l")
 
 #§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 #Here we want to visualize the number of agents which have the same fitness in each generation
@@ -148,6 +157,7 @@ phan <- p$agents$han
 pstl <- 100-(pfoa+phan)
 
 pstl
+plot(pstl,type = "h")#visualize number of time individuals tried to steal
 
 library(tidyverse)
 pstl_tidy <- as_tibble(pstl)

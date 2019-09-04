@@ -3,7 +3,7 @@
 #rate of every agent.
 
 x <- list()
-g <- seq(0,100,10)
+g <- seq(0,990,10)
 for (i in 1:length(g)){
   x[i] <- generation(g[i])
 }
@@ -20,7 +20,7 @@ for (i in 1:length(x)){
   )
 }
 str(y)
-
+ 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 #Concentrating on a single one to test
 a <- y[[8]]
