@@ -1,8 +1,6 @@
-# code to summarise data from simulation output
+#### code to summarise simulation landscapes with Moran's I ####
 
-###############################
-# importing libraries and paths
-###############################
+#### importing libraries and paths
 # check python path
 import sys
 
@@ -29,10 +27,7 @@ outputFolder = os.path.join(currentWd, "bin/settings")  # os.path.abspath("outpu
 if "bin" not in outputFolder:
     raise Exception('seems like the wrong output folder...')
 
-############################
-# list files and filter by name
-############################
-
+#### list files and filter by name
 # gather contents of the folder
 imgFiles = list()
 for root, directories, filenames in os.walk(outputFolder):
@@ -42,43 +37,64 @@ for root, directories, filenames in os.walk(outputFolder):
 # filter filenames to match foodlandscape
 imgFiles = list(filter(lambda x: "foodlandscape" in x, imgFiles))
 
-# read the images in using a function and access the second channel (green)
 
-
-def funcReadAndSelect (x):
+# function to get image generation and rep number
+def funcImgNames (x):
     assert "str" in str(type(x)), "input doesn't seem to be a filepath"
-    image = misc.imread(x)
-    image = image[:, :, 1]  # selects the second channel which is green
-    return image
+    assert "foodlandscape" in x, "input is not a foodlandscape"
+    names = ((x.split("foodlandscape")[1]).split(".")[0]).split("sim")
+    return names
 
 
-# read in images
-imgData = list(map(funcReadAndSelect, imgFiles))
+# get the image identity to match to parameters later
+imgId = list(map(funcImgNames, imgFiles))
+# make a pd df
+imgId = pd.DataFrame(imgId, columns=['gen','sim'])
+# make gen integer
+imgId['gen'] = pd.to_numeric(imgId['gen'])
+# identify numbers where image corresponds to gen > 400
+imgId['listnumber'] = np.arange(0, imgId.shape[0], 1)
+imgId = imgId.query('gen < 400')
+
+# subset images to process
+imgFilesToProcess = [imgFiles[i] for i in imgId.listnumber]
+
 # test import by showing the n/2th landscape
-plt.imshow(imgData[int(len(imgData)/2)])
+plt.imshow(misc.imread(imgFilesToProcess[27*3])[:,:,1], cmap="inferno")
 
-###############################
-# section for Moran's i
-###############################
 
-# begin moran's I calc
-# import pysal library
+#### read the images in using a function and access the second channel (green)
 import pysal.lib
 from pysal.explore.esda.moran import Moran
 
 # get image size, assuming square
-landsize = (imgData[1].shape[0])
+landsize = (512)  # this should be set manually
 # create a spatial weights matrix
 w = pysal.lib.weights.lat2W(landsize, landsize)
 
 
-# write function to get moran's I from a list of matrices
-def funcMoranI (x):
-    assert "array" in str(type(x)), "input doesn't seem to be an array"
-    assert len(x.shape) == 2, "non 2-d array, input must be a 2d array"
-    mi = Moran(x, w)
+# function to read image and calculate Moran I
+def funcReadAndMoran (x):
+    assert "str" in str(type(x)), "input doesn't seem to be a filepath"
+    image = misc.imread(x)
+    image = image[:, :, 1]  # selects the second channel which is green
+    assert "array" in str(type(image)), "input doesn't seem to be an array"
+    assert len(image.shape) == 2, "non 2-d array, input must be a 2d array"
+    mi = Moran(image, w)
+    del image
     return mi.I
 
 
-# map moran func across list, convert to df in future
-dfMoran = list(map(funcMoranI, imgData))
+# read in images and do Moran I
+imgMoran = list(map(funcReadAndMoran, imgFilesToProcess))
+
+# get as numpy array
+dfarray = np.asarray(dfMoran)
+
+# add array as pd df
+imgId['morani'] = dfarray
+
+# write to csv
+imgId.to_csv(path_or_buf="landMoranVals_k.csv")
+
+# ends here
