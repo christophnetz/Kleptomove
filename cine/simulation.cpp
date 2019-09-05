@@ -184,7 +184,7 @@ namespace cine2 {
           layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::klepts_count], red);
           layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::handlers_count], green);
 		  //layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::items], alha);
-          save_image(screenshot2, std::string("../settings/screenshot" + strGen + ".png"));
+          save_image(screenshot2, std::string("../settings/screenshot" + strGen + param_.outdir + ".png"));
 
 		  Image screenshot3(std::string("../settings/emptyPNG.png"));
 		  layer_to_image_channel_2(screenshot3, (landscape_[Landscape::Layers::items]), green, param_.landscape.max_item_cap);
