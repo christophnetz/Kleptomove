@@ -67,7 +67,7 @@ w_fsh <- pmap(list(w_st, w_ht,w_ft), function(x,y,z){full_join(x,y) %>%
 #Replacing the missing values with zeros
 w_fsh0 <- map(w_fsh, function(x){x %>% replace_na(list(n_st=0,n_ht=0,n_ft=0))})
 
-#Creating a single data_frame
+#Creating a single data_frame out of the list of data_frames
 df_wfsh <- map2_df(w_fsh0 ,g, function(a,b){mutate(a, gen = b)})
 
 df_wfsh_expanded <- df_wfsh %>% 
@@ -76,7 +76,12 @@ df_wfsh_expanded <- df_wfsh %>%
 
 #PLOT
 #
-ggplot(df_wfsh_expanded)+
-  geom_bar(mapping = aes(x=p_bin, y=n_agent, fill=action), stat="identity")+
+prop_activity <- ggplot(df_wfsh_expanded)+
+  geom_bar(mapping = aes(x=p_bin, y=n_agent, fill=activity), stat="identity")+
+  scale_y_continuous(breaks = seq(0,10000,2000), minor_breaks = waiver())+
+  scale_x_continuous(labels = scales::percent)+
   scale_fill_viridis_d()+
-  facet_wrap(vars(gen))
+  facet_wrap(vars(gen))+
+  my_theme_facet
+
+prop_activity
