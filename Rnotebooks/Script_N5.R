@@ -20,7 +20,7 @@ for (i in 1:length(list_gen)){
     w8 = list_gen[[i]]$ann[,8])}
 
 #reshaping the list for creating a single dataframe
-ann_df <- dplyr::bind_rows(y)
+ann_df <- dplyr::bind_rows(ann_list)
 
 #gathering all the weights
 ann0 <- ann_df %>% 
@@ -40,7 +40,7 @@ ggplot(ann1,aes(x=gen, y=bin, fill=count))+
   theme_bw()+
   facet_wrap(~node, scale="free")+
   #ylim(-1.5,1.5)+
-  ylim(-0.5,0.5)+
+  ylim(-1.5,1.5)+
   scale_fill_gradient2(low="white",high = "blue",mid = "red", midpoint = 2500, limit=c(0,10000))
   #scale_fill_viridis_c(direction = -1)
   #scale_fill_distiller(palette="Blues", direction = 1)

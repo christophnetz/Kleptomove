@@ -22,7 +22,7 @@ data <- as_tibble(data)
 #[THIS TAKES QUITE SOME TIME TO PROCESS]
 
 list_gen <- list()			#creating the empty list
-g <- seq(0,500,10)			#vector of the generations to be analysed
+g <- seq(0,500,50)			#vector of the generations to be analysed
 
 #loop cycle for filling list_gen
 for (i in 1:length(g)){
