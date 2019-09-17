@@ -25,7 +25,8 @@ namespace cine2 {
     agents_.handled = std::vector<float>(param.agents.N, 0);
     agents_.tmp_ann = make_any_ann(param.agents.L, param.agents.N, param.agents.ann.c_str());
 
-
+    shuffle_vec.resize(param.agents.N);
+  std:iota(shuffle_vec.begin(), shuffle_vec.end(), 0);
 
     // initial landscape layers from image fies
     init_layer(param_.landscape.capacity); //capacity
@@ -317,7 +318,7 @@ namespace cine2 {
     }
     std::shuffle(conflicts_v.begin(), conflicts_v.end(), rnd::reng);
 
-    for (int i = 0; i < attacking_inds_.size(); ++i) {				//cycle through the agents who attack
+    for (int i = 0; i < conflicts_v.size(); ++i) {				//cycle through the agents who attack
       float prob_to_fight = 1.0f;									//they always fight
 
       //if (attacked_inds[i]->handle())
@@ -328,17 +329,18 @@ namespace cine2 {
 
       std::bernoulli_distribution fight(prob_to_fight);								//sampling whether fight occurs
       std::bernoulli_distribution initiator_wins(1.0)/*initiator always wins*/;		//sampling whether the initiator wins or not
-      if (attacked_inds[i]->handling) {			///isn't this always true?
+
+      if (conflicts_v[i].second->handling) {			///isn't this always true?
         if (fight(rnd::reng)) {
           if (initiator_wins(rnd::reng)) {
-            agents_.pop[attacking_inds_[i]].handling = attacked_inds[i]->handling;
-            agents_.pop[attacking_inds_[i]].handle_time = attacked_inds[i]->handle_time;
+            agents_.pop[conflicts_v[i].first].handling = conflicts_v[i].second->handling;
+            agents_.pop[conflicts_v[i].first].handle_time = conflicts_v[i].second->handle_time;
             //attacking_inds_[i]->food += 1.0f;
-            attacked_inds[i]->flee(landscape_, param_.agents.flee_radius);
+            conflicts_v[i].second->flee(landscape_, param_.agents.flee_radius);
 
           }
           else
-            agents_.pop[attacking_inds_[i]].flee(landscape_, param_.agents.flee_radius);
+            agents_.pop[conflicts_v[i].first].flee(landscape_, param_.agents.flee_radius);
           //Energetic costs
 
           //attacking_inds_[i]->food -= 0.0f;
@@ -347,16 +349,25 @@ namespace cine2 {
 
       }
     }
+
+    agents_.conflicts += conflicts_v.size();
+
     conflicts_v.clear();
 
-    for (auto agents = agents_.pop.data(); agents != last_agents; ++agents) {
-      if (agents->handle() == false) {
-        const Coordinate pos = agents->pos;
 
-        if (agents->foraging) {
+    std::shuffle(shuffle_vec.begin(), shuffle_vec.end(), rnd::reng);
+
+
+
+    for (int i : shuffle_vec) {
+      auto& agent = agents_.pop[i];
+      if (agent.handle() == false) {
+        const Coordinate pos = agent.pos;
+
+        if (agent.foraging) {
           if (items(pos) >= 1.0f) {
             if (std::bernoulli_distribution(1.0 - pow((1.0f - detection_rate), items(pos)))(rnd::reng)) { // Ind searching for items
-              agents->pick_item(param_.agents.handling_time);
+              agent.pick_item(param_.agents.handling_time);
               items(pos) -= 1.0f;
             }
           }
@@ -364,7 +375,7 @@ namespace cine2 {
       }
 
       else {
-        agents->do_handle();
+        agent.do_handle();
 
       }
     }
@@ -372,7 +383,6 @@ namespace cine2 {
 
 
   }
-
 
   void Simulation::init_layer(image_layer imla)
   {

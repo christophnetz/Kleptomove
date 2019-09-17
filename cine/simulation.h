@@ -73,6 +73,7 @@ namespace cine2 {
     Population agents_;
     //Population pred_;
     std::vector<int> attacking_inds_;
+    std::vector<int> shuffle_vec;
     std::vector<Individual*> attacked_potentially_;
     std::vector<Individual*> attacked_inds;
     Landscape landscape_;
