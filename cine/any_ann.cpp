@@ -159,7 +159,7 @@ namespace cine2 {
           std::bernoulli_distribution s_decision(s_prob);							//this become the probability of adopting foraging strategy
 		  pop[p].forage = s_decision(rnd::reng);				//if condition apply, foraging of agent set to TRUE
 		  */
-          pop[p].forage(true/*it->eval2 >= 0*/);
+          pop[p].forage(/*true*/it->eval2 >= 0);
 		  
         }
       }
