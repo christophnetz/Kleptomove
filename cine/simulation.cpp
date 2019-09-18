@@ -380,7 +380,7 @@ namespace cine2 {
       }
     }
 
-	agents_.conflicts += conflicts_v.size();
+	agents_.conflicts += static_cast<int>(conflicts_v.size());
 
     conflicts_v.clear();
 

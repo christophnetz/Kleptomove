@@ -76,7 +76,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\tmp\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)\tmp\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <IncludePath>$(SolutionDir);$(SolutionDir)\cinema;$(ICIncludeDir);$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\cinema\zlib\lib;$(ICLibDir);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
@@ -86,7 +86,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\tmp\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)\tmp\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <IncludePath>$(SolutionDir);$(SolutionDir)\cinema;$(ICIncludeDir);$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\cinema\zlib\lib;$(ICLibDir);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
