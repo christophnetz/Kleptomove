@@ -78,7 +78,7 @@ namespace cine2 {
       float noise_sigma;
       float cmplx_penalty;
 
-      std::array<int, 4> input_layers;
+      std::array<int, 3> input_layers;
       std::array<float, 3> input_mask;
     };
     
