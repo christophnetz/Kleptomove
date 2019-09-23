@@ -25,12 +25,15 @@ namespace cine2 {
       food = 0.f;
       handle_count = 0;
       forage_count = 0;
+      foraging = false;
+      handling = false;
+      handle_time = 0;
       ancestor = ancestor_idx;
     }
 
     bool alive() const { return food >= 0.f; }
     bool handle() const { return handling; }
-    void forage(bool decision)  { 
+    void forage(bool decision) {
       foraging = decision;
       if (decision) {
         forage_count += 1.f;
@@ -44,7 +47,7 @@ namespace cine2 {
 
     }
 
-	//HANDLING FUNCTION (per agent)
+    //HANDLING FUNCTION (per agent)
     void do_handle() {
       if (handle_time < 0 && handling) {		//if agent handling time is smaller than zero AND agent is handling 
         ++handle_time;								//handling time is udpated
@@ -54,20 +57,32 @@ namespace cine2 {
         food += 1.0f;								//food is consumed
         handling = false;							//the handling status is resetted (FALSE)
       }
-												//ELSE (agent is not handling), do nothig.
+      //ELSE (agent is not handling), do nothig.
     }
 
     void flee(const Landscape& landscape, int flee_radius) {
 
+      if (handling) {
+        std::uniform_int_distribution<int> dxy(-flee_radius, flee_radius);	//uniform distribution of the fleeing distance
+        pos = landscape.wrap(pos + Coordinate{ short(dxy(rnd::reng)), short(dxy(rnd::reng)) });		//new position with difference in coordinates sampled form previous distribution
+
+      }
+
       handling = false;				//handling status reset to false
       handle_time = 0;				//handling time reset to 0 
+    };
+
+
+    void attacker_flee(const Landscape& landscape, int flee_radius) {
+
 
       std::uniform_int_distribution<int> dxy(-flee_radius, flee_radius);	//uniform distribution of the fleeing distance
-
       pos = landscape.wrap(pos + Coordinate{ short(dxy(rnd::reng)), short(dxy(rnd::reng)) });		//new position with difference in coordinates sampled form previous distribution
 
-
+      handling = false;				//handling status reset to false
+      handle_time = 0;				//handling time reset to 0 
     };
+
     void die() { food = -1.f; }
 
     Coordinate pos;

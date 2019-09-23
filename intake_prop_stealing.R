@@ -3,7 +3,7 @@
 #rate of every agent.
 
 x <- list()
-g <- seq(0,100,10)
+g <- seq(0,500,10)
 for (i in 1:length(g)){
   x[i] <- generation(g[i])
 }
@@ -16,11 +16,11 @@ for (i in 1:length(x)){
     ft = as.vector(x[[i]]$foa),
     ht = as.vector(x[[i]]$han),
     st = as.vector(100-(ft+ht)),
-    energy = as.vector(x[[i]]$fi)
+    energy = as.vector(x[[i]]$fit)
   )
 }
 str(y)
-
+ 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 #Concentrating on a single one to test
 a <- y[[8]]

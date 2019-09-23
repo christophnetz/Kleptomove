@@ -76,6 +76,7 @@ namespace cine2 {
     std::vector<int> attacking_inds_;
     std::vector<Individual*> attacked_potentially_;
     std::vector<Individual*> attacked_inds;
+    std::vector<int> shuffle_vec;
     Landscape landscape_;
     Analysis analysis_;
   };

@@ -12,7 +12,7 @@ namespace cine2 {
     {
       ann_cmp(int weights) : size_(weights * sizeof(float)) {}
 
-      bool operator()(const float* a, const float* b)
+      bool operator()(const float* a, const float* b) const
       {
         return std::memcmp(a, b, size_) < 0;
       }

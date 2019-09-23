@@ -118,9 +118,10 @@ namespace cine2 {
 
 		  //gather information from landscape
           Coordinate pos = pop[p].pos;							//gather position agent
-          std::array<env_info_t, ANN::input_size + 1> env_input;	//[input number definition stuff]
-          for (int i = 0; i < ANN::input_size + 1; ++i) {			//for cycle through inputs [4][can be changed]
+          std::array<env_info_t, ANN::input_size> env_input;	//[input number definition stuff]
+          for (int i = 0; i < ANN::input_size; ++i) {			//for cycle through inputs [4][can be changed]
             env_input[i] = landscape[static_cast<Layers>(iparam.input_layers[i])].gather<L>(pos);	//inputs are gathered from the first n layer in "landscape" at the position "pos"
+
           }
 
           // reflect about the possible cells (we are still in the agents for-cycle)
@@ -129,15 +130,9 @@ namespace cine2 {
           std::array<zip_eval_cell, L*L> zip;
           for (int i = 0; i < L*L; ++i) {
             for (int j = 0; j < ANN::input_size; ++j) {
-              if (j == 0) {
-                input[j] = iparam.input_mask[j] * noise(rnd::reng) * (env_input[j][i] + env_input[j + 1][i]);
-                //we have summed j and j+1 (0 and 1) because they are both part of the population individuals
-              }
-              else {
+              
+                input[j] = iparam.input_mask[j] * noise(rnd::reng) * (env_input[j][i]);
 
-                input[j] = iparam.input_mask[j] * noise(rnd::reng) * (env_input[j + 1][i]);
-
-              }
             }
             auto output = pann[p](input);   // ask ANN
             float eval = output[0];			//first output, named eval
@@ -159,7 +154,7 @@ namespace cine2 {
           std::bernoulli_distribution s_decision(s_prob);							//this become the probability of adopting foraging strategy
 		  pop[p].forage = s_decision(rnd::reng);				//if condition apply, foraging of agent set to TRUE
 		  */
-          pop[p].forage(true/*it->eval2 >= 0*/);
+          pop[p].forage(/*true*/it->eval2 >= 0);
 		  
         }
       }

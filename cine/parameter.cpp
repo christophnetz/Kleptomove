@@ -47,7 +47,7 @@ namespace cine2 {
     clp_optional_val(agents.noise_sigma, 0.1f);
     clp_optional_val(agents.cmplx_penalty, 0.01f);
 
-    param.agents.input_layers = { { Layers::items, Layers::handlers, Layers::foragers, Layers::klepts } };
+    param.agents.input_layers = { { Layers::nonhandlers, Layers::handlers, Layers::items } };
     clp_optional_vec(agents.input_layers, param.agents.input_layers);
     param.agents.input_mask = { { 1, 1, 1} };
     clp_optional_vec(agents.input_mask, param.agents.input_mask);

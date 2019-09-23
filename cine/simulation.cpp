@@ -26,6 +26,9 @@ namespace cine2 {
 	agents_.conflicts = 0;
     agents_.tmp_ann = make_any_ann(param.agents.L, param.agents.N, param.agents.ann.c_str());
 
+    shuffle_vec.resize(param.agents.N);
+    std::iota(shuffle_vec.begin(), shuffle_vec.end(), 0);
+
 
 
     // initial landscape layers from image fies
@@ -52,7 +55,7 @@ namespace cine2 {
 
     // initial occupancies and observable densities
     landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count,
-      Layers::klepts, Layers::handlers_count, Layers::handlers, agents_.pop.cbegin(), agents_.pop.cend(), param_.landscape.foragers_kernel);
+      Layers::klepts, Layers::handlers_count, Layers::handlers, Layers::nonhandlers, agents_.pop.cbegin(), agents_.pop.cend(), param_.landscape.foragers_kernel);
 
     // optional: initialization from former runs
     if (!param_.init_agents_ann.empty()) {
@@ -231,7 +234,7 @@ namespace cine2 {
 
 
 
-    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers_count, Layers::handlers, agents_.pop.cbegin(), agents_.pop.cend(), param_.landscape.foragers_kernel);
+    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers_count, Layers::handlers, Layers::nonhandlers, agents_.pop.cbegin(), agents_.pop.cend(), param_.landscape.foragers_kernel);
 
     // move
     agents_.ann->move(landscape_, agents_.pop, param_.agents);
@@ -239,13 +242,13 @@ namespace cine2 {
 
 
     // update occupancies and observable densities
-    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers_count, Layers::handlers, agents_.pop.cbegin(), agents_.pop.cend(), param_.landscape.foragers_kernel);
+    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers_count, Layers::handlers, Layers::nonhandlers, agents_.pop.cbegin(), agents_.pop.cend(), param_.landscape.foragers_kernel);
 
     //RESOLVE GRAZING AND ATTACK function!
     resolve_grazing_and_attacks();
 
 
-    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers_count, Layers::handlers, agents_.pop.cbegin(), agents_.pop.cend(), param_.landscape.foragers_kernel);
+    landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers_count, Layers::handlers, Layers::nonhandlers, agents_.pop.cbegin(), agents_.pop.cend(), param_.landscape.foragers_kernel);
 
   }
 
@@ -286,7 +289,7 @@ namespace cine2 {
 
     auto last_agents = agents_.pop.data() + agents_.pop.size();
 
-
+	//OK, so we have the stealers that attack first and then all the foragers forage.
 /*
         if (agents->foraging) {
           if (items(pos) >= 1.0f){
@@ -344,7 +347,7 @@ namespace cine2 {
     std::shuffle(conflicts_v.begin(), conflicts_v.end(), rnd::reng);
 
 
-    for (int i = 0; i < attacking_inds_.size(); ++i) {				//cycle through the agents who attack
+    for (int i = 0; i < conflicts_v.size(); i++) {				//cycle through the agents who attack
       float prob_to_fight = 1.0f;									//they always fight
 
       //if (attacked_inds[i]->handle())
@@ -359,14 +362,14 @@ namespace cine2 {
         if (fight(rnd::reng)) {
           if (initiator_wins(rnd::reng)) {
 
-            agents_.pop[attacking_inds_[i]].handling = attacked_inds[i]->handling;
-            agents_.pop[attacking_inds_[i]].handle_time = attacked_inds[i]->handle_time;
+            agents_.pop[conflicts_v[i].first].handling = conflicts_v[i].second->handling;
+            agents_.pop[conflicts_v[i].first].handle_time = conflicts_v[i].second->handle_time;
             //attacking_inds_[i]->food += 1.0f;
-            attacked_inds[i]->flee(landscape_, param_.agents.flee_radius);
+            conflicts_v[i].second->flee(landscape_, param_.agents.flee_radius);
 
           }
           else
-            agents_.pop[attacking_inds_[i]].flee(landscape_, param_.agents.flee_radius);
+            agents_.pop[conflicts_v[i].first].attacker_flee(landscape_, param_.agents.flee_radius);
           //Energetic costs
 
           //attacking_inds_[i]->food -= 0.0f;
@@ -377,18 +380,24 @@ namespace cine2 {
       }
     }
 
-	agents_.conflicts += conflicts_v.size();
+	agents_.conflicts += static_cast<int>(conflicts_v.size());
 
     conflicts_v.clear();
 
-    for (auto agents = agents_.pop.data(); agents != last_agents; ++agents) {
-      if (agents->handle() == false) {
-        const Coordinate pos = agents->pos;
+    std::shuffle(shuffle_vec.begin(), shuffle_vec.end(), rnd::reng);
 
-        if (agents->foraging) {
+
+	// do they forage in order? OH, SHIT.
+    for (int i : shuffle_vec){
+      auto& agent = agents_.pop[i];
+    //for (auto agents = agents_.pop.data(); agents != last_agents; ++agents) {
+      if (agent.handle() == false) {
+        const Coordinate pos = agent.pos;
+
+        if (agent.foraging) {
           if (items(pos) >= 1.0f) {
             if (std::bernoulli_distribution(1.0 - pow((1.0f - detection_rate), items(pos)))(rnd::reng)) { // Ind searching for items
-              agents->pick_item(param_.agents.handling_time);
+              agent.pick_item(param_.agents.handling_time);
               items(pos) -= 1.0f;
             }
           }
@@ -396,7 +405,7 @@ namespace cine2 {
       }
 
       else {
-        agents->do_handle();
+        agent.do_handle();
 
       }
     }
