@@ -54,7 +54,7 @@ imgId = pd.DataFrame(imgId, columns=['gen','sim'])
 imgId['gen'] = pd.to_numeric(imgId['gen'])
 # identify numbers where image corresponds to gen > 400
 imgId['listnumber'] = np.arange(0, imgId.shape[0], 1)
-imgId = imgId.query('gen < 400')
+# imgId = imgId.query('gen < 1000')
 
 # subset images to process
 imgFilesToProcess = [imgFiles[i] for i in imgId.listnumber]
@@ -95,6 +95,6 @@ dfarray = np.asarray(imgMoran)
 imgId['morani'] = dfarray
 
 # write to csv
-imgId.to_csv(path_or_buf="landMoranVals_k.csv")
+imgId.to_csv(path_or_buf="landMoranVals_no_k.csv")
 
 # ends here
