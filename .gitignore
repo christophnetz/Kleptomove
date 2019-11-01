@@ -1,4 +1,4 @@
-
+# ignore settings etc
 .vs/
 bin/
 tmp/
@@ -6,5 +6,7 @@ tmp/
 !bin/settings/config.ini
 .Rproj.user
 
+# ignore output
 *zip
 landout_k/
+*csv
