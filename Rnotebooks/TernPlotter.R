@@ -1,7 +1,7 @@
 #Author: Matteo Pederboni [Last modified: 13/09/2019]
 #THIS SCRIPT DOES NOT WORKS THROUGH FOLDERS (YET). YOU HAVE TO SOURCE THE SIMULATION YOU WANT THE PLOT FIRST
 
-setwd("C:/Users/matteo/Desktop/OUTPUT_ANALYSIS/21-08-2019_k/images")  #PLEASE, BE AWARE OF THE FOLDER IN WHICH YOU ARE PLOTTING
+setwd("C:/Users/matteo/Desktop/OUTPUT_ANALYSIS/modelOutput_klepts_20_09_19/images")  #PLEASE, BE AWARE OF THE FOLDER IN WHICH YOU ARE PLOTTING
 origin <- getwd()
 
 #calling libraries
@@ -11,7 +11,7 @@ library(ggpubr)
 
 #---------------------------------------------------------
 list_gen <- list()			#creating the empty list
-g <- seq(0,950,10)			#THIS IS VERY IMPORTANT! WHATCH OUT HOW BIG YOU WANT THIS
+g <- seq(0,950,5)			#THIS IS VERY IMPORTANT! WHATCH OUT HOW BIG YOU WANT THIS
 
 #loop cycle for filling list_gen
 for (i in 1:length(g)){
