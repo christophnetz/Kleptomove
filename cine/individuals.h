@@ -15,7 +15,7 @@ namespace cine2 {
 
   struct Individual
   {
-    Individual() : pos(0, 0), food(0), foraging(false), handling(false), handle_time(0), forage_count(0.f), handle_count(0), ancestor(0)
+    Individual() : pos(0, 0), food(0), foraging(false), handling(false), just_stolen(false), handle_time(0), forage_count(0.f), handle_count(0), ancestor(0)
     {
     }
 
@@ -27,6 +27,7 @@ namespace cine2 {
       forage_count = 0;
       foraging = false;
       handling = false;
+	  just_stolen = false;
       handle_time = 0;
       ancestor = ancestor_idx;
     }
@@ -89,6 +90,7 @@ namespace cine2 {
     float food;
     bool foraging;
     bool handling;
+	bool just_stolen;
     int handle_time;
     float handle_count;
     float forage_count;
