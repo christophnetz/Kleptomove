@@ -69,6 +69,7 @@ namespace cine2 {
       int L;
       std::string ann;
 
+      bool obligate;
       int sprout_radius;
       int flee_radius;
       int handling_time;

@@ -39,7 +39,7 @@ namespace cine2 {
       void operator()(T* state, size_t, size_t) const
       {
         if (!fixed) {
-          for (int w = 0; w < Neuron::total_weights; ++w) {
+          for (int w = 0; w < Neuron::total_weights; ++w) { 
             if (mdist(rnd::reng)) { state[w] += sdist(rnd::reng); }
             if (kdist(rnd::reng)) { state[w] = 0.f; }
           }
@@ -127,16 +127,29 @@ namespace cine2 {
           // reflect about the possible cells (we are still in the agents for-cycle)
           float best_eval = - std::numeric_limits<float>::max();
           typename ANN::input_t input;
+          typename ANN::input_t input2; //To get bias of second node
           std::array<zip_eval_cell, L*L> zip;
           for (int i = 0; i < L*L; ++i) {
             for (int j = 0; j < ANN::input_size; ++j) {
               
                 input[j] = iparam.input_mask[j] * noise(rnd::reng) * (env_input[j][i]);
+                input2[j] = 0.f;
 
             }
+            
             auto output = pann[p](input);   // ask ANN
             float eval = output[0];			//first output, named eval
-            float eval2 = output[1];		//second output, named eval2
+            float eval2;
+
+            if (iparam.obligate) {
+            auto output2 = pann[p](input2);   // ask ANN
+            eval2 = output2[1];		//second output, named eval2
+
+            }
+            else {
+            eval2 = output[1];
+            }
+
             best_eval = std::max(best_eval, eval);		//best_eval is updated,
             zip[i] = { eval, eval2, i };				//structure filled with evaluation
           }

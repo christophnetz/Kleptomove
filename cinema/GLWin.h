@@ -9,11 +9,11 @@
 #include <string>
 #include <glsl/wgl_context.hpp>
 #include <glsl/bmfont.hpp>
-#include <experimental/filesystem>
+#include <filesystem>
 #include "GLSimState.h"
 
 
-namespace filesystem = std::experimental::filesystem;
+namespace filesystem = std::filesystem;
 
 
 #define MESSAGE_HANDLER_SYNC(msg, func) \

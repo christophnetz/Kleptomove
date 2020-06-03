@@ -4,11 +4,11 @@
 #include <ostream>
 #include <fstream>
 #include <streambuf>
-#include <experimental/filesystem>
+#include <filesystem>
 #include "parameter.h"
 
 
-namespace filesystem = std::experimental::filesystem;
+namespace filesystem = std::filesystem;
 
 
 namespace cine2 {
@@ -38,6 +38,7 @@ namespace cine2 {
     clp_optional_val(agents.L, 3);
     clp_required(agents.ann);
 
+    clp_optional_val(agents.obligate, false);
     clp_optional_val(agents.sprout_radius, 10000);
     clp_optional_val(agents.flee_radius, 10);
     clp_optional_val(agents.handling_time, 5);
@@ -122,6 +123,7 @@ namespace cine2 {
     stream(agents.N);
     stream(agents.L);
     stream_str(agents.ann);
+    stream(agents.obligate);
     stream(agents.sprout_radius);
     stream(agents.flee_radius);
     stream(agents.handling_time);
@@ -134,19 +136,7 @@ namespace cine2 {
     stream_array(agents.input_mask);
     os << '\n';
 
-    //stream(pred.N);
-    //stream(pred.L);
-    //stream_str(pred.ann);
-    //stream(pred.sprout_radius);
-    //stream(pred.flee_radius);
-    //stream(pred.mutation_prob);
-    //stream(pred.mutation_step);
-    //stream(pred.mutation_knockout);
-    //stream(pred.noise_sigma);
-    //stream(pred.cmplx_penalty);
-    //stream_array(pred.input_layers);
-    //stream_array(pred.input_mask);
-    //os << '\n';
+
 
     stream(landscape.max_item_cap);
 	stream(landscape.item_growth);
