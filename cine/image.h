@@ -65,6 +65,7 @@ namespace cine2 {
   /// and coerced to unsigned char.
   void layer_to_image_channel(Image& dst, const LayerView& src, ImageChannel channel);
   void layer_to_image_channel_2(Image& dst, const LayerView& src, ImageChannel channel, float scale);
+  void layer_to_text(const LayerView& src, std::ofstream& ofs);
 
   /// \brief  Saves an image as png.
   ///

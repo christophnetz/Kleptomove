@@ -62,6 +62,7 @@ namespace cine2 {
 
   private:
     void simulate_timestep();
+    void update_landscaperecord();
     void assess_fitness();
     void assess_inds();
     void create_new_generations();

@@ -153,8 +153,8 @@ config$dir = getSrcDirectory(generation)[1]
         val = summary[i].repro_ann; os.write((const char*)&val, sizeof(double));
         val = summary[i].complexity; os.write((const char*)& val, sizeof(double));
         val = summary[i].foragers; os.write((const char*)& val, sizeof(double));
-		val = summary[i].handlers; os.write((const char*)& val, sizeof(double));
-		val = summary[i].conflicts; os.write((const char*)& val, sizeof(double));
+		    val = summary[i].handlers; os.write((const char*)& val, sizeof(double));
+		    val = summary[i].conflicts; os.write((const char*)& val, sizeof(double));
 	  }
     }
 

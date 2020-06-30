@@ -123,6 +123,9 @@ namespace cine2 {
       klepts_count,
       handlers_count,
       nonhandlers,
+      items_rec, 
+      foragers_rec,
+      klepts_rec,
       temp,         // scratch for computation
       max_layer
     };
@@ -232,7 +235,7 @@ namespace cine2 {
       vConv3.clear();
       vComb.clear();
 
-      for (; first != last; ++first) {		//cycle trough the agensta
+      for (; first != last; ++first) {		//cycle trough the agents
         if (first->alive()) {				//if alive
           if (first->handle()) {				//and handling
             ++vCount3(first->pos);					//position stored in the vector3 (for handlers apparently)
@@ -253,6 +256,8 @@ namespace cine2 {
         }
       }
     }
+
+
 
     const float* data() const { return data_; }
 

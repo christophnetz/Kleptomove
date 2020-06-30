@@ -1,9 +1,6 @@
 # ignore settings etc
 .vs/
-bin/
 tmp/
-!bin/settings
-!bin/settings/config.ini
 .Rproj.user
 *history
 

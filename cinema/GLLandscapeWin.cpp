@@ -42,7 +42,7 @@ namespace cinema {
   {
     layer_mask_ = { 1.f / sim_state_->sim()->param().landscape.foragers_kernel.maxK(),
                     1.f / sim_state_->sim()->param().landscape.klepts_kernel.maxK(),
-                    1.f,
+                    2.f,
                     1.f / sim_state_->sim()->param().landscape.max_item_cap };
     org_layer_mask_ = layer_mask_;
     selected_ = sim_state_->sim()->param().gui.selected;

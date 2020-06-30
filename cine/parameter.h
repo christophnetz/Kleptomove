@@ -40,7 +40,7 @@ namespace cine2 {
 
 
 	using SmartAnn = Network<float,
-		Layer< Neuron<3, default_activation>, 3>,
+		Layer< Neuron<3, activation::rtlu>, 3>,
 		Layer< Neuron<3, default_activation>, 2>
 	>;
 

@@ -10,7 +10,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "glsl/stb_image.h"
 #include "glsl/stb_image_write.h" 
-
+#include <fstream> 
 
 
 namespace cine2 {
@@ -78,6 +78,26 @@ namespace cine2 {
 		  set_channel(*pdst, *psrc);
 	  }
   }
+
+  void layer_to_text(const LayerView& src, std::ofstream& ofs)
+  {
+
+    auto set_channel = [=](unsigned char& c, float val) {
+      c = static_cast<unsigned char>(val);
+    };
+    const int n = src.dim() * src.dim();
+    const float* psrc = src.data();
+    for (int i = 0; i < n; ++i, ++psrc) {
+      if ((i + 1) % src.dim() == 0 && i > 0) {
+        ofs << *psrc << "\n";
+      } 
+      else {
+        ofs << *psrc << "\t";
+      }
+
+    }
+  }
+
 
   void save_image(const Image& image, const std::string& filename)
   {
