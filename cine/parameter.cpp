@@ -39,6 +39,7 @@ namespace cine2 {
     clp_required(agents.ann);
 
     clp_optional_val(agents.obligate, false);
+    clp_optional_val(agents.forage, false);
     clp_optional_val(agents.sprout_radius, 10000);
     clp_optional_val(agents.flee_radius, 10);
     clp_optional_val(agents.handling_time, 5);
@@ -124,6 +125,7 @@ namespace cine2 {
     stream(agents.L);
     stream_str(agents.ann);
     stream(agents.obligate);
+    stream(agents.forage);
     stream(agents.sprout_radius);
     stream(agents.flee_radius);
     stream(agents.handling_time);

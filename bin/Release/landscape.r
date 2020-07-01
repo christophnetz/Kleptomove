@@ -9,8 +9,9 @@ datameans <- data.frame(Group.1=numeric(),
                         klepts=numeric(),
                         replicate=character())
 
-whichgen <- c("991","992","993","994","995","996","997", "998","999")
-type <- "foragers"
+whichgen <- c("991","992","993","994","995","996","997", "998")
+whichgen <- c("999")
+type <- "facultative"
 replicates <- c("rep1","rep2","rep3")
 
 for(rep in replicates){
@@ -22,9 +23,9 @@ foragers <- read.matrix(paste0(whichgen[1], type,"_", rep,"foragers.txt"), sep="
 klepts <- read.matrix(paste0(whichgen[1], type,"_", rep,"klepts.txt"), sep="\t")
 for(g in whichgen[2:length(whichgen)]){
 
-  items <- items + read.matrix(paste0(whichgen[1], type,"_", rep,"items.txt"), sep="\t")
-  foragers <- foragers + read.matrix(paste0(whichgen[1], type,"_", rep,"foragers.txt"), sep="\t")
-  klepts <- klepts + read.matrix(paste0(whichgen[1], type,"_", rep,"klepts.txt"), sep="\t")
+  items <- items + read.matrix(paste0(g, type,"_", rep,"items.txt"), sep="\t")
+  foragers <- foragers + read.matrix(paste0(g, type,"_", rep,"foragers.txt"), sep="\t")
+  klepts <- klepts + read.matrix(paste0(g, type,"_", rep,"klepts.txt"), sep="\t")
   }
 
 
@@ -105,7 +106,7 @@ plot <- ggplot(datameans2, aes(x=capacity, y=Density, color=category, group=inte
 ggsave(
   paste0(type, ".png"),
   plot,
-  width = 6.5,
+  width = 8,
   height = 6.5,
   dpi=300
 )

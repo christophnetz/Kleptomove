@@ -70,6 +70,7 @@ namespace cine2 {
       std::string ann;
 
       bool obligate;
+      bool forage;
       int sprout_radius;
       int flee_radius;
       int handling_time;

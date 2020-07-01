@@ -218,23 +218,23 @@ namespace cine2 {
         const std::string stritems = std::string(std::to_string(g_) + param_.outdir + "items.txt");
         const std::string strforagers = std::string(std::to_string(g_) + param_.outdir + "foragers.txt");
         const std::string strklepts = std::string(std::to_string(g_) + param_.outdir + "klepts.txt");
-        const std::string strcapacity = std::string(std::to_string(g_) + param_.outdir + "capacity.txt");
+        //const std::string strcapacity = std::string(std::to_string(g_) + param_.outdir + "capacity.txt");
         std::ofstream writeoutitems(stritems);
         std::ofstream writeoutforagers(strforagers);
         std::ofstream writeoutklepts(strklepts);
-        std::ofstream writeoutcapacity(strcapacity);
+        //std::ofstream writeoutcapacity(strcapacity);
 
         layer_to_text(landscape_[Landscape::Layers::items_rec], writeoutitems);
         layer_to_text(landscape_[Landscape::Layers::foragers_rec], writeoutforagers);
         layer_to_text(landscape_[Landscape::Layers::klepts_rec], writeoutklepts);
-        layer_to_text(landscape_[Landscape::Layers::capacity], writeoutcapacity);
+        //layer_to_text(landscape_[Landscape::Layers::capacity], writeoutcapacity);
 
 
 
         writeoutitems.close();
         writeoutforagers.close();
         writeoutklepts.close();
-        writeoutcapacity.close();
+        //writeoutcapacity.close();
       }
 
       assess_fitness();
