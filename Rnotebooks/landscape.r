@@ -1,115 +1,150 @@
+#### code to make some plots ####
+
 library(tseries)
-library(tidyverse)
-library(dplyr)
+library(data.table)
+library(purrr)
+library(magrittr)
+library(glue)
 
-capacity <- read.matrix("capacity_bitmap_v4_channel2.txt", sep="\t")
-datameans <- data.frame(Group.1=numeric(),
-                        items=numeric(),
-                        foragers=numeric(),
-                        klepts=numeric(),
-                        replicate=character())
+# where is the output
+data_folder <- "bin/Release/landscapes"
 
-whichgen <- c("991","992","993","994","995","996","997", "998")
-whichgen <- c("999")
-type <- "facultative"
+# read in the capacity
+capacity <- read.matrix(glue('{data_folder}/capacity_bitmap_v4_channel2.txt'), 
+                        sep="\t")
+max_capacity <- 5L
+
+# convert the capacity matrix
+capacity <- data.table(capacity)
+setnames(capacity, as.character(seq_len(512)))
+capacity[, y := as.character(seq_len(512))]
+capacity <- data.table::melt.data.table(capacity,
+                                        id.vars = "y",
+                                        variable.name = "x",
+                                        value.name = "cell_capacity")
+capacity[, x := as.character(x)]
+capacity[, cell_capacity := floor(cell_capacity * max_capacity)]
+
+# get generations
+which_gen <- seq(991, 999)
+
+# get simulation type
+type <- c("facultative", "obligate")
+
+# get the replicates
 replicates <- c("rep1","rep2","rep3")
 
-for(rep in replicates){
+# get layers
+layers <- c("items", "foragers", "klepts")
+
+# glue data file names together
+data_files <- tidyr::crossing(
+  which_gen,
+  type,
+  replicates,
+  layers
+)
+data_files$filepath <- glue_data(.x = data_files,
+                        '{data_folder}/{which_gen}{type}_\\
+                                  {replicates}{layers}.txt')
+
+# split by layer and replicate
+data <- data_files %>% 
+  split(data_files$type) %>% 
+  map(function(l) {
+    l %>% 
+      split(l$layers) %>% 
+      map(function(l) {
+        l %>% 
+          split(l$replicates) %>% 
+          map(function(r) {
+            r$filepath
+          })
+      })
+  })
   
 
+# read in data and get mean of layers per replicate
+data <- map_depth(data, 4, read.matrix) %>% 
+  map_depth(3, function(gens) {
+    reduce(gens, .f = `+`) / length(gens)
+  })
 
-items <- read.matrix(paste0(whichgen[1], type,"_", rep,"items.txt"), sep="\t")
-foragers <- read.matrix(paste0(whichgen[1], type,"_", rep,"foragers.txt"), sep="\t")
-klepts <- read.matrix(paste0(whichgen[1], type,"_", rep,"klepts.txt"), sep="\t")
-for(g in whichgen[2:length(whichgen)]){
-
-  items <- items + read.matrix(paste0(g, type,"_", rep,"items.txt"), sep="\t")
-  foragers <- foragers + read.matrix(paste0(g, type,"_", rep,"foragers.txt"), sep="\t")
-  klepts <- klepts + read.matrix(paste0(g, type,"_", rep,"klepts.txt"), sep="\t")
-  }
-
-
-
-
-colnames(items) <- paste0("",seq(1,512))
-rownames(items) <- paste0("",seq(1,512))
-colnames(foragers) <- paste0("",seq(1,512))
-rownames(foragers) <- paste0("",seq(1,512))
-colnames(klepts) <- paste0("",seq(1,512))
-rownames(klepts) <- paste0("",seq(1,512))
-colnames(capacity) <- paste0("",seq(1,512))
-rownames(capacity) <- paste0("",seq(1,512))
-
-items %>% 
-  as.data.frame() %>%
-  rownames_to_column("f_id") %>%
-  pivot_longer(-c(f_id), names_to = "samples", values_to = "items") %>%
-  {. ->> ourdata }   #here is save
+# convert to dataframe for capacity wise mean
+data <- map_depth(data, 3, function(reps) {
+  # convert with colnames
+  data_reps <- data.table::data.table(reps)
+  data.table::setnames(data_reps, as.character(seq_len(512)))
   
-foragers %>% 
-  as.data.frame() %>%
-  rownames_to_column("f_id") %>%
-  pivot_longer(-c(f_id), names_to = "samples", values_to = "foragers") %>%
-  {. ->> temp_data }   #here is save
+  # assign y coord
+  data_reps[, y := as.character(seq_len(512))]
+  
+  # now melt
+  data_reps <- data.table::melt.data.table(data_reps,
+                                           id.vars = "y",
+                                           variable.name = "x")
+  
+  # fix x coord
+  data_reps[, x := as.character(x)]
+  
+  return(data_reps)
+})
 
-ourdata$foragers <- temp_data$foragers
-klepts %>% 
-  as.data.frame() %>%
-  rownames_to_column("f_id") %>%
-  pivot_longer(-c(f_id), names_to = "samples", values_to = "klepts") %>%
-  {. ->> temp_data }   #here is save
+# get capacity wise mean
+data <- map_depth(data, 3, function(reps) {
+  # merge capacity
+  reps <- merge(reps, capacity)
+  # summarise
+  reps <- reps[, .(mean = mean(value),
+                   sd = sd(value)),
+               by = cell_capacity]
+})
 
-ourdata$klepts <- temp_data$klepts
+# assign rep number and layer name
+data <- map_depth(data, 2, function(l) {
+  map2(l, names(l), function(x, y) {
+    x[, repl := y]
+  })
+}) %>% 
+  map_depth(2, data.table::rbindlist)
 
-capacity %>% 
-  as.data.frame() %>%
-  rownames_to_column("f_id") %>%
-  pivot_longer(-c(f_id), names_to = "samples", values_to = "capacity") %>%
-  {. ->> temp_data }   #here is save
+# assign layer and sim type names
+data <- imap(data, function(x, y) {
+  map2(x, names(x), function(z, w) {
+    z[, `:=` (type = y,
+              layer = w)]
+  })
+})
 
-ourdata$capacity <- temp_data$capacity
+# get final data for plotting
+data <- map(data, rbindlist) %>% 
+  rbindlist()
 
-ourdata$capacity <- floor(ourdata$capacity * 5)
+data[, layer := forcats::fct_relevel(layer,
+                                     c("klepts", "foragers", "items"))]
 
-
-ourdata$f_id <- as.character(ourdata$f_id)
-#Then turn it back into a factor with the levels in the correct order
-ourdata$f_id <- factor(ourdata$f_id, levels=unique(ourdata$f_id))
-
-
-
-datameans1 <- aggregate(ourdata[,3:5], list(ourdata$capacity), mean)
-datameans1$replicate <- rep
-datameans <- rbind(datameans, datameans1[1:5,])
-#datamedians<- aggregate(ourdata[,3:5], list(ourdata$capacity), median)
-}
-
-
-datameans$foragers <- datameans$foragers * 100
-datameans$klepts <- datameans$klepts * 100
-colnames(datameans)[c(1,3,4)] <- c("capacity","foragers*100", "klepts*100")
-
-
-
-datameans2 <- melt(data = datameans, 
-     measure.vars  = c("items", "foragers*100" ,"klepts*100"), 
-     variable.name = "category", 
-     value.name = "Density"
-)
-
-plot <- ggplot(datameans2, aes(x=capacity, y=Density, color=category, group=interaction(replicate, category), linetype=replicate))+
-  geom_line()+
-  scale_color_manual(values=c("green", "blue", "red"))+
-  ggtitle(type)
-
-
-ggsave(
-  paste0(type, ".png"),
-  plot,
-  width = 8,
-  height = 6.5,
-  dpi=300
-)
+#### make some plot ####
+ggplot(data) +
+  geom_ribbon(aes(cell_capacity, 
+                  ymin = mean + 1 - sd,
+                  ymax = mean + 1 + sd,
+                  group = interaction(repl, layer),
+                  fill = layer),
+              alpha = 0.2)+
+  geom_line(aes(cell_capacity, mean + 1,
+                group = interaction(repl, layer),
+                col = layer),
+            size = 1, alpha = 0.5) +
+  scale_colour_brewer(palette = "Set1")+
+  scale_fill_brewer(palette = "Set1")+
+  theme_grey()+
+  theme(legend.position = "none")+
+  facet_grid(~ type)+
+  coord_cartesian(expand = F)+
+  scale_y_log10(breaks = c(1, 10, 100),
+                labels = c(0, 10, 100))+
+  labs(x = "cell capacity (items)",
+       y = "mean value")
 
 # 
 # ggplot(data=ourdata, aes(x=factor(samples, level = unique(ourdata$samples)), y=f_id, fill=items)) + 
