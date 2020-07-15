@@ -5,6 +5,7 @@ library(data.table)
 library(purrr)
 library(magrittr)
 library(glue)
+library(ggplot2)
 
 # where is the output
 data_folder <- "bin/Release/landscapes"
@@ -138,13 +139,16 @@ ggplot(data) +
   scale_colour_brewer(palette = "Set1")+
   scale_fill_brewer(palette = "Set1")+
   theme_grey()+
-  theme(legend.position = "none")+
+  theme(legend.position = "top")+
   facet_grid(~ type)+
   coord_cartesian(expand = F)+
   scale_y_log10(breaks = c(1, 10, 100),
                 labels = c(0, 10, 100))+
   labs(x = "cell capacity (items)",
        y = "mean value")
+
+ggsave(filename = "figures/fig_agent_item_distribution.png",
+       dpi = 300, width = 6, height = 4)
 
 # 
 # ggplot(data=ourdata, aes(x=factor(samples, level = unique(ourdata$samples)), y=f_id, fill=items)) + 
