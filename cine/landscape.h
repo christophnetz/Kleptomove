@@ -126,6 +126,8 @@ namespace cine2 {
       items_rec, 
       foragers_rec,
       klepts_rec,
+      foragers_intake,
+      klepts_intake,
       temp,         // scratch for computation
       max_layer
     };
