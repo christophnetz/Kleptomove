@@ -8,7 +8,7 @@ library(glue)
 library(ggplot2)
 
 # where is the output
-data_folder <- "bin/Release/landscapes"
+data_folder <- "data"
 
 # read in the capacity
 capacity <- read.matrix(glue('{data_folder}/capacity_bitmap_v4_channel2.txt'), 
@@ -36,7 +36,7 @@ type <- c("facultative", "obligate")
 replicates <- c("rep1","rep2","rep3")
 
 # get layers
-layers <- c("items", "foragers", "klepts")
+layers <- c("items", "foragers", "klepts", "klepts_intake", "foragers_intake")
 
 # glue data file names together
 data_files <- tidyr::crossing(
@@ -95,10 +95,10 @@ data <- map_depth(data, 3, function(reps) {
 data <- map_depth(data, 3, function(reps) {
   # merge capacity
   reps <- merge(reps, capacity)
-  # summarise
-  reps <- reps[, .(mean = mean(value),
-                   sd = sd(value)),
-               by = cell_capacity]
+  # # summarise
+  # reps <- reps[, .(mean = mean(value),
+  #                  sd = sd(value)),
+  #              by = cell_capacity]
 })
 
 # assign rep number and layer name
@@ -110,9 +110,9 @@ data <- map_depth(data, 2, function(l) {
   map_depth(2, data.table::rbindlist)
 
 # assign layer and sim type names
-data <- imap(data, function(x, y) {
+data <- imap(data, function(x, v) {
   map2(x, names(x), function(z, w) {
-    z[, `:=` (type = y,
+    z[, `:=` (type = v,
               layer = w)]
   })
 })
@@ -122,33 +122,81 @@ data <- map(data, rbindlist) %>%
   rbindlist()
 
 data[, layer := forcats::fct_relevel(layer,
-                                     c("klepts", "foragers", "items"))]
+                                     c("klepts", "foragers", "items",
+                                       "klepts_intake", "foragers_intake"))]
+
+# sample 1% data
+data2 <- data[,.SD[sample(.N, .N/100)], 
+              by = .(type, layer, cell_capacity)]
+
+# separate by intake
+data2[, type2 := ifelse(stringr::str_detect(layer, "intake"),
+                        "intake", "position")]
+
+data2[, type2 := ifelse(stringr::str_detect(layer, "item"),
+                        "items", type2)]
 
 #### make some plot ####
-ggplot(data) +
-  geom_ribbon(aes(cell_capacity, 
-                  ymin = mean + 1 - sd,
-                  ymax = mean + 1 + sd,
-                  group = interaction(repl, layer),
-                  fill = layer),
-              alpha = 0.2)+
-  geom_line(aes(cell_capacity, mean + 1,
-                group = interaction(repl, layer),
-                col = layer),
-            size = 1, alpha = 0.5) +
-  scale_colour_brewer(palette = "Set1")+
-  scale_fill_brewer(palette = "Set1")+
-  theme_grey()+
+ggplot(data2) +
+  geom_boxplot(aes(x = factor(cell_capacity),
+                   y = value,
+                   fill = layer),
+               # colour = "grey",
+               width = 0.4, 
+               outlier.size = 0.1,
+               position = position_dodge(width = 0.5))+
+  # geom_ribbon(aes(cell_capacity, 
+  #                 ymin = mean + 1 - sd,
+  #                 ymax = mean + 1 + sd,
+  #                 group = interaction(repl, layer, type),
+  #                 fill = layer),
+  #             alpha = 0.1)+
+  # geom_line(aes(cell_capacity, mean + 1,
+  #               group = interaction(repl, layer, type),
+  #               col = layer),
+  #           size = 1, alpha = 0.5) +
+  scale_fill_brewer(palette = "Pastel1")+
+  # scale_fill_brewer(palette = "Greys")+
   theme(legend.position = "top")+
-  facet_grid(~ type)+
-  coord_cartesian(expand = F)+
-  scale_y_log10(breaks = c(1, 10, 100),
-                labels = c(0, 10, 100))+
+  facet_grid(type2 ~ type,
+             scales = "free_y")+
+  coord_cartesian(expand = T)+
+  scale_y_sqrt()+
+  # scale_y_log10(breaks = c(1, 10, 100),
+  #               labels = c(0, 10, 100))+
   labs(x = "cell capacity (items)",
        y = "mean value")
 
 ggsave(filename = "figures/fig_agent_item_distribution.png",
-       dpi = 300, width = 6, height = 4)
+       dpi = 300, width = 6, height = 8)
+
+
+#### per capita intake ####
+
+# get per capita intake
+data3 <- data2[str_detect(layer, "items", negate = T),] %>% 
+  dcast(type + cell_capacity + repl ~ layer, 
+        value.var = "value", 
+        fun.aggregate = sum)
+
+data3[, `:=`(inpc_forager = foragers_intake / foragers,
+             inpc_klept = klepts_intake / klepts)]
+
+data3 <- melt(data3,
+              id.vars = setdiff(colnames(data3), c("inpc_forager",
+                                                   "inpc_klept")))
+
+ggplot(data3)+
+  geom_boxplot(aes(factor(cell_capacity),
+                   value,
+                   fill = variable),
+               notch = T)+
+  theme(legend.position = "top")+
+  scale_fill_brewer(palette = "Pastel1", direction = -1)+
+  facet_grid(~type,
+             scales = "free_y")+
+  # scale_y_sqrt()+
+  coord_cartesian(ylim = c(0, 1))
 
 # 
 # ggplot(data=ourdata, aes(x=factor(samples, level = unique(ourdata$samples)), y=f_id, fill=items)) + 
