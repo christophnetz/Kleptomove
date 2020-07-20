@@ -49,14 +49,18 @@ namespace cine2 {
     }
 
     //HANDLING FUNCTION (per agent)
-    void do_handle() {
+    bool do_handle() {
       if (handle_time < 0 && handling) {		//if agent handling time is smaller than zero AND agent is handling 
         ++handle_time;								//handling time is udpated
         handle_count += 1.f;
+
+        return false;
       }
       if (handle_time == 0 && handling) {		//if handling time has reached zero AND agent is handling
         food += 1.0f;								//food is consumed
         handling = false;							//the handling status is resetted (FALSE)
+
+        return true;
       }
       //ELSE (agent is not handling), do nothig.
     }
