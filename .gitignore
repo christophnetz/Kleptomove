@@ -48,3 +48,7 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 git c
+
+# no data
+data/*
+!data/00_data_exists.txt
