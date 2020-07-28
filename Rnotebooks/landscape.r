@@ -30,7 +30,7 @@ capacity[, cell_capacity := floor(cell_capacity * max_capacity)]
 which_gen <- seq(991, 999)
 
 # get simulation type
-type <- c("facultative", "obligate")
+type <- c("facultative", "foragers", "obligate")
 
 # get the replicates
 replicates <- c("rep1","rep2","rep3")
@@ -103,8 +103,8 @@ data <- map_depth(data, 3, function(reps) {
 
 # assign rep number and layer name
 data <- map_depth(data, 2, function(l) {
-  map2(l, names(l), function(x, y) {
-    x[, repl := y]
+  map2(l, names(l), function(z1, z2) {
+    z1[, repl := z2]
   })
 }) %>% 
   map_depth(2, data.table::rbindlist)
@@ -124,51 +124,48 @@ data <- map(data, rbindlist) %>%
 data[, layer := forcats::fct_relevel(layer,
                                      c("klepts", "foragers", "items",
                                        "klepts_intake", "foragers_intake"))]
+data[, type := forcats::fct_relevel(type, 
+                                    "foragers", "obligate", "facultative")]
 
-# sample 1% data
-data2 <- data[,.SD[sample(.N, .N/100)], 
-              by = .(type, layer, cell_capacity)]
+data2 <- dcast(data, 
+               type + repl + cell_capacity  ~ layer, 
+               fun.aggregate = mean, value.var = "value")
+
+data2[, `:=`(pc_int_klept = klepts_intake / klepts,
+             pc_int_forager = foragers_intake / foragers)]
+
+# get per capita intake
+data2[, `:=`(pc_int_klept = ifelse(klepts_intake == 0, 0, pc_int_klept),
+             pc_int_forager = ifelse(foragers_intake == 0, 0, pc_int_forager))]
+
+# melt for facetting with items
+data2 <- melt(data2, id.vars = c("type", "repl", "cell_capacity"))
 
 # separate by intake
-data2[, type2 := ifelse(stringr::str_detect(layer, "intake"),
-                        "intake", "position")]
-
-data2[, type2 := ifelse(stringr::str_detect(layer, "item"),
-                        "items", type2)]
+data2[, type2 := dplyr::case_when(
+  stringr::str_detect(variable, "intake") ~ "intake",
+  stringr::str_detect(variable, "item") ~ "items",
+  stringr::str_detect(variable, "pc") ~ "per_capita_intake",
+  TRUE ~ "strategy count"
+)]
 
 #### make some plot ####
-ggplot(data2) +
-  geom_boxplot(aes(x = factor(cell_capacity),
-                   y = value,
-                   fill = layer),
-               # colour = "grey",
-               width = 0.4, 
-               outlier.size = 0.1,
-               position = position_dodge(width = 0.5))+
-  # geom_ribbon(aes(cell_capacity, 
-  #                 ymin = mean + 1 - sd,
-  #                 ymax = mean + 1 + sd,
-  #                 group = interaction(repl, layer, type),
-  #                 fill = layer),
-  #             alpha = 0.1)+
-  # geom_line(aes(cell_capacity, mean + 1,
-  #               group = interaction(repl, layer, type),
-  #               col = layer),
-  #           size = 1, alpha = 0.5) +
-  scale_fill_brewer(palette = "Pastel1")+
-  # scale_fill_brewer(palette = "Greys")+
-  theme(legend.position = "top")+
-  facet_grid(type2 ~ type,
-             scales = "free_y")+
-  coord_cartesian(expand = T)+
-  scale_y_sqrt()+
-  # scale_y_log10(breaks = c(1, 10, 100),
-  #               labels = c(0, 10, 100))+
-  labs(x = "cell capacity (items)",
-       y = "mean value")
+ggplot(data2)+
+  geom_path(aes(cell_capacity,
+                value,
+                group = repl,
+                col = variable))+
+  geom_point(aes(cell_capacity,
+                value,
+                group = repl,
+                col = variable))+
+  scale_colour_manual(values = pals::tol.rainbow(7))+
+  theme_minimal()+
+  facet_grid(type2~type,
+             scales = "free_y")
 
 ggsave(filename = "figures/fig_agent_item_distribution.png",
-       dpi = 300, width = 6, height = 8)
+       dpi = 300, width = 8, height = 8)
 
 
 #### per capita intake ####
