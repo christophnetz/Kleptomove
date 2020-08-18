@@ -194,23 +194,32 @@ namespace cine2 {
         simulation_observer_notify(POST_TIMESTEP);
         // to print one screenshot
 
-        //if (g_ % 5 == 0 && t_ == 50) {
-        //	const std::string strGen_tmp = std::to_string(g_);
-        //	const std::string strGen = std::string(5 - strGen_tmp.length(), '0') + strGen_tmp;
-        //	Image screenshot2(std::string("../settings/emptyPNG.png"));
-        //	layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::foragers_count], blue);
-        //	layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::klepts_count], red);
-        //	layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::handlers_count], green);
-        //	//layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::items], alha);
-        //	save_image(screenshot2, std::string("../settings/screenshot" + strGen + ".png"));
+        if (g_ % 5 == 0 && t_ == 50) {
+        	//const std::string strGen_tmp = std::to_string(g_);
+        	//const std::string strGen = std::string(5 - strGen_tmp.length(), '0') + strGen_tmp;
+        	//Image screenshot2(std::string("../settings/emptyPNG.png"));
+        	//layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::foragers_count], blue);
+        	//layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::klepts_count], red);
+        	//layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::handlers_count], green);
+        	////layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::items], alha);
+        	//save_image(screenshot2, std::string("../settings/screenshot" + strGen + ".png"));
 
-        //	Image screenshot3(std::string("../settings/emptyPNG.png"));
-        //	layer_to_image_channel_2(screenshot3, (landscape_[Landscape::Layers::items]), green, param_.landscape.max_item_cap);
-        //	layer_to_image_channel_2(screenshot3, (landscape_[Landscape::Layers::items]), red, param_.landscape.max_item_cap);
-        //	layer_to_image_channel_2(screenshot3, (landscape_[Landscape::Layers::items]), blue, param_.landscape.max_item_cap);
-        //	save_image(screenshot3, std::string("../settings/foodlandscape" + strGen + param_.outdir + ".png"));
+        	//Image screenshot3(std::string("../settings/emptyPNG.png"));
+        	//layer_to_image_channel_2(screenshot3, (landscape_[Landscape::Layers::items]), green, param_.landscape.max_item_cap);
+        	//layer_to_image_channel_2(screenshot3, (landscape_[Landscape::Layers::items]), red, param_.landscape.max_item_cap);
+        	//layer_to_image_channel_2(screenshot3, (landscape_[Landscape::Layers::items]), blue, param_.landscape.max_item_cap);
+        	//save_image(screenshot3, std::string("../settings/foodlandscape" + strGen + param_.outdir + ".png"));
+            const std::string strGen_tmp = std::to_string(g_);
+            const std::string strGen = std::string(5 - strGen_tmp.length(), '0') + strGen_tmp;
+            Image screenshot3(std::string("../settings/empty_small.png"));
+            layer_to_image_channel_2(screenshot3, landscape_[Landscape::Layers::foragers_count], blue, 1000.f);
+            layer_to_image_channel_2(screenshot3, landscape_[Landscape::Layers::klepts_count], red, 1000.f);
+            layer_to_image_channel_2(screenshot3, landscape_[Landscape::Layers::handlers_count], green, 1000.f);
+            layer_to_image_channel_2(screenshot3, (landscape_[Landscape::Layers::items]), alha, param_.landscape.max_item_cap);
+            //layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::items], alha);
+            save_image(screenshot3, std::string(param_.outdir + "/" + strGen + ".png"));
 
-        //}
+        }
 
 
 
@@ -219,11 +228,11 @@ namespace cine2 {
 
       if (g_ > G - 10) {
 
-        const std::string stritems = std::string(std::to_string(g_) + param_.outdir + "items.txt");
-        const std::string strforagers = std::string(std::to_string(g_) + param_.outdir + "foragers.txt");
-        const std::string strklepts = std::string(std::to_string(g_) + param_.outdir + "klepts.txt");
-        const std::string strintakefor = std::string(std::to_string(g_) + param_.outdir + "foragers_intake.txt");
-        const std::string strintakeklept = std::string(std::to_string(g_) + param_.outdir + "klepts_intake.txt");
+        const std::string stritems = std::string(param_.outdir + "/" + std::to_string(g_) + "items.txt");
+        const std::string strforagers = std::string(param_.outdir + "/" + std::to_string(g_) + "foragers.txt");
+        const std::string strklepts = std::string(param_.outdir + "/" + std::to_string(g_) + "klepts.txt");
+        const std::string strintakefor = std::string(param_.outdir + "/" + std::to_string(g_) + "foragers_intake.txt");
+        const std::string strintakeklept = std::string(param_.outdir + "/" + std::to_string(g_) + "klepts_intake.txt");
         //const std::string strcapacity = std::string(std::to_string(g_) + param_.outdir + "capacity.txt");
         std::ofstream writeoutitems(stritems);
         std::ofstream writeoutforagers(strforagers);
