@@ -228,6 +228,8 @@ namespace cine2 {
       LayerView vConv3 = get_layer(conv3);
       LayerView vComb = get_layer(combined);
 	  
+      //Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers_count, Layers::handlers, Layers::nonhandlers,
+
 	  //clearing the vectors before the visualization of the current timestep
       vCount.clear();
       vConv.clear();      
@@ -242,6 +244,14 @@ namespace cine2 {
           if (first->handle()) {				//and handling
             ++vCount3(first->pos);					//position stored in the vector3 (for handlers apparently)
             vConv3.stamp_kernel<Kernel::k>(first->pos, kernel.K);
+
+            if (first->foraging) {
+              ++vCount(first->pos);
+            }
+            else {
+              ++vCount2(first->pos);
+
+            }
           }
           else if (first->foraging) {			//if not handling, but foraging
             ++vCount(first->pos);					//position stored in vector1 (for foragers)
