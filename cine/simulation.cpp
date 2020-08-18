@@ -357,9 +357,9 @@ namespace cine2 {
   {
     using Layers = Landscape::Layers;
     const float detection_rate = param_.landscape.detection_rate;
-    LayerView foragers_count = landscape_[Layers::foragers_count];
-    LayerView klepts_count = landscape_[Layers::klepts_count];
-    LayerView capacity = landscape_[Layers::capacity];
+    //LayerView foragers_count = landscape_[Layers::foragers_count];
+    //LayerView klepts_count = landscape_[Layers::klepts_count];
+    //LayerView capacity = landscape_[Layers::capacity];
     LayerView items = landscape_[Layers::items];
     LayerView foragers_intake = landscape_[Layers::foragers_intake];
     LayerView klepts_intake = landscape_[Layers::klepts_intake];
