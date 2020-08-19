@@ -1,6 +1,5 @@
 #### code to make some plots ####
 
-library(tseries)
 library(data.table)
 library(purrr)
 library(magrittr)
@@ -255,6 +254,61 @@ patchwork::wrap_plots(fig_pc_intake)+
 
 ggsave(filename = "figures/fig_pc_intake.png",
        dpi = 300, width = 9, height = 4)
+
+#### plot pc intake vs agents ####
+
+# read data
+data <- fread("data/data_full.csv")
+
+d2 <- copy(data)
+d2 <- dcast(data, type + repl + cell_capacity + x + y ~ layer,
+            value.var = "value")
+
+# count total agents
+d2[, `:=`(total_agents = foragers + klepts,
+          total_intake = foragers_intake + klepts_intake)]
+
+# get per capita intake
+d2[, `:=`(pc_intake_total = total_intake / total_agents,
+          pc_intake_klept = klepts_intake / total_agents,
+          pc_intake_forager = foragers_intake / total_agents)]
+
+# plot per capita intake over total agents
+d3 <- copy(d2)
+d3 <- d3[, .(pc_intake_total = mean(pc_intake_total),
+             pc_intake_forager = mean(pc_intake_forager),
+             pc_intake_klept = mean(pc_intake_klept)),
+   by = .(type, repl, total_agents, cell_capacity)]
+
+# plot
+ggplot(d3)+
+  # geom_point(aes(y=pc_intake_total, x=total_agents,
+  #                col = cell_capacity), 
+  #            size = 0.1, shape = 4)+
+ 
+  geom_point(aes(y=pc_intake_forager, x = total_agents,
+                 col= cell_capacity), 
+             col = "blue", alpha = 0.1,
+             size = 0.05, shape = 1)+
+  geom_point(aes(y=pc_intake_klept, x = total_agents,
+                 col = cell_capacity),
+             # col = "red", 
+             size = 0.05, shape = 2
+             #alpha = 0.1
+             )+
+  
+  facet_grid(type~ repl)+
+  scale_colour_distiller(palette = "YlOrRd",
+                         direction = 1)+
+  theme_bw()+
+  theme(legend.position = "top")+
+  xlim(0, 20)+
+  labs(y = "per capita intake by strategy (mean)",
+       x = "# total agents on grid cell (both strategies)",
+       fill = "cell carrying capacity")
+
+ggsave(filename = "figures/fig_pc_intake_vs_agents_hi_klept.png",
+       dpi = 300)
 
 # 
 # ggplot(data=ourdata, aes(x=factor(samples, level = unique(ourdata$samples)), y=f_id, fill=items)) + 
