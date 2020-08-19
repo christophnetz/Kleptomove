@@ -184,7 +184,7 @@ patchwork::wrap_plots(fig_strat_distr)+
 ggsave(filename = "figures/fig_agent_strat_distribution.png",
        dpi = 300, width = 9, height = 4)
 
-#### figure item distributions ####
+♣#### figure item distributions ####
 fig_item_distr <- data2[type2 == "items", ] %>%
   split(by = c("type")) %>% 
   map(function(d) {
