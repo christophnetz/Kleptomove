@@ -198,13 +198,13 @@ namespace cine2 {
         	
             const std::string strGen_tmp = std::to_string(g_);
             const std::string strGen = std::string(5 - strGen_tmp.length(), '0') + strGen_tmp;
-            Image screenshot3(std::string("../settings/empty_small.png"));
-            layer_to_image_channel(screenshot3, landscape_[Landscape::Layers::foragers_count], blue);
-            layer_to_image_channel(screenshot3, landscape_[Landscape::Layers::klepts_count], red);
-            layer_to_image_channel(screenshot3, landscape_[Landscape::Layers::handlers_count], green);
-            layer_to_image_channel(screenshot3, (landscape_[Landscape::Layers::items]), alha);
+            //Image screenshot3(std::string("../settings/empty.png"));
+            //layer_to_image_channel(screenshot3, landscape_[Landscape::Layers::foragers_count], blue);
+            //layer_to_image_channel(screenshot3, landscape_[Landscape::Layers::klepts_count], red);
+            //layer_to_image_channel(screenshot3, landscape_[Landscape::Layers::handlers_count], green);
+            //layer_to_image_channel(screenshot3, (landscape_[Landscape::Layers::items]), alha);
             //layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::items], alha);
-            save_image(screenshot3, std::string(param_.outdir + "/" + strGen + ".png"));
+            //save_image(screenshot3, std::string(param_.outdir + "/" + strGen + ".png"));
 
         }
 
@@ -275,8 +275,8 @@ namespace cine2 {
     //#   pragma omp parallel for schedule(static)
 
     for (int i = 0; i < DD; ++i) {
-      if (std::bernoulli_distribution(item_growth)(rnd::reng)) {  // altered: probability that items drop
-        items[i] = std::min(floor(capacity[i] * max_item_cap), floor(items[i] + 1.0f));
+      if (std::bernoulli_distribution(item_growth * capacity[i] / max_item_cap)(rnd::reng) && capacity[i] > 0.2) {  // altered: probability that items drop
+        items[i] = std::min(floor(max_item_cap), floor(items[i] + 1.0f));
       }
     }
 
