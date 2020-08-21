@@ -194,23 +194,51 @@ namespace cine2 {
         simulation_observer_notify(POST_TIMESTEP);
         // to print one screenshot
 
-        //if (g_ % 5 == 0 && t_ == 50) {
-        //	const std::string strGen_tmp = std::to_string(g_);
-        //	const std::string strGen = std::string(5 - strGen_tmp.length(), '0') + strGen_tmp;
-        //	Image screenshot2(std::string("../settings/emptyPNG.png"));
-        //	layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::foragers_count], blue);
-        //	layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::klepts_count], red);
-        //	layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::handlers_count], green);
-        //	//layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::items], alha);
-        //	save_image(screenshot2, std::string("../settings/screenshot" + strGen + ".png"));
+        if (g_ % 5 == 0 && t_ == 50) {
 
-        //	Image screenshot3(std::string("../settings/emptyPNG.png"));
-        //	layer_to_image_channel_2(screenshot3, (landscape_[Landscape::Layers::items]), green, param_.landscape.max_item_cap);
-        //	layer_to_image_channel_2(screenshot3, (landscape_[Landscape::Layers::items]), red, param_.landscape.max_item_cap);
-        //	layer_to_image_channel_2(screenshot3, (landscape_[Landscape::Layers::items]), blue, param_.landscape.max_item_cap);
-        //	save_image(screenshot3, std::string("../settings/foodlandscape" + strGen + param_.outdir + ".png"));
+            // pad generations helps with regex finding later
+            const std::string strGen_tmp = std::to_string(g_);
+            const std::string strGen = std::string(5 - strGen_tmp.length(), '0') + strGen_tmp;
 
-        //}
+            const std::string stritems = std::string(param_.outdir + "/" + strGen + "_" + "items.txt");
+            const std::string strforagers = std::string(param_.outdir + "/" + strGen + "_" + "foragers.txt");
+            const std::string strklepts = std::string(param_.outdir + "/" + strGen + "_" + "klepts.txt");
+            const std::string strintakefor = std::string(param_.outdir + "/" + strGen + "_" + "foragers_intake.txt");
+            const std::string strintakeklept = std::string(param_.outdir + "/" + strGen + "_" + "klepts_intake.txt");
+            //const std::string strcapacity = std::string(std::to_string(g_) + param_.outdir + "capacity.txt");
+            std::ofstream writeoutitems(stritems);
+            std::ofstream writeoutforagers(strforagers);
+            std::ofstream writeoutklepts(strklepts);
+            std::ofstream writeoutintakefor(strintakefor);
+            std::ofstream writeoutintakeklept(strintakeklept);
+            //std::ofstream writeoutcapacity(strcapacity);
+
+            layer_to_text(landscape_[Landscape::Layers::items_rec], writeoutitems);
+            layer_to_text(landscape_[Landscape::Layers::foragers_rec], writeoutforagers);
+            layer_to_text(landscape_[Landscape::Layers::klepts_rec], writeoutklepts);
+            layer_to_text(landscape_[Landscape::Layers::foragers_intake], writeoutintakefor);
+            layer_to_text(landscape_[Landscape::Layers::klepts_intake], writeoutintakeklept);
+            //layer_to_text(landscape_[Landscape::Layers::capacity], writeoutcapacity);
+
+
+
+            writeoutitems.close();
+            writeoutforagers.close();
+            writeoutklepts.close();
+            writeoutintakefor.close();
+            writeoutintakeklept.close();
+        //	
+        //    const std::string strGen_tmp = std::to_string(g_);
+        //    const std::string strGen = std::string(5 - strGen_tmp.length(), '0') + strGen_tmp;
+        //    Image screenshot3(std::string("../settings/empty.png"));
+        //    layer_to_image_channel(screenshot3, landscape_[Landscape::Layers::foragers_count], blue);
+        //    layer_to_image_channel(screenshot3, landscape_[Landscape::Layers::klepts_count], red);
+        //    layer_to_image_channel(screenshot3, landscape_[Landscape::Layers::handlers_count], green);
+        //    layer_to_image_channel_2(screenshot3, (landscape_[Landscape::Layers::items]), alha, static_cast<float>(param_.landscape.max_item_cap));
+        //    //layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::items], alha);
+            //save_image(screenshot3, std::string(param_.outdir + "/" + strGen + ".png"));
+
+        }
 
 
 
@@ -219,11 +247,11 @@ namespace cine2 {
 
       if (g_ > G - 10) {
 
-        const std::string stritems = std::string(std::to_string(g_) + param_.outdir + "items.txt");
-        const std::string strforagers = std::string(std::to_string(g_) + param_.outdir + "foragers.txt");
-        const std::string strklepts = std::string(std::to_string(g_) + param_.outdir + "klepts.txt");
-        const std::string strintakefor = std::string(std::to_string(g_) + param_.outdir + "foragers_intake.txt");
-        const std::string strintakeklept = std::string(std::to_string(g_) + param_.outdir + "klepts_intake.txt");
+        const std::string stritems = std::string(param_.outdir + "/" + std::to_string(g_) + "items.txt");
+        const std::string strforagers = std::string(param_.outdir + "/" + std::to_string(g_) + "foragers.txt");
+        const std::string strklepts = std::string(param_.outdir + "/" + std::to_string(g_) + "klepts.txt");
+        const std::string strintakefor = std::string(param_.outdir + "/" + std::to_string(g_) + "foragers_intake.txt");
+        const std::string strintakeklept = std::string(param_.outdir + "/" + std::to_string(g_) + "klepts_intake.txt");
         //const std::string strcapacity = std::string(std::to_string(g_) + param_.outdir + "capacity.txt");
         std::ofstream writeoutitems(stritems);
         std::ofstream writeoutforagers(strforagers);
@@ -279,8 +307,8 @@ namespace cine2 {
     //#   pragma omp parallel for schedule(static)
 
     for (int i = 0; i < DD; ++i) {
-      if (std::bernoulli_distribution(item_growth)(rnd::reng)) {  // altered: probability that items drop
-        items[i] = std::min(floor(capacity[i] * max_item_cap), floor(items[i] + 1.0f));
+      if (std::bernoulli_distribution(item_growth * capacity[i] / max_item_cap)(rnd::reng) && capacity[i] > 0.2) {  // altered: probability that items drop
+        items[i] = std::min(floor(max_item_cap), floor(items[i] + 1.0f));
       }
     }
 

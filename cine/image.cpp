@@ -52,7 +52,7 @@ namespace cine2 {
       throw std::runtime_error("assign_layer_to_image_channel: dimensions don't match");
     }
     auto set_channel = [=](unsigned char& c, float val) { 
-      c = static_cast<unsigned char>(std::max(0.0f, std::min(val, 1.0f)) * 255.0f);
+      c = static_cast<unsigned char>(std::min(val, 255.0f));
     };
     const int n = dst.width() * dst.height();
     unsigned char* pdst = (unsigned char*)(dst.data()) + channel;
