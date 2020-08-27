@@ -14,16 +14,16 @@ max_capacity <- 5L
 
 capacity <- floor(capacity * max_capacity)
 
-# convert the capacity matrix
-capacity <- data.table(capacity)
-setnames(capacity, as.character(seq_len(128)))
-capacity[, y := as.character(seq_len(128))]
-capacity <- data.table::melt.data.table(capacity,
-                                        id.vars = "y",
-                                        variable.name = "x",
-                                        value.name = "cell_capacity")
-capacity[, x := as.character(x)]
-capacity[, cell_capacity := floor(cell_capacity * max_capacity)]
+# # convert the capacity matrix
+# capacity <- data.table(capacity)
+# setnames(capacity, as.character(seq_len(128)))
+# capacity[, y := as.character(seq_len(128))]
+# capacity <- data.table::melt.data.table(capacity,
+#                                         id.vars = "y",
+#                                         variable.name = "x",
+#                                         value.name = "cell_capacity")
+# capacity[, x := as.character(x)]
+# capacity[, cell_capacity := floor(cell_capacity * max_capacity)]
 
 # get generations
 which_gen <- seq(991, 999)
@@ -73,17 +73,44 @@ data_in <- rapply(object = data, function(file_list) {
 # convert to dataframe for capacity wise mean
 data_proc <- rapply(data_in, function(matrix_) {
   vals <- as.vector(matrix_) / 10 # for 10 gen mean
+  vals <- vals / 100 # for 100 timestep mean
   cap <- as.vector(capacity)
   
   val_by_cap <- data.table(value = vals, cap = cap)
-  val_by_cap <- val_by_cap[, .(mean_val = mean(value),
-                               sd_val = sd(value),
-                               median_val = median(value)),
-                           by = "cap"]
+  
   
   return(val_by_cap)
 }, how = "list")
 
+# get per capita intake
+data_proc <- lapply(data_proc, function(sim_type) {
+  # get pc forager intake
+  pc_intake_forager <- mapply(function(a, b) {
+    pc_in <- a$value / b$value
+    
+    return(data.table(value = pc_in, cap = a$cap))
+    
+  },
+  sim_type$foragers_intake, sim_type$foragers,
+  SIMPLIFY = FALSE)
+  
+  # get pc klepto intake
+  pc_intake_klepts <- mapply(function(a, b) {
+    pc_in <- a$value / b$value
+    
+    return(data.table(value = pc_in, cap = a$cap))
+  },
+  sim_type$klepts_intake, sim_type$klepts,
+  SIMPLIFY = FALSE)
+  
+  sim_type <- append(sim_type, list(pc_intake_forager = pc_intake_forager, 
+                                    pc_intake_klepts = pc_intake_klepts))
+  
+  return(sim_type)
+  
+})
+
+# get mean and sd per capacity
 # assign replicate number, layer name, and sim type
 data_final <- lapply(data_proc, function(sim_type) {
   # process sim type
@@ -91,6 +118,12 @@ data_final <- lapply(data_proc, function(sim_type) {
     # add replicate identifier
     replicates <- names(layer_type)
     replicate_dt_list <- mapply(function(a, b) {
+      
+      a <- a[, .(mean_val = mean(value, na.rm = TRUE),
+                 sd_val = sd(value, na.rm = TRUE),
+                 median_val = median(value, na.rm = TRUE)),
+             by = "cap"]
+      
       a$replicate <- b
       
       return(a)
@@ -110,6 +143,7 @@ data_final <- lapply(data_proc, function(sim_type) {
   layers_list <- rbindlist(layers_list)
 })
 
+# assign simulation type
 data_final <- mapply(function(a, b) {
   a$sim_type <- b
   return(a)
@@ -121,7 +155,9 @@ data_final <- rbindlist(data_final)
 
 data_final[, layer := forcats::fct_relevel(layer,
                                      c("klepts", "foragers", "items",
-                                       "klepts_intake", "foragers_intake"))]
+                                       "klepts_intake", "foragers_intake",
+                                       "pc_intake_klepts", 
+                                       "pc_intake_forager"))]
 data_final[, sim_type := forcats::fct_relevel(sim_type, 
                                     "forg", "fixd", "flex")]
 
@@ -137,9 +173,9 @@ data_final[, sim_type := forcats::fct_relevel(sim_type,
 
 # separate by intake
 data_final[, layer_type := dplyr::case_when(
-  stringi::stri_detect(layer, fixed = "intake") ~ "intake",
+  stringi::stri_detect(layer, fixed = "pc_intake") ~ "per_capita_intake",
   stringi::stri_detect(layer, fixed = "item") ~ "items",
-  stringi::stri_detect(layer, fixed = "pc") ~ "per_capita_intake",
+  stringi::stri_detect(layer, fixed = "intake") ~ "intake",
   TRUE ~ "strategy count"
 )]
 
@@ -165,21 +201,27 @@ ggplot(data_final[cap < 5, ])+
   scale_colour_manual(values = c("red", "blue",
                                  "darkgreen",
                                  "orange",
-                                 "dodgerblue"),
+                                 "dodgerblue",
+                                 "darkred", "darkblue"),
                       labels = c("# kleptoparasites",
                                 "# foragers",
                                 "# items",
                                 "S klept. intake",
-                                "S forag. intake"))+
+                                "S forag. intake",
+                                "PC klept intake",
+                                "PC forag intake"))+
   scale_fill_manual(values = c("red", "blue",
                                "darkgreen",
                                "orange",
-                               "dodgerblue"),
+                               "dodgerblue",
+                               "darkred", "darkblue"),
                     labels = c("# kleptoparasites",
                                "# foragers",
                                "# items",
                                "S klept. intake",
-                               "S forag. intake"))+
+                               "S forag. intake",
+                               "PC klept intake",
+                               "PC forag intake"))+
   # scale_y_continuous(trans=ggallin::pseudolog10_trans)+
   # scale_y_log10()+
   # coord_cartesian(ylim = c(-0.001, 10))+
