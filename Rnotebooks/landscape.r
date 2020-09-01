@@ -1,8 +1,7 @@
 #### code to make some plots ####
 
 library(data.table)
-library(purrr)
-library(magrittr)
+library(stringi)
 library(glue)
 library(ggplot2)
 
@@ -10,19 +9,21 @@ library(ggplot2)
 data_folder <- "data"
 
 # read in the capacity
-capacity <- png::readPNG("bin/settings/test_small.png")[,,3]
+capacity <- png::readPNG("bin/settings/bitmap_v4.png")[,,3]
 max_capacity <- 5L
 
-# convert the capacity matrix
-capacity <- data.table(capacity)
-setnames(capacity, as.character(seq_len(128)))
-capacity[, y := as.character(seq_len(128))]
-capacity <- data.table::melt.data.table(capacity,
-                                        id.vars = "y",
-                                        variable.name = "x",
-                                        value.name = "cell_capacity")
-capacity[, x := as.character(x)]
-capacity[, cell_capacity := floor(cell_capacity * max_capacity)]
+capacity <- floor(capacity * max_capacity)
+
+# # convert the capacity matrix
+# capacity <- data.table(capacity)
+# setnames(capacity, as.character(seq_len(128)))
+# capacity[, y := as.character(seq_len(128))]
+# capacity <- data.table::melt.data.table(capacity,
+#                                         id.vars = "y",
+#                                         variable.name = "x",
+#                                         value.name = "cell_capacity")
+# capacity[, x := as.character(x)]
+# capacity[, cell_capacity := floor(cell_capacity * max_capacity)]
 
 # get generations
 which_gen <- seq(991, 999)
@@ -31,13 +32,13 @@ which_gen <- seq(991, 999)
 type <- c("fixd", "forg", "flex")
 
 # get the replicates
-replicates <- stringr::str_pad(seq_len(10), pad = "0", width=3)
+replicates <- stringr::str_pad(seq_len(10), pad = "0", width = 3)
 
 # get layers
 layers <- c("items", "foragers", "klepts", "klepts_intake", "foragers_intake")
 
 # glue data file names together
-data_files <- tidyr::crossing(
+data_files <- CJ(
   which_gen,
   type,
   replicates,
@@ -48,104 +49,190 @@ data_files$filepath <- glue_data(.x = data_files,
                                   {replicates}/{which_gen}{layers}.txt')
 
 # split by layer and replicate
-data <- data_files %>% 
-  split(data_files$type) %>% 
-  map(function(l) {
-    l %>% 
-      split(l$layers) %>% 
-      map(function(l) {
-        l %>% 
-          split(l$replicates) %>% 
-          map(function(r) {
-            r$filepath
-          })
-      })
+data <- split(data_files, data_files$type)
+data <- lapply(data, function(l) {
+  l <- split(l, l$layers)
+  l <- lapply(l, function(l2) {
+    l2 <- split(l2, l2$replicates)
+    l2 <- lapply(l2, function(l3) {
+      l3$filepath
+    })
   })
-  
+})
 
 # read in data and get mean of layers per replicate
-data <- map_depth(data, 4, read.matrix) %>% 
-  map_depth(3, function(gens) {
-    reduce(gens, .f = `+`) / length(gens)
+data_in <- rapply(object = data, function(file_list) {
+  matrices <- lapply(as.list(file_list), function(fl) {
+    tseries::read.matrix(fl)
   })
+  
+  # sum the agents
+  matrices <- Reduce(f = `+`, x = matrices)
+}, how = "list")
 
 # convert to dataframe for capacity wise mean
-data <- map_depth(data, 3, function(reps) {
-  # convert with colnames
-  data_reps <- data.table::data.table(reps)
-  data.table::setnames(data_reps, as.character(seq_len(128)))
+data_proc <- rapply(data_in, function(matrix_) {
+  vals <- as.vector(matrix_) / 10 # for 10 gen mean
+  vals <- vals / 100 # for 100 timestep mean
+  cap <- as.vector(capacity)
   
-  # assign y coord
-  data_reps[, y := as.character(seq_len(128))]
+  val_by_cap <- data.table(value = vals, cap = cap)
   
-  # now melt
-  data_reps <- data.table::melt.data.table(data_reps,
-                                           id.vars = "y",
-                                           variable.name = "x")
   
-  # fix x coord
-  data_reps[, x := as.character(x)]
-  
-  return(data_reps)
-})
-
-# get capacity wise mean
-data <- map_depth(data, 3, function(reps) {
-  # merge capacity
-  reps <- merge(reps, capacity)
-  # # summarise
-  # reps <- reps[, .(mean = mean(value),
-  #                  sd = sd(value)),
-  #              by = cell_capacity]
-})
-
-# assign rep number and layer name
-data <- map_depth(data, 2, function(l) {
-  map2(l, names(l), function(z1, z2) {
-    z1[, repl := z2]
-  })
-}) %>% 
-  map_depth(2, data.table::rbindlist)
-
-# assign layer and sim type names
-data <- imap(data, function(x, v) {
-  map2(x, names(x), function(z, w) {
-    z[, `:=` (type = v,
-              layer = w)]
-  })
-})
-
-# get final data for plotting
-data <- map(data, rbindlist) %>% 
-  rbindlist()
-
-data[, layer := forcats::fct_relevel(layer,
-                                     c("klepts", "foragers", "items",
-                                       "klepts_intake", "foragers_intake"))]
-data[, type := forcats::fct_relevel(type, 
-                                    "forg", "fixd", "flex")]
-
-data2 <- dcast(data, 
-               type + repl + cell_capacity  ~ layer, 
-               fun.aggregate = mean, value.var = "value")
-
-data2[, `:=`(pc_int_klept = klepts_intake / klepts,
-             pc_int_forager = foragers_intake / foragers)]
+  return(val_by_cap)
+}, how = "list")
 
 # get per capita intake
-data2[, `:=`(pc_int_klept = ifelse(klepts_intake == 0, 0, pc_int_klept),
-             pc_int_forager = ifelse(foragers_intake == 0, 0, pc_int_forager))]
+data_proc <- lapply(data_proc, function(sim_type) {
+  # get pc forager intake
+  pc_intake_forager <- mapply(function(a, b) {
+    pc_in <- a$value / b$value
+    
+    return(data.table(value = pc_in, cap = a$cap))
+    
+  },
+  sim_type$foragers_intake, sim_type$foragers,
+  SIMPLIFY = FALSE)
+  
+  # get pc klepto intake
+  pc_intake_klepts <- mapply(function(a, b) {
+    pc_in <- a$value / b$value
+    
+    return(data.table(value = pc_in, cap = a$cap))
+  },
+  sim_type$klepts_intake, sim_type$klepts,
+  SIMPLIFY = FALSE)
+  
+  sim_type <- append(sim_type, list(pc_intake_forager = pc_intake_forager, 
+                                    pc_intake_klepts = pc_intake_klepts))
+  
+  return(sim_type)
+  
+})
+
+# get mean and sd per capacity
+# assign replicate number, layer name, and sim type
+data_final <- lapply(data_proc, function(sim_type) {
+  # process sim type
+  layers <- lapply(sim_type, function(layer_type) {
+    # add replicate identifier
+    replicates <- names(layer_type)
+    replicate_dt_list <- mapply(function(a, b) {
+      
+      a <- a[, .(mean_val = mean(value, na.rm = TRUE),
+                 sd_val = sd(value, na.rm = TRUE),
+                 median_val = median(value, na.rm = TRUE)),
+             by = "cap"]
+      
+      a$replicate <- b
+      
+      return(a)
+    }, layer_type, replicates,
+    SIMPLIFY = FALSE)
+    
+    return(rbindlist(replicate_dt_list))
+  })
+  
+  layer_names <- names(layers)
+  layers_list <- mapply(function(a, b) {
+    a$layer <- b
+    return(a)
+  }, layers, layer_names,
+  SIMPLIFY = FALSE)
+  
+  layers_list <- rbindlist(layers_list)
+})
+
+# assign simulation type
+data_final <- mapply(function(a, b) {
+  a$sim_type <- b
+  return(a)
+}, data_final, names(data_final),
+SIMPLIFY = FALSE)
+
+# bind final list
+data_final <- rbindlist(data_final)
+
+data_final[, layer := forcats::fct_relevel(layer,
+                                     c("klepts", "foragers", "items",
+                                       "klepts_intake", "foragers_intake",
+                                       "pc_intake_klepts", 
+                                       "pc_intake_forager"))]
+data_final[, sim_type := forcats::fct_relevel(sim_type, 
+                                    "forg", "fixd", "flex")]
+
+# data2[, `:=`(pc_int_klept = klepts_intake / klepts,
+#              pc_int_forager = foragers_intake / foragers)]
+# 
+# # get per capita intake
+# data2[, `:=`(pc_int_klept = ifelse(klepts_intake == 0, 0, pc_int_klept),
+#              pc_int_forager = ifelse(foragers_intake == 0, 0, pc_int_forager))]
 
 # melt for facetting with items
-data2 <- melt(data2, id.vars = c("type", "repl", "cell_capacity"))
+# data2 <- melt(data2, id.vars = c("type", "repl", "cell_capacity"))
 
 # separate by intake
-data2[, type2 := dplyr::case_when(
-  stringr::str_detect(variable, "intake") ~ "intake",
-  stringr::str_detect(variable, "item") ~ "items",
-  stringr::str_detect(variable, "pc") ~ "per_capita_intake",
+data_final[, layer_type := dplyr::case_when(
+  stringi::stri_detect(layer, fixed = "pc_intake") ~ "per_capita_intake",
+  stringi::stri_detect(layer, fixed = "item") ~ "items",
+  stringi::stri_detect(layer, fixed = "intake") ~ "intake",
   TRUE ~ "strategy count"
 )]
+
+#### overall figure ####
+ggplot(data_final[cap < 5, ])+
+  geom_ribbon(aes(cap,
+                  ymin = mean_val - sd_val,
+                  ymax = mean_val + sd_val,
+                  fill = layer,
+                  group = interaction(layer, replicate)),
+              alpha = 0.01,
+              show.legend = F)+
+  geom_point(aes(cap, mean_val,
+                colour = layer,
+                group = interaction(layer, replicate)))+
+  geom_line(aes(cap, mean_val,
+                colour = layer,
+                group = interaction(layer, replicate)))+
+  
+  facet_grid(layer_type ~ sim_type, as.table = F,
+             scales = "free_y",
+             labeller = label_both)+
+  scale_colour_manual(values = c("red", "blue",
+                                 "darkgreen",
+                                 "orange",
+                                 "dodgerblue",
+                                 "darkred", "darkblue"),
+                      labels = c("# kleptoparasites",
+                                "# foragers",
+                                "# items",
+                                "S klept. intake",
+                                "S forag. intake",
+                                "PC klept intake",
+                                "PC forag intake"))+
+  scale_fill_manual(values = c("red", "blue",
+                               "darkgreen",
+                               "orange",
+                               "dodgerblue",
+                               "darkred", "darkblue"),
+                    labels = c("# kleptoparasites",
+                               "# foragers",
+                               "# items",
+                               "S klept. intake",
+                               "S forag. intake",
+                               "PC klept intake",
+                               "PC forag intake"))+
+  # scale_y_continuous(trans=ggallin::pseudolog10_trans)+
+  # scale_y_log10()+
+  # coord_cartesian(ylim = c(-0.001, 10))+
+  theme_bw()+
+  theme(legend.position = "top")+
+  labs(x = "grid cell quality",
+       y = "value",
+       colour = "metric")
+
+ggsave(filename = "figures/fig_agent_item_distribution.png",
+       dpi = 300)
 
 #### figure agent strategy distributions ####
 fig_strat_distr <- data2[type2 == "strategy count", ] %>%
@@ -183,7 +270,7 @@ patchwork::wrap_plots(fig_strat_distr)+
 ggsave(filename = "figures/fig_agent_strat_distribution.png",
        dpi = 300, width = 9, height = 4)
 
-♣#### figure item distributions ####
+#### figure item distributions ####
 fig_item_distr <- data2[type2 == "items", ] %>%
   split(by = c("type")) %>% 
   map(function(d) {
