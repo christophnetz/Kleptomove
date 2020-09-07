@@ -9,10 +9,10 @@ library(ggplot2)
 data_folder <- "data"
 
 # read in the capacity
-capacity <- png::readPNG("bin/settings/bitmap_v4.png")[,,3]
+capacity <- png::readPNG("bin/settings/someIslands.png")
 max_capacity <- 5L
 
-capacity <- floor(capacity * max_capacity)
+capacity <- round(capacity * max_capacity, digits = 1)
 
 # # convert the capacity matrix
 # capacity <- data.table(capacity)
@@ -188,9 +188,9 @@ ggplot(data_final[cap < 5, ])+
                   group = interaction(layer, replicate)),
               alpha = 0.01,
               show.legend = F)+
-  geom_point(aes(cap, mean_val,
-                colour = layer,
-                group = interaction(layer, replicate)))+
+  # geom_point(aes(cap, mean_val,
+  #               colour = layer,
+  #               group = interaction(layer, replicate)))+
   geom_line(aes(cap, mean_val,
                 colour = layer,
                 group = interaction(layer, replicate)))+
@@ -224,8 +224,8 @@ ggplot(data_final[cap < 5, ])+
                                "PC forag intake"))+
   # scale_y_continuous(trans=ggallin::pseudolog10_trans)+
   # scale_y_log10()+
-  # coord_cartesian(ylim = c(-0.001, 10))+
-  theme_bw()+
+  coord_cartesian(xlim = c(2.5, 5))+
+  # theme_bw()+
   theme(legend.position = "top")+
   labs(x = "grid cell quality",
        y = "value",
