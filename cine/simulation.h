@@ -61,7 +61,7 @@ namespace cine2 {
     bool run(Observer* observer = nullptr); 
 
   private:
-    void simulate_timestep();
+    void simulate_timestep(int t);
     void update_landscaperecord();
     void assess_fitness();
     void assess_inds();

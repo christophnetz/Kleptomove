@@ -30,7 +30,7 @@ namespace cine2 {
     shuffle_vec.resize(param.agents.N);
     std::iota(shuffle_vec.begin(), shuffle_vec.end(), 0);
 
-
+    agents_.ann->initialize(param.agents);
 
     // initial landscape layers from image fies
     init_layer(param_.landscape.capacity); //capacity
@@ -171,7 +171,8 @@ namespace cine2 {
     for (int gb = 0; gb < Gb; ++gb) {
       const int Tb = param_.T;
       for (int tb = 0; tb < Tb; ++tb) {
-        simulate_timestep();
+        simulate_timestep(tb);
+
         simulation_observer_notify(WATCHDOG);   // app alive?
       }
 
@@ -190,62 +191,65 @@ namespace cine2 {
       simulation_observer_notify(NEW_GENERATION);
       const int T = fixed() ? param_.Tfix : param_.T;
       for (t_ = 0; t_ < T; ++t_) {
-        simulate_timestep();
+        simulate_timestep(t_);
         simulation_observer_notify(POST_TIMESTEP);
+        
+        
+        
         // to print one screenshot
 
-        if (g_ % 5 == 0 && t_ == 50) {
+        //if (g_ % 5 == 0 && t_ == 50) {
 
-            // pad generations helps with regex finding later
-            const std::string strGen_tmp = std::to_string(g_);
-            const std::string strGen = std::string(5 - strGen_tmp.length(), '0') + strGen_tmp;
-
-            const std::string stritems = std::string(param_.outdir + "/" + strGen + "_" + "items.txt");
-            const std::string strforagers = std::string(param_.outdir + "/" + strGen + "_" + "foragers.txt");
-            const std::string strklepts = std::string(param_.outdir + "/" + strGen + "_" + "klepts.txt");
-            const std::string strintakefor = std::string(param_.outdir + "/" + strGen + "_" + "foragers_intake.txt");
-            const std::string strintakeklept = std::string(param_.outdir + "/" + strGen + "_" + "klepts_intake.txt");
-            //const std::string strcapacity = std::string(std::to_string(g_) + param_.outdir + "capacity.txt");
-            std::ofstream writeoutitems(stritems);
-            std::ofstream writeoutforagers(strforagers);
-            std::ofstream writeoutklepts(strklepts);
-            std::ofstream writeoutintakefor(strintakefor);
-            std::ofstream writeoutintakeklept(strintakeklept);
-            //std::ofstream writeoutcapacity(strcapacity);
-
-            layer_to_text(landscape_[Landscape::Layers::items_rec], writeoutitems);
-            layer_to_text(landscape_[Landscape::Layers::foragers_rec], writeoutforagers);
-            layer_to_text(landscape_[Landscape::Layers::klepts_rec], writeoutklepts);
-            layer_to_text(landscape_[Landscape::Layers::foragers_intake], writeoutintakefor);
-            layer_to_text(landscape_[Landscape::Layers::klepts_intake], writeoutintakeklept);
-            //layer_to_text(landscape_[Landscape::Layers::capacity], writeoutcapacity);
-
-
-
-            writeoutitems.close();
-            writeoutforagers.close();
-            writeoutklepts.close();
-            writeoutintakefor.close();
-            writeoutintakeklept.close();
-        //	
+        //    // pad generations helps with regex finding later
         //    const std::string strGen_tmp = std::to_string(g_);
         //    const std::string strGen = std::string(5 - strGen_tmp.length(), '0') + strGen_tmp;
-        //    Image screenshot3(std::string("../settings/empty.png"));
-        //    layer_to_image_channel(screenshot3, landscape_[Landscape::Layers::foragers_count], blue);
-        //    layer_to_image_channel(screenshot3, landscape_[Landscape::Layers::klepts_count], red);
-        //    layer_to_image_channel(screenshot3, landscape_[Landscape::Layers::handlers_count], green);
-        //    layer_to_image_channel_2(screenshot3, (landscape_[Landscape::Layers::items]), alha, static_cast<float>(param_.landscape.max_item_cap));
-        //    //layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::items], alha);
-            //save_image(screenshot3, std::string(param_.outdir + "/" + strGen + ".png"));
 
-        }
+        //    const std::string stritems = std::string(param_.outdir + "/" + strGen + "_" + "items.txt");
+        //    const std::string strforagers = std::string(param_.outdir + "/" + strGen + "_" + "foragers.txt");
+        //    const std::string strklepts = std::string(param_.outdir + "/" + strGen + "_" + "klepts.txt");
+        //    const std::string strintakefor = std::string(param_.outdir + "/" + strGen + "_" + "foragers_intake.txt");
+        //    const std::string strintakeklept = std::string(param_.outdir + "/" + strGen + "_" + "klepts_intake.txt");
+        //    //const std::string strcapacity = std::string(std::to_string(g_) + param_.outdir + "capacity.txt");
+        //    std::ofstream writeoutitems(stritems);
+        //    std::ofstream writeoutforagers(strforagers);
+        //    std::ofstream writeoutklepts(strklepts);
+        //    std::ofstream writeoutintakefor(strintakefor);
+        //    std::ofstream writeoutintakeklept(strintakeklept);
+        //    //std::ofstream writeoutcapacity(strcapacity);
+
+        //    layer_to_text(landscape_[Landscape::Layers::items_rec], writeoutitems);
+        //    layer_to_text(landscape_[Landscape::Layers::foragers_rec], writeoutforagers);
+        //    layer_to_text(landscape_[Landscape::Layers::klepts_rec], writeoutklepts);
+        //    layer_to_text(landscape_[Landscape::Layers::foragers_intake], writeoutintakefor);
+        //    layer_to_text(landscape_[Landscape::Layers::klepts_intake], writeoutintakeklept);
+        //    //layer_to_text(landscape_[Landscape::Layers::capacity], writeoutcapacity);
+
+
+
+        //    writeoutitems.close();
+        //    writeoutforagers.close();
+        //    writeoutklepts.close();
+        //    writeoutintakefor.close();
+        //    writeoutintakeklept.close();
+        ////	
+        ////    const std::string strGen_tmp = std::to_string(g_);
+        ////    const std::string strGen = std::string(5 - strGen_tmp.length(), '0') + strGen_tmp;
+        ////    Image screenshot3(std::string("../settings/empty.png"));
+        ////    layer_to_image_channel(screenshot3, landscape_[Landscape::Layers::foragers_count], blue);
+        ////    layer_to_image_channel(screenshot3, landscape_[Landscape::Layers::klepts_count], red);
+        ////    layer_to_image_channel(screenshot3, landscape_[Landscape::Layers::handlers_count], green);
+        ////    layer_to_image_channel_2(screenshot3, (landscape_[Landscape::Layers::items]), alha, static_cast<float>(param_.landscape.max_item_cap));
+        ////    //layer_to_image_channel(screenshot2, landscape_[Landscape::Layers::items], alha);
+        //    //save_image(screenshot3, std::string(param_.outdir + "/" + strGen + ".png"));
+
+        //}
 
 
 
         //to print one screenshot end
       }
 
-      if (g_ > G - 10) {
+      if (!param_.outdir.empty() && g_ > G - 10 ) {
 
         const std::string stritems = std::string(param_.outdir + "/" + std::to_string(g_) + "items.txt");
         const std::string strforagers = std::string(param_.outdir + "/" + std::to_string(g_) + "foragers.txt");
@@ -293,7 +297,7 @@ namespace cine2 {
 #undef simulation_observer_notify
 
 
-  void Simulation::simulate_timestep()
+  void Simulation::simulate_timestep(const int t)
   {
     using Layers = Landscape::Layers;
 
@@ -307,7 +311,7 @@ namespace cine2 {
     //#   pragma omp parallel for schedule(static)
 
     for (int i = 0; i < DD; ++i) {
-      if (std::bernoulli_distribution(item_growth * capacity[i] / max_item_cap)(rnd::reng) && capacity[i] > 0.2) {  // altered: probability that items drop
+      if (std::bernoulli_distribution(item_growth * capacity[i] / max_item_cap)(rnd::reng) ) {  // altered: probability that items drop, && capacity[i] > 0.2
         items[i] = std::min(floor(max_item_cap), floor(items[i] + 1.0f));
       }
     }
@@ -322,7 +326,10 @@ namespace cine2 {
     // update occupancies and observable densities
     landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers_count, Layers::handlers, Layers::nonhandlers, agents_.pop.cbegin(), agents_.pop.cend(), param_.landscape.foragers_kernel);
 
-    update_landscaperecord();
+    if ( t > param_.T / 2) {
+      update_landscaperecord();
+
+    }
 
 
     //RESOLVE GRAZING AND ATTACK function!
@@ -393,20 +400,6 @@ namespace cine2 {
 
     auto last_agents = agents_.pop.data() + agents_.pop.size();
 
-    //OK, so we have the stealers that attack first and then all the foragers forage.
-  /*
-      if (agents->foraging) {
-        if (items(pos) >= 1.0f){
-        if (std::bernoulli_distribution(1.0 - pow((1.0f - detection_rate), items(pos)))(rnd::reng)) { // Ind searching for items
-          agents->pick_item(param_.agents.handling_time);
-          items(pos) -= 1.0f;
-
-        }
-        }
-      }
-      }
-    }
-  */
 
     for (int i = 0; i < agents_.pop.size(); ++i) {
       if (!agents_.pop[i].handling && !agents_.pop[i].foraging) {
@@ -466,7 +459,6 @@ namespace cine2 {
         if (fight(rnd::reng)) {
           if (initiator_wins(rnd::reng)) {
 
-            agents_.pop[conflicts_v[i].first].just_stolen = true;
             agents_.pop[conflicts_v[i].first].handling = conflicts_v[i].second->handling;
             agents_.pop[conflicts_v[i].first].handle_time = conflicts_v[i].second->handle_time;
             //attacking_inds_[i]->food += 1.0f;
@@ -499,7 +491,7 @@ namespace cine2 {
       if (agent.handle() == false) {
         const Coordinate pos = agent.pos;
 
-        if (agent.foraging) {
+        if (agent.foraging && !agent.just_lost) {
           if (items(pos) >= 1.0f) {
             if (std::bernoulli_distribution(1.0 - pow((1.0f - detection_rate), items(pos)))(rnd::reng)) { // Ind searching for items
               agent.pick_item(param_.agents.handling_time);
@@ -511,7 +503,7 @@ namespace cine2 {
 
 
 
-      else if (!agent.just_stolen) {
+      else {
         if (agent.do_handle()) {
           if (agent.foraging) {
             foragers_intake(agent.pos) += 1.0f;
@@ -524,8 +516,8 @@ namespace cine2 {
 
       }
 
-      if (agent.just_stolen) {
-        agent.just_stolen = false;
+      if (agent.just_lost) {
+        agent.just_lost = false;
       }
     }
 
