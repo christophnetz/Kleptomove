@@ -8,7 +8,7 @@ library(ggplot2)
 setwd("C:/Users/P285100/Desktop/Matteo/Kleptomove/bin/Release")
 
 # where is the output
-data_folder <- "Runs_8-9-2020"
+data_folder <- "Runs_4-9-2020"
 
 # read in the capacity
 capacity <- png::readPNG("C:/Users/P285100/Desktop/Matteo/Kleptomove/bin/settings/kernels32.png")[,,1]
@@ -104,6 +104,10 @@ data_proc <- lapply(data_proc, function(sim_type) {
   # get pc klepto intake
   pc_intake_klepts <- mapply(function(a, b) {
     pc_in <- a$value / b$value
+    
+    if (any((a$value != 0) & (b$value == 0))) {
+      warning("klept intake no klepts")
+    }
     
     return(data.table(value = pc_in, cap = a$cap))
   },

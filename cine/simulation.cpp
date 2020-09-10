@@ -326,6 +326,13 @@ namespace cine2 {
     // update occupancies and observable densities
     landscape_.update_occupancy(Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers_count, Layers::handlers, Layers::nonhandlers, agents_.pop.cbegin(), agents_.pop.cend(), param_.landscape.foragers_kernel);
 
+    if (t == param_.T / 2) {
+      LayerView foragers_intake = landscape_[Landscape::Layers::foragers_intake];
+      LayerView klepts_intake = landscape_[Landscape::Layers::klepts_intake];
+      foragers_intake.clear();
+      klepts_intake.clear();
+    }
+
     if ( t > param_.T / 2) {
       update_landscaperecord();
 
