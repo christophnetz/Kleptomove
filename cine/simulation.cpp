@@ -333,7 +333,7 @@ namespace cine2 {
       klepts_intake.clear();
     }
 
-    if ( t > param_.T / 2) {
+    if ( t >= param_.T / 2) {
       update_landscaperecord();
 
     }
