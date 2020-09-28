@@ -62,7 +62,9 @@ namespace cine2 {
 
         return true;
       }
-      //ELSE (agent is not handling), do nothig.
+      else {
+        return false;
+      }//ELSE (agent is not handling), do nothig.
     }
 
     void flee(const Landscape& landscape, int flee_radius) {

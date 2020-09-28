@@ -8,7 +8,7 @@ library(ggplot2)
 setwd("C:/Users/P285100/Desktop/Matteo/Kleptomove/bin/Release")
 
 # where is the output
-data_folder <- "Runs_4-9-2020"
+data_folder <- "Runs_22-9-2020-r05"
 
 # read in the capacity
 capacity <- png::readPNG("C:/Users/P285100/Desktop/Matteo/Kleptomove/bin/settings/kernels32.png")[,,1]
@@ -31,7 +31,7 @@ capacity <- round(capacity * max_capacity, digits = 1)
 which_gen <- seq(991, 998)
 
 # get simulation type
-type <- c("obligate", "foragers", "facultative", "random") # , "foragers", "facultative", "random"
+type <- c("obligate-r05", "foragers-r05", "facultative-r05", "random-r05") # , "foragers", "facultative", "random"
 
 # get the replicates
 replicates <- stringr::str_pad(seq_len(3), pad = "0", width = 1)
@@ -170,7 +170,7 @@ data_final[, layer := forcats::fct_relevel(layer,
                                        "pc_intake_klepts", 
                                        "pc_intake_forager"))]
 data_final[, sim_type := forcats::fct_relevel(sim_type, 
-                                    "obligate", "facultative", "foragers", "random")] # , "facultative", "random"
+                                    "obligate-r05", "facultative-r05", "foragers-r05", "random-r05")] # , "facultative", "random"
 
 # data2[, `:=`(pc_int_klept = klepts_intake / klepts,
 #              pc_int_forager = foragers_intake / foragers)]
