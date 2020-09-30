@@ -12,6 +12,7 @@ data_folder <- "Runs_22-9-2020-r05"
 
 # read in the capacity
 capacity <- png::readPNG("C:/Users/P285100/Desktop/Matteo/Kleptomove/bin/settings/kernels32.png")[,,1]
+
 max_capacity <- 5L
 
 capacity <- round(capacity * max_capacity, digits = 1)
@@ -199,9 +200,9 @@ ggplot(na.omit(data_final))+
                   group = interaction(layer, replicate)),
               alpha = 0.01,
               show.legend = F)+
-  geom_point(aes(cap, mean_val,
-                colour = layer,
-                group = interaction(layer, replicate)))+
+  # geom_point(aes(cap, mean_val,
+  #               colour = layer,
+  #               group = interaction(layer, replicate)))+
   geom_line(aes(cap, mean_val,
                 colour = layer,
                 group = interaction(layer, replicate)))+
@@ -235,6 +236,7 @@ ggplot(na.omit(data_final))+
                                "PC forag intake"))+
   # scale_y_continuous(trans=ggallin::pseudolog10_trans)+
   # scale_y_log10()+
+
   # coord_cartesian(ylim = c(-0.001, 10))+
   
   theme_bw()+
