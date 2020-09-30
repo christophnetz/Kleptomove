@@ -5,11 +5,14 @@ library(stringi)
 library(glue)
 library(ggplot2)
 
+setwd("C:/Users/P285100/Desktop/Matteo/Kleptomove/bin/Release")
+
 # where is the output
-data_folder <- "data"
+data_folder <- "Runs_22-9-2020-r05"
 
 # read in the capacity
-capacity <- png::readPNG("bin/settings/someIslands.png")
+capacity <- png::readPNG("C:/Users/P285100/Desktop/Matteo/Kleptomove/bin/settings/kernels32.png")[,,1]
+
 max_capacity <- 5L
 
 capacity <- round(capacity * max_capacity, digits = 1)
@@ -26,13 +29,13 @@ capacity <- round(capacity * max_capacity, digits = 1)
 # capacity[, cell_capacity := floor(cell_capacity * max_capacity)]
 
 # get generations
-which_gen <- seq(991, 999)
+which_gen <- seq(991, 998)
 
 # get simulation type
-type <- c("fixd", "forg", "flex")
+type <- c("obligate-r05", "foragers-r05", "facultative-r05", "random-r05") # , "foragers", "facultative", "random"
 
 # get the replicates
-replicates <- stringr::str_pad(seq_len(10), pad = "0", width = 3)
+replicates <- stringr::str_pad(seq_len(3), pad = "0", width = 1)
 
 # get layers
 layers <- c("items", "foragers", "klepts", "klepts_intake", "foragers_intake")
@@ -45,7 +48,7 @@ data_files <- CJ(
   layers
 )
 data_files$filepath <- glue_data(.x = data_files,
-                        '{data_folder}/simstrat_{type}_\\
+                        '{data_folder}/{type}_rep\\
                                   {replicates}/{which_gen}{layers}.txt')
 
 # split by layer and replicate
@@ -72,8 +75,8 @@ data_in <- rapply(object = data, function(file_list) {
 
 # convert to dataframe for capacity wise mean
 data_proc <- rapply(data_in, function(matrix_) {
-  vals <- as.vector(matrix_) / 10 # for 10 gen mean
-  vals <- vals / 100 # for 100 timestep mean
+  vals <- as.vector(matrix_) / length(which_gen) # for 10 gen mean
+  vals <- vals / 200 # for timestep mean
   cap <- as.vector(capacity)
   
   val_by_cap <- data.table(value = vals, cap = cap)
@@ -86,7 +89,12 @@ data_proc <- rapply(data_in, function(matrix_) {
 data_proc <- lapply(data_proc, function(sim_type) {
   # get pc forager intake
   pc_intake_forager <- mapply(function(a, b) {
+    
     pc_in <- a$value / b$value
+  
+    if (any((a$value != 0) & (b$value == 0))) {
+      warning("forager intake no foragers")
+    }
     
     return(data.table(value = pc_in, cap = a$cap))
     
@@ -97,6 +105,10 @@ data_proc <- lapply(data_proc, function(sim_type) {
   # get pc klepto intake
   pc_intake_klepts <- mapply(function(a, b) {
     pc_in <- a$value / b$value
+    
+    if (any((a$value != 0) & (b$value == 0))) {
+      warning("klept intake no klepts")
+    }
     
     return(data.table(value = pc_in, cap = a$cap))
   },
@@ -159,7 +171,7 @@ data_final[, layer := forcats::fct_relevel(layer,
                                        "pc_intake_klepts", 
                                        "pc_intake_forager"))]
 data_final[, sim_type := forcats::fct_relevel(sim_type, 
-                                    "forg", "fixd", "flex")]
+                                    "obligate-r05", "facultative-r05", "foragers-r05", "random-r05")] # , "facultative", "random"
 
 # data2[, `:=`(pc_int_klept = klepts_intake / klepts,
 #              pc_int_forager = foragers_intake / foragers)]
@@ -180,7 +192,7 @@ data_final[, layer_type := dplyr::case_when(
 )]
 
 #### overall figure ####
-ggplot(data_final[cap < 5, ])+
+ggplot(na.omit(data_final))+
   geom_ribbon(aes(cap,
                   ymin = mean_val - sd_val,
                   ymax = mean_val + sd_val,
@@ -224,14 +236,16 @@ ggplot(data_final[cap < 5, ])+
                                "PC forag intake"))+
   # scale_y_continuous(trans=ggallin::pseudolog10_trans)+
   # scale_y_log10()+
-  coord_cartesian(xlim = c(2.5, 5))+
-  # theme_bw()+
+
+  # coord_cartesian(ylim = c(-0.001, 10))+
+  
+  theme_bw()+
   theme(legend.position = "top")+
   labs(x = "grid cell quality",
        y = "value",
        colour = "metric")
 
-ggsave(filename = "figures/fig_agent_item_distribution.png",
+ggsave(filename = "fig_agent_item_distribution.png",
        dpi = 300)
 
 #### figure agent strategy distributions ####

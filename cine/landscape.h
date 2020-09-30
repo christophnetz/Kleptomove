@@ -218,50 +218,51 @@ namespace cine2 {
     const LayerView operator[](Layers layer) const { return get_layer(layer); }
 
     template <typename IT, typename Kernel>
-    void update_occupancy(Layers count, Layers conv, Layers count2, Layers conv2, Layers count3, Layers conv3, Layers combined, IT first, IT last, const Kernel& kernel)
+    void update_occupancy(Layers foragers_count, Layers foragers, Layers klepts_count, Layers klepts, Layers handlers_count, Layers handlers, Layers nonhandlers, IT first, IT last, const Kernel& kernel)
     {
-      LayerView vCount = get_layer(count);
-      LayerView vConv = get_layer(conv);      
-      LayerView vCount2 = get_layer(count2);
-      LayerView vConv2 = get_layer(conv2);
-      LayerView vCount3 = get_layer(count3);
-      LayerView vConv3 = get_layer(conv3);
-      LayerView vComb = get_layer(combined);
+
+      LayerView vforagers_count = get_layer(foragers_count);
+      LayerView vforagers = get_layer(foragers);
+      LayerView vklepts_count = get_layer(klepts_count);
+      LayerView vklepts = get_layer(klepts);
+      LayerView vhandlers_count = get_layer(handlers_count);
+      LayerView vhandlers = get_layer(handlers);
+      LayerView vnonhandlers = get_layer(nonhandlers);
 	  
       //Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers_count, Layers::handlers, Layers::nonhandlers,
 
 	  //clearing the vectors before the visualization of the current timestep
-      vCount.clear();
-      vConv.clear();      
-      vCount2.clear();
-      vConv2.clear();
-      vCount3.clear();
-      vConv3.clear();
-      vComb.clear();
+      vforagers_count.clear();
+      vforagers.clear();
+      vklepts_count.clear();
+      vklepts.clear();
+      vhandlers_count.clear();
+      vhandlers.clear();
+      vnonhandlers.clear();
 
       for (; first != last; ++first) {		//cycle trough the agents
         if (first->alive()) {				//if alive
           if (first->handle()) {				//and handling
-            ++vCount3(first->pos);					//position stored in the vector3 (for handlers apparently)
-            vConv3.stamp_kernel<Kernel::k>(first->pos, kernel.K);
+            ++vhandlers_count(first->pos);					//position stored in the vector3 (for handlers apparently)
+            vhandlers.stamp_kernel<Kernel::k>(first->pos, kernel.K);
 
             if (first->foraging) {
-              ++vCount(first->pos);
+              ++vforagers_count(first->pos);  
             }
             else {
-              ++vCount2(first->pos);
+              ++vklepts_count(first->pos);
 
             }
           }
           else if (first->foraging) {			//if not handling, but foraging
-            ++vCount(first->pos);					//position stored in vector1 (for foragers)
-            vConv.stamp_kernel<Kernel::k>(first->pos, kernel.K);
-            vComb.stamp_kernel<Kernel::k>(first->pos, kernel.K);
+            ++vforagers_count(first->pos);					//position stored in vector1 (for foragers)
+            vforagers.stamp_kernel<Kernel::k>(first->pos, kernel.K);
+            vnonhandlers.stamp_kernel<Kernel::k>(first->pos, kernel.K);
           }
           else {								//if not handling and not foragers (they are kleptoparasytes)
-            ++vCount2(first->pos);					//position stored in vector2 (for klepts)
-            vConv2.stamp_kernel<Kernel::k>(first->pos, kernel.K);
-            vComb.stamp_kernel<Kernel::k>(first->pos, kernel.K);
+            ++vklepts_count(first->pos);					//position stored in vector2 (for klepts)
+            vklepts.stamp_kernel<Kernel::k>(first->pos, kernel.K);
+            vnonhandlers.stamp_kernel<Kernel::k>(first->pos, kernel.K);
 
           }
 

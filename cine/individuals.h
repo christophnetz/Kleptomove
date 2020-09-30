@@ -15,7 +15,7 @@ namespace cine2 {
 
   struct Individual
   {
-    Individual() : pos(0, 0), food(0), foraging(false), handling(false), just_stolen(false), handle_time(0), forage_count(0.f), handle_count(0), ancestor(0)
+    Individual() : pos(0, 0), food(0), foraging(false), handling(false), just_lost(false), handle_time(0), forage_count(0.f), handle_count(0), ancestor(0)
     {
     }
 
@@ -27,7 +27,7 @@ namespace cine2 {
       forage_count = 0;
       foraging = false;
       handling = false;
-	  just_stolen = false;
+	    just_lost = false;
       handle_time = 0;
       ancestor = ancestor_idx;
     }
@@ -62,7 +62,9 @@ namespace cine2 {
 
         return true;
       }
-      //ELSE (agent is not handling), do nothig.
+      else {
+        return false;
+      }//ELSE (agent is not handling), do nothig.
     }
 
     void flee(const Landscape& landscape, int flee_radius) {
@@ -72,7 +74,7 @@ namespace cine2 {
         pos = landscape.wrap(pos + Coordinate{ short(dxy(rnd::reng)), short(dxy(rnd::reng)) });		//new position with difference in coordinates sampled form previous distribution
 
       }
-
+      just_lost = true;
       handling = false;				//handling status reset to false
       handle_time = 0;				//handling time reset to 0 
     };
@@ -94,7 +96,7 @@ namespace cine2 {
     float food;
     bool foraging;
     bool handling;
-	bool just_stolen;
+	  bool just_lost;
     int handle_time;
     float handle_count;
     float forage_count;
