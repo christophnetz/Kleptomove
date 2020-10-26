@@ -21,6 +21,9 @@ namespace cine2 {
     std::vector<Individual> tmp_pop;    // new generation during reproduction, ancestors otherwise
     std::unique_ptr<any_ann> ann;       // Ann's of current population
     std::unique_ptr<any_ann> tmp_ann;   // new Anns during reproduction, ancestors Anns otherwise
+    std::vector<float> foraged;         // fitness after last timestep
+    std::vector<float> handled;         // fitness after last timestep
+	int conflicts;
     std::vector<float> fitness;         // fitness after last timestep
     rndutils::mutable_discrete_distribution<int, rndutils::all_zero_policy_uni> rdist;  // reproduction distr.
   };
@@ -44,8 +47,7 @@ namespace cine2 {
     explicit Simulation(const Param& param);
     ~Simulation() {}
 
-    const Population& prey() const { return prey_; }
-    const Population& pred() const { return pred_; }
+    const Population& agents() const { return agents_; }
     const Landscape& landscape() const { return landscape_; }
     const Param& param() const { return param_; }
     const Analysis& analysis() const { return analysis_; }
@@ -59,8 +61,10 @@ namespace cine2 {
     bool run(Observer* observer = nullptr); 
 
   private:
-    void simulate_timestep();
+    void simulate_timestep(int t);
+    void update_landscaperecord();
     void assess_fitness();
+    void assess_inds();
     void create_new_generations();
     void resolve_grazing_and_attacks();
     void init_layer(image_layer imla);
@@ -68,11 +72,12 @@ namespace cine2 {
 
     int g_, t_;
     const Param param_;
-    Population prey_;
-    Population pred_;
-    std::vector<Individual*> attacking_inds_;
+    Population agents_;
+    //Population pred_;
+    std::vector<int> attacking_inds_;
     std::vector<Individual*> attacked_potentially_;
     std::vector<Individual*> attacked_inds;
+    std::vector<int> shuffle_vec;
     Landscape landscape_;
     Analysis analysis_;
   };

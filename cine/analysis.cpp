@@ -12,7 +12,7 @@ namespace cine2 {
     {
       ann_cmp(int weights) : size_(weights * sizeof(float)) {}
 
-      bool operator()(const float* a, const float* b)
+      bool operator()(const float* a, const float* b) const
       {
         return std::memcmp(a, b, size_) < 0;
       }
@@ -26,8 +26,7 @@ namespace cine2 {
   void Analysis::generation(const Simulation * sim) const
   {
     assess_input(sim);
-    summary_[0].push_back(assess_summary(sim->prey()));
-    summary_[1].push_back(assess_summary(sim->pred()));
+    summary_[0].push_back(assess_summary(sim->agents()));
   }
 
 
@@ -66,12 +65,10 @@ namespace cine2 {
   void Analysis::assess_input(const Simulation* sim) const
   {
     LayerView tmp = sim->landscape()[Landscape::Layers::temp];
-    input_[0][0].push_back( reduce(sim->landscape()[static_cast<Landscape::Layers>(sim->param().prey.input_layers[0])], tmp) );
-    input_[0][1].push_back( reduce(sim->landscape()[static_cast<Landscape::Layers>(sim->param().prey.input_layers[1])], tmp) );
-    input_[0][2].push_back( reduce(sim->landscape()[static_cast<Landscape::Layers>(sim->param().prey.input_layers[2])], tmp) );
-    input_[1][0].push_back( reduce(sim->landscape()[static_cast<Landscape::Layers>(sim->param().pred.input_layers[0])], tmp) );
-    input_[1][1].push_back( reduce(sim->landscape()[static_cast<Landscape::Layers>(sim->param().pred.input_layers[1])], tmp) );
-    input_[1][2].push_back( reduce(sim->landscape()[static_cast<Landscape::Layers>(sim->param().pred.input_layers[2])], tmp) );
+    input_[0][0].push_back( reduce(sim->landscape()[static_cast<Landscape::Layers>(sim->param().agents.input_layers[0])], tmp ) );
+    input_[0][1].push_back( reduce(sim->landscape()[static_cast<Landscape::Layers>(sim->param().agents.input_layers[1])], tmp) );
+    input_[0][2].push_back( reduce(sim->landscape()[static_cast<Landscape::Layers>(sim->param().agents.input_layers[2])], tmp) );
+
   }
 
 
@@ -93,11 +90,27 @@ namespace cine2 {
         complexity += tmp_ann->complexity(idx);
       }
     }
+
+    double sforage = 0.0;
+    for (auto x : Pop.foraged) {
+      sforage += x;
+    }
+
+    double shandle = 0.0;
+    for (auto x : Pop.handled) {
+      shandle += x;
+    }
+
+
+
     return { 
       static_cast<float>(sfit / Pop.fitness.size()), 
       cfit, 
       static_cast<int>(unique_ann.size()), 
-      static_cast<float>(complexity / unique_ann.size()) 
+      static_cast<float>(complexity / unique_ann.size()),
+      static_cast<float>(sforage),
+      static_cast<float>(shandle),
+	  Pop.conflicts
     };
   }
 

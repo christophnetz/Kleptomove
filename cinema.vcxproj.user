@@ -3,11 +3,11 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>config="../settings/config.ini" T=10 G=100 outdir="../data"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>--gui config="../settings/config.ini" T=100 G=10000 outdir="../data"</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>--gui config="../settings/config.ini" G=100000 omp_threads=4</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>--gui config="../settings/config.ini" </LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

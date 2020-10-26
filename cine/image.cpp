@@ -10,7 +10,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "glsl/stb_image.h"
 #include "glsl/stb_image_write.h" 
-
+#include <fstream> 
 
 
 namespace cine2 {
@@ -52,13 +52,49 @@ namespace cine2 {
       throw std::runtime_error("assign_layer_to_image_channel: dimensions don't match");
     }
     auto set_channel = [=](unsigned char& c, float val) { 
-      c = static_cast<unsigned char>(std::max(0.0f, std::min(val, 1.0f)) * 255.0f);
+      c = static_cast<unsigned char>(std::min(val, 255.0f));
     };
     const int n = dst.width() * dst.height();
     unsigned char* pdst = (unsigned char*)(dst.data()) + channel;
     const float* psrc = src.data();
     for (int i=0; i<n; ++i, pdst += 4, ++psrc) {
       set_channel(*pdst, *psrc);
+    }
+  }
+
+
+  void layer_to_image_channel_2(Image& dst, const LayerView& src, ImageChannel channel, float scale)
+  {
+	  if (!(dst.width() == src.dim() && dst.height() == src.dim())) {
+		  throw std::runtime_error("assign_layer_to_image_channel: dimensions don't match");
+	  }
+	  auto set_channel = [=](unsigned char& c, float val) {
+		  c = static_cast<unsigned char>(std::max(0.0f, std::min((val / scale), 1.0f)) * 255.0f);
+	  };
+	  const int n = dst.width() * dst.height();
+	  unsigned char* pdst = (unsigned char*)(dst.data()) + channel;
+	  const float* psrc = src.data();
+	  for (int i = 0; i < n; ++i, pdst += 4, ++psrc) {
+		  set_channel(*pdst, *psrc);
+	  }
+  }
+
+  void layer_to_text(const LayerView& src, std::ofstream& ofs)
+  {
+
+    auto set_channel = [=](unsigned char& c, float val) {
+      c = static_cast<unsigned char>(val);
+    };
+    const int n = src.dim() * src.dim();
+    const float* psrc = src.data();
+    for (int i = 0; i < n; ++i, ++psrc) {
+      if ((i + 1) % src.dim() == 0 && i > 0) {
+        ofs << *psrc << "\n";
+      } 
+      else {
+        ofs << *psrc << "\t";
+      }
+
     }
   }
 

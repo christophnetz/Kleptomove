@@ -16,7 +16,7 @@ namespace cinema {
     pUniBlk_(nullptr)
   {
     LayerTex_ = GL_NONE;
-    selected_.assign(false);
+    selected_.fill(false);
   }
 
   
@@ -40,10 +40,10 @@ namespace cinema {
 
   void GLLandscapeWin::on_create()
   {
-    layer_mask_ = { 1.f / sim_state_->sim()->param().landscape.prey_kernel.maxK(),
-                    1.f / sim_state_->sim()->param().landscape.pred_kernel.maxK(),
-                    1.f,
-                    1.f }; 
+    layer_mask_ = { 1.f / sim_state_->sim()->param().landscape.foragers_kernel.maxK(),
+                    1.f / sim_state_->sim()->param().landscape.klepts_kernel.maxK(),
+                    2.f,
+                    1.f / sim_state_->sim()->param().landscape.max_item_cap };
     org_layer_mask_ = layer_mask_;
     selected_ = sim_state_->sim()->param().gui.selected;
     camera_.reset( new glsl::Camera());
@@ -183,18 +183,18 @@ namespace cinema {
 
 
   const cine2::Landscape::Layers GLLandscapeWin::srcLayers[LAYERS::MAX_LAYER] = {
-    cine2::Landscape::Layers::prey,
-    cine2::Landscape::Layers::pred,
-    cine2::Landscape::Layers::grass,
-    cine2::Landscape::Layers::risk
+    cine2::Landscape::Layers::foragers,
+    cine2::Landscape::Layers::klepts,
+    cine2::Landscape::Layers::handlers,
+    cine2::Landscape::Layers::items
   };
 
 
   const char* GLLandscapeWin::SELECTION_DISCR[GLLandscapeWin::SELECTION::MAX_SELECTION] = {
-    "prey",
-    "predators",
-    "grass",
-    "risk"
+    "foragers",
+    "klepts",
+    "handlers",
+    "items"
   };
 
 

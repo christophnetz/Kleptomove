@@ -15,7 +15,7 @@ namespace cine2 {
 
   struct Individual
   {
-    Individual() : pos(0, 0), food(0), forage(false), handling(false), handle_time(0), ancestor(0)
+    Individual() : pos(0, 0), food(0), foraging(false), handling(false), just_lost(false), handle_time(0), forage_count(0.f), handle_count(0), ancestor(0)
     {
     }
 
@@ -23,47 +23,83 @@ namespace cine2 {
     {
       pos = Pos;
       food = 0.f;
+      handle_count = 0;
+      forage_count = 0;
+      foraging = false;
+      handling = false;
+	    just_lost = false;
+      handle_time = 0;
       ancestor = ancestor_idx;
     }
 
     bool alive() const { return food >= 0.f; }
     bool handle() const { return handling; }
-    bool foraging() const { return forage; }
-    void pick_item() {
-      handle_time = -2;
-      handling = true;
+    void forage(bool decision) {
+      foraging = decision;
+      if (decision) {
+        forage_count += 1.f;
+      }
     }
-    void do_handle() {
-      if (handle_time < 0 && handling) {
-        ++handle_time;
-      }
-      if (handle_time == 0 && handling) {
-        food += 1.0f;
-        handling = false;
-      }
 
+    void pick_item(int h_time) {
+      handle_time = -h_time;			//handling time is setted	[WE SHOULD MAKE THIS A PARAMETER IN "CONFIG.INI"]
+
+      handling = true;			//agend handling status is set to true
 
     }
 
-    void flee(const Landscape& landscape) {
+    //HANDLING FUNCTION (per agent)
+    bool do_handle() {
+      if (handle_time < 0 && handling) {		//if agent handling time is smaller than zero AND agent is handling 
+        ++handle_time;								//handling time is udpated
+        handle_count += 1.f;
 
-      handling = false;
-      handle_time = 0;
+        return false;
+      }
+      if (handle_time == 0 && handling) {		//if handling time has reached zero AND agent is handling
+        food += 1.0f;								//food is consumed
+        handling = false;							//the handling status is resetted (FALSE)
 
-      std::uniform_int_distribution<int> dx(-1, 1);
-      std::uniform_int_distribution<int> dy(-1, 1);
+        return true;
+      }
+      else {
+        return false;
+      }//ELSE (agent is not handling), do nothig.
+    }
 
-      pos = landscape.wrap(pos + Coordinate{ short(dx(rnd::reng)), short(dy(rnd::reng)) });
+    void flee(const Landscape& landscape, int flee_radius) {
 
+      if (handling) {
+        std::uniform_int_distribution<int> dxy(-flee_radius, flee_radius);	//uniform distribution of the fleeing distance
+        pos = landscape.wrap(pos + Coordinate{ short(dxy(rnd::reng)), short(dxy(rnd::reng)) });		//new position with difference in coordinates sampled form previous distribution
 
+      }
+      just_lost = true;
+      handling = false;				//handling status reset to false
+      handle_time = 0;				//handling time reset to 0 
     };
+
+
+    void attacker_flee(const Landscape& landscape, int flee_radius) {
+
+
+      std::uniform_int_distribution<int> dxy(-flee_radius, flee_radius);	//uniform distribution of the fleeing distance
+      pos = landscape.wrap(pos + Coordinate{ short(dxy(rnd::reng)), short(dxy(rnd::reng)) });		//new position with difference in coordinates sampled form previous distribution
+
+      handling = false;				//handling status reset to false
+      handle_time = 0;				//handling time reset to 0 
+    };
+
     void die() { food = -1.f; }
 
     Coordinate pos;
     float food;
-    bool forage;
+    bool foraging;
     bool handling;
+	  bool just_lost;
     int handle_time;
+    float handle_count;
+    float forage_count;
     int ancestor;
   };
 

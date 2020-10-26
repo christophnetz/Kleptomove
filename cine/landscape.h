@@ -114,12 +114,20 @@ namespace cine2 {
   public:
     /// \brief  Values that represent layers in a Landscape.
     enum Layers : int {
-      prey = 0,     // convoluted prey_count
-      pred,         // convoluted pred_count
-      grass,
-      risk,       
-      prey_count,
-      pred_count,
+      foragers = 0,     //convoluted foragers_count
+      klepts,			//convoluted klepts_count
+      handlers,			//handlers
+      items,			//food items
+      capacity,			//maximum capacity of the landscape
+      foragers_count,
+      klepts_count,
+      handlers_count,
+      nonhandlers,
+      items_rec, 
+      foragers_rec,
+      klepts_rec,
+      foragers_intake,
+      klepts_intake,
       temp,         // scratch for computation
       max_layer
     };
@@ -210,35 +218,59 @@ namespace cine2 {
     const LayerView operator[](Layers layer) const { return get_layer(layer); }
 
     template <typename IT, typename Kernel>
-    void update_occupancy(Layers count, Layers conv, Layers count2, Layers conv2, Layers conv3, IT first, IT last, const Kernel& kernel)
+    void update_occupancy(Layers foragers_count, Layers foragers, Layers klepts_count, Layers klepts, Layers handlers_count, Layers handlers, Layers nonhandlers, IT first, IT last, const Kernel& kernel)
     {
-      LayerView vCount = get_layer(count);
-      LayerView vConv = get_layer(conv);      
-      LayerView vCount2 = get_layer(count2);
-      LayerView vConv2 = get_layer(conv2);
-      LayerView vConv3 = get_layer(conv3);
-      vCount.clear();
-      vConv.clear();      
-      vCount2.clear();
-      vConv2.clear();
-      vConv3.clear();
-      for (; first != last; ++first) {
-        if (first->alive()) {
-          if (first->handle()) {
-            ++vConv3(first->pos);
+
+      LayerView vforagers_count = get_layer(foragers_count);
+      LayerView vforagers = get_layer(foragers);
+      LayerView vklepts_count = get_layer(klepts_count);
+      LayerView vklepts = get_layer(klepts);
+      LayerView vhandlers_count = get_layer(handlers_count);
+      LayerView vhandlers = get_layer(handlers);
+      LayerView vnonhandlers = get_layer(nonhandlers);
+	  
+      //Layers::foragers_count, Layers::foragers, Layers::klepts_count, Layers::klepts, Layers::handlers_count, Layers::handlers, Layers::nonhandlers,
+
+	  //clearing the vectors before the visualization of the current timestep
+      vforagers_count.clear();
+      vforagers.clear();
+      vklepts_count.clear();
+      vklepts.clear();
+      vhandlers_count.clear();
+      vhandlers.clear();
+      vnonhandlers.clear();
+
+      for (; first != last; ++first) {		//cycle trough the agents
+        if (first->alive()) {				//if alive
+          if (first->handle()) {				//and handling
+            ++vhandlers_count(first->pos);					//position stored in the vector3 (for handlers apparently)
+            vhandlers.stamp_kernel<Kernel::k>(first->pos, kernel.K);
+
+            if (first->foraging) {
+              ++vforagers_count(first->pos);  
+            }
+            else {
+              ++vklepts_count(first->pos);
+
+            }
           }
-          else if (first->foraging()) {
-            ++vCount(first->pos);
-            vConv.stamp_kernel<Kernel::k>(first->pos, kernel.K);
+          else if (first->foraging) {			//if not handling, but foraging
+            ++vforagers_count(first->pos);					//position stored in vector1 (for foragers)
+            vforagers.stamp_kernel<Kernel::k>(first->pos, kernel.K);
+            vnonhandlers.stamp_kernel<Kernel::k>(first->pos, kernel.K);
           }
-          else {
-            ++vCount2(first->pos);
-            vConv2.stamp_kernel<Kernel::k>(first->pos, kernel.K);
+          else {								//if not handling and not foragers (they are kleptoparasytes)
+            ++vklepts_count(first->pos);					//position stored in vector2 (for klepts)
+            vklepts.stamp_kernel<Kernel::k>(first->pos, kernel.K);
+            vnonhandlers.stamp_kernel<Kernel::k>(first->pos, kernel.K);
+
           }
 
         }
       }
     }
+
+
 
     const float* data() const { return data_; }
 

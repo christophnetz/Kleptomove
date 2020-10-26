@@ -52,6 +52,7 @@ namespace cine2 {
     virtual float complexity(int idx) const = 0;
     virtual void move(const Landscape& landscape, std::vector<Individual>& pop, const Param::ind_param& iparam) = 0;
     virtual void mutate(const Param::ind_param& iparam, bool fixed) = 0;
+    virtual void initialize(const Param::ind_param& iparam) = 0;
 
   protected:
     int N_;
