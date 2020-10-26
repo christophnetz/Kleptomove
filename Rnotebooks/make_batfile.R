@@ -2,26 +2,29 @@
 
 library(glue)
 library(stringr)
-library(dplyr)
+library(tidyr)
 
-runs <- str_pad(seq_len(20), width = 3, pad = "0")
-strategies <- c("strat_forg", "strat_fixd", "strat_flex")
+runs <- str_pad(seq_len(3), width = 3, pad = "0")
+strategy <- c("foragers", "obligate", 
+                "facultative", "random")
+
+regrowth <- c(0.001, 0.01, 0.03, 0.05, 0.1)
 
 # make data
-data_param <- crossing(replicate = runs, strategies) %>% 
-  mutate(outdir = glue('{strategies}_{replicate}'),
-         agents.forage = if_else(strategies == "strat_forg", 1, 0),
-         agents.obligate = if_else(strategies == "strat_fixd", 1, 0))
+data_param <- crossing(replicate = runs, strategy, regrowth) %>% 
+  mutate(outdir = glue('{strategy}_{replicate}'),
+         agents.forage = as.numeric(strategy == "foragers"),
+         agents.obligate = as.numeric(strategy == "obligate"))
 
-data_param <- filter(data_param, strategies == "strat_fixd")
 # prepare lines
 lines <- glue_data(data_param, 'kleptomove config=../settings/config.ini \\
-                   G=1000 landscape.item_growth=0.010 \\
+                   landscape.item_growth={regrowth} \\
                    agents.forage={agents.forage} \\
                    agents.obligate={agents.obligate} \\
-                   agents.handling_time=5 outdir=sim{outdir}')
+                   agents.handling_time=5 outdir=\\
+                   ../../data/sim_{strategy}_rep_{replicate}_gro_{regrowth}')
 
 # write to file
 library(readr)
 write_lines(lines,
-            path = "bin/Release/runs_18_aug_fixed_2020.bat")
+            path = "bin/Release/runs_26_oct_2020.bat")
