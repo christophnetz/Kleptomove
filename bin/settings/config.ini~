@@ -1,0 +1,44 @@
+# Sample config file
+
+# first parameter of a name overrules trailing ones
+# parameters in the command line overrule config file parameters
+
+omp_threads=4
+
+Gburnin=100 
+G=10000
+T=100
+# Gfix=G
+# Tfix=T
+
+prey.N=10000
+prey.L=3					        # View/movement range: 3,5 or 7
+prey.ann=SmartAnn	      # DumbAnn | SimpleAnn | SimpleAnnFB | SmartAnn
+prey.sprout_radius=1000
+prey.mutation_prob=0.001
+prey.mutation_step=0.001
+prey.mutation_knockout=0.00
+prey.noise_sigma=0.1
+prey.cmplx_penalty=0.0
+prey.input_layers={0,1,2} # 0: prey, 1: pred, 2: grass, 3: risk
+prey.input_mask={1,1,1}
+
+pred.N=1000
+pred.L=5   					      # View/movement range, 3,5 or 7
+pred.ann=SimpleAnn			    # DumbAnn | SimpleAnn | SimpleAnnFB | SmartAnn
+pred.sprout_radius=1000
+pred.mutation_prob=0.001
+pred.mutation_step=0.001
+pred.mutation_knockout=0.00
+pred.noise_sigma=0.1
+pred.cmplx_penalty=0.0
+pred.input_layers={0,1,2} # 0: prey, 1: pred, 2: grass, 3: risk
+pred.input_mask={1,1,1}
+
+landscape.max_grass_cover=1.0
+landscape.grass_growth=0.01
+landscape.risk.image=bitmap_v4.png    # name of a png file in ../settings/
+landscape.risk.channel=0  # 0: red, 1: green, 2: blue
+
+gui.wait_for_close=1
+gui.selected={1,1,1,0}		# {prey, pred, grass, risk}
