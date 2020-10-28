@@ -19,7 +19,7 @@ capacity <- round(capacity * max_capacity, digits = 1)
 sim_type <- c("obligate", "facultative", "foragers", "random")
 
 # get the replicates
-replicate <- stringr::str_pad(seq_len(1), pad = "0", width = 3)
+replicate <- stringr::str_pad(seq_len(2), pad = "0", width = 3)
 
 # growth rates
 regrowth <- c(0.001, 0.01, 0.03, 0.05)
@@ -62,61 +62,75 @@ data$layer_type <- dplyr::case_when(
   TRUE ~ "strategy count"
 )
 
+# choose layer colours
+layer_cols <- tibble(
+  layer = c("klepts", "foragers", "items",
+            "klepts_intake", "foragers_intake",
+            "pc_intake_klepts", 
+            "pc_intake_forager"),
+  colour = c("indianred", "royalblue", "forestgreen",
+             "indianred1", "royalblue1",
+             "indianred2", "royalblue2")
+)
+
+# merge to data
+data_plot <- dplyr::left_join(data,
+                              layer_cols)
+
 # split the data by growth rate
-data <- split(data, data$regrowth)
+data_plot <- split(data_plot, data$layer_type)
 
 #### overall figure ####
 
-plot_list <- lapply(data, function(df) {
+plot_list <- lapply(data_plot, function(df) {
+  df <- dplyr::filter(df,
+                      cap %in% seq(0, 5, 0.2))
   ggplot(df)+
-    geom_ribbon(aes(cap,
+    
+    geom_hline(yintercept = 0, col = "grey", lwd = 0.2)+
+    geom_vline(xintercept = 0, col = "grey", lwd = 0.2)+
+    geom_errorbar(aes(cap,
                     ymin = mean_val - sd_val,
                     ymax = mean_val + sd_val,
-                    fill = layer,
                     group = interaction(layer, replicate, regrowth)),
-                alpha = 0.3,
-                show.legend = F)+
+                alpha = 0.5,
+                show.legend = F,
+                position = position_dodge(width = 0.2),
+                col = df$colour)+
     geom_line(aes(cap, mean_val,
-                  colour = layer,
-                  group = interaction(layer, replicate, regrowth)))+
-    
-    facet_grid(layer_type ~ sim_type, as.table = F,
-               scales = "free_y")+
-    scale_colour_manual(values = c("red", "blue",
-                                   "darkgreen",
-                                   "orange",
-                                   "dodgerblue",
-                                   "darkred", "darkblue"),
-                        labels = c("# kleptoparasites",
-                                   "# foragers",
-                                   "# items",
-                                   "S klept. intake",
-                                   "S forag. intake",
-                                   "PC klept intake",
-                                   "PC forag intake"))+
-    scale_fill_manual(values = c("red", "blue",
-                                 "darkgreen",
-                                 "orange",
-                                 "dodgerblue",
-                                 "darkred", "darkblue"),
-                      labels = c("# kleptoparasites",
-                                 "# foragers",
-                                 "# items",
-                                 "S klept. intake",
-                                 "S forag. intake",
-                                 "PC klept intake",
-                                 "PC forag intake"))+
-    theme(legend.position = "top")+
+                   group = interaction(layer, replicate, regrowth)),
+               position = position_dodge(width = 0.2),
+               col = df$colour,
+              lwd = 0.2)+
+    geom_point(aes(cap, mean_val,
+                   shape = layer,
+                  group = interaction(layer, replicate, regrowth)),
+               position = position_dodge(width = 0.2),
+               fill = df$colour, 
+               colour = "white",
+               stroke = 1,
+               size = 3,
+               show.legend = F)+
+    facet_grid(regrowth ~ sim_type, as.table = F,
+               scales = "free_y",
+               labeller = label_both)+
+    scale_shape_manual(values = c(21, 24))+
+    coord_cartesian(ylim = c(0, NA))+
+    theme_test()+
+    theme(legend.position = "top",
+          axis.text.y = element_text(size = 6),
+          axis.title.y = element_blank())+
     labs(x = "grid cell quality",
          y = "value",
          colour = "value",
-         title = sprintf("growth rate = %f", 
-                         round(unique(df$regrowth), 3)))
+         title = sprintf("%s", 
+                         unique(df$layer_type)))
 })
 
-patchwork::wrap_plots(plot_list)
+patchwork::wrap_plots(plot_list[c("strategy count", "intake", 
+                                   "items", "per_capita_intake")])
 
-ggsave(filename = "fig_agent_item_distribution.png",
+ggsave(filename = "figures/fig_agent_item_distribution.pdf",
        dpi = 300)
 
 #### figure agent strategy distributions ####
