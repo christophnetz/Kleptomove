@@ -58,6 +58,7 @@ namespace cine2 {
       }
       if (handle_time == 0 && handling) {		//if handling time has reached zero AND agent is handling
         food += 1.0f;								//food is consumed
+        handle_count += 1.f;
         handling = false;							//the handling status is resetted (FALSE)
 
         return true;
