@@ -213,8 +213,6 @@ namespace cine2 {
 
         }
 
-
-
         //to print one screenshot end
       }
 
