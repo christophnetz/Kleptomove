@@ -199,7 +199,7 @@ namespace cine2 {
         
         // to print one screenshot
         // print first 150 gens and then every 25 gens
-        if ( ((g_ % 25 == 0) | (g <= 150) ) && t_ == 50) {
+        if ( ((g_ % 25 == 0) | (g_ <= 150) ) && t_ == 50) {
 
            const std::string strGen_tmp = std::to_string(g_);
            const std::string strGen = std::string(5 - strGen_tmp.length(), '0') + strGen_tmp;
