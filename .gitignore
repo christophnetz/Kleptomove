@@ -1,9 +1,9 @@
 
 .vs/
-bin
 tmp/
-!bin/settings
-!bin/settings/config.ini
+bin/Debug
+bin/Release
+bin/media
 .Rproj.user
 
 *zip
@@ -47,8 +47,7 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
-git c
 
 # no data
-data/*
+data
 !data/00_data_exists.txt
