@@ -33,6 +33,7 @@ namespace cine2 {
     agents_.ann->initialize(param.agents);
 
     // initial landscape layers from image fies
+    // CAPACITY NOW REFERS TO REGROWTH RATE
     init_layer(param_.landscape.capacity); //capacity
     if (landscape_.dim() < 32) throw std::runtime_error("Landscape too small");
 
@@ -311,7 +312,7 @@ namespace cine2 {
     //#   pragma omp parallel for schedule(static)
 
     for (int i = 0; i < DD; ++i) {
-      if (std::bernoulli_distribution(item_growth * capacity[i] / max_item_cap)(rnd::reng) ) {  // altered: probability that items drop, && capacity[i] > 0.2
+      if (std::bernoulli_distribution(item_growth * capacity[i])(rnd::reng) ) {  // altered: probability that items drop, && capacity[i] > 0.2
         items[i] = std::min(floor(max_item_cap), floor(items[i] + 1.0f));
       }
     }
