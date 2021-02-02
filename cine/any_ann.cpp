@@ -32,18 +32,22 @@ namespace cine2 {
         : mdist(iparam.mutation_prob),
         sdist(0.0f, iparam.mutation_step),
         kdist(iparam.mutation_knockout),
-        fixed(Fixed)
+        fixed(Fixed), obligate(iparam.obligate)
       {
       }
 
       template <typename Neuron, typename T>
-      void operator()(T* state, size_t, size_t) const
+      void operator()(T* state, size_t layer, size_t node) const
       {
         if (!fixed) {
           for (int w = 0; w < Neuron::total_weights; ++w) {
-            if (mdist(rnd::reng)) { state[w] += sdist(rnd::reng); }
-            if (kdist(rnd::reng)) { state[w] = 0.f; }
+            if (mdist(rnd::reng)) { if (!obligate || node != 1 || w != 0) { state[w] += sdist(rnd::reng); } }
+            if (kdist(rnd::reng)) { if (!obligate || node != 1 || w != 0) { state[w] = 0.f; } }
           }
+        }
+
+        if (node == 1) {
+          if (mdist(rnd::reng)) { state[0] *= -1.f; }
         }
         // clear feedback scratch
         for (int s = Neuron::feedback_scratch_begin; s < Neuron::state_size; ++s) {
@@ -55,11 +59,39 @@ namespace cine2 {
       const std::cauchy_distribution<float> sdist;
       const std::bernoulli_distribution kdist;
       bool fixed;
+      int obligate;
     };
 
     struct initialize
     {
       initialize(const Param::ind_param& iparam)
+        : sdist(0.0f, iparam.mutation_step), 
+        obligate(iparam.obligate)
+      {
+      }
+
+      template <typename Neuron, typename T>
+      void operator()(T* state, size_t layer, size_t node) const
+      {
+
+        for (int w = 0; w < Neuron::total_weights; ++w) {
+          state[w] += sdist(rnd::reng);
+
+
+        }
+          if (obligate && (node == 1)) {
+            state[0] = (std::bernoulli_distribution(0.5)(rnd::reng)) ? -1.f : 1.f;
+          }
+
+      }
+
+      const std::cauchy_distribution<float> sdist;
+      const int obligate;
+    };
+
+    struct initialize2
+    {
+      initialize2(const Param::ind_param& iparam)
         : sdist(0.0f, iparam.mutation_step)
       {
       }
@@ -67,11 +99,7 @@ namespace cine2 {
       template <typename Neuron, typename T>
       void operator()(T* state, size_t, size_t) const
       {
-
-        for (int w = 0; w < Neuron::total_weights; ++w) {
-          state[w] += sdist(rnd::reng);
-        }
-
+        state[0] = 0.f;
 
       }
 
@@ -222,7 +250,6 @@ namespace cine2 {
         ann::visit_neurons(pann[i], init_visitor);
       }
     }
-
   };
 
 

@@ -7,13 +7,15 @@ library(dplyr)
 
 runs <- str_pad(seq_len(3), width = 3, pad = "0")
 strategy <- c(
-  # "foragers", 
-  # "obligate", 
-  # "facultative", 
+  "foragers",
+  "obligate",
+  "facultative",
   "random"
 )
 
-regrowth <- c(0.001, 0.01, 0.03, 0.05, 0.1)
+# regrowth <- c(0.001, 0.01, 0.03, 0.05, 0.1)
+
+regrowth <- c(0.005, 0.02, 0.04, 0.075, 0.25)
 
 mask <- "{0,0,0}"
 
@@ -40,4 +42,4 @@ lines[data_param$strategy == "random"] <-
 # write to file
 library(readr)
 write_lines(lines,
-            path = "bin/Release/runs_29_oct_2020_random.bat")
+            path = "bin/Release/runs_30_nov_2020_random.bat")
