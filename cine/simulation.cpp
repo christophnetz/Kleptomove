@@ -203,7 +203,7 @@ namespace cine2 {
 
            const std::string strGen_tmp = std::to_string(g_);
            const std::string strGen = std::string(5 - strGen_tmp.length(), '0') + strGen_tmp;
-           Image screenshot3(std::string("../settings/empty.png"));
+           Image screenshot3(std::string("../settings/emptyPNG.png"));
            layer_to_image_channel(screenshot3, landscape_[Landscape::Layers::foragers_count], blue);
            layer_to_image_channel(screenshot3, landscape_[Landscape::Layers::klepts_count], red);
            layer_to_image_channel(screenshot3, landscape_[Landscape::Layers::handlers_count], green);
