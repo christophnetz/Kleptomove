@@ -12,9 +12,10 @@ The source code for analyses of this simulation's output can be found on [Github
 
 ## Contact and Attribution
 
-Please contact [Christoph Netz](c.f.g.netz@rug.nl)
+Please contact [Christoph Netz](c.f.g.netz@rug.nl) and/or Franjo Weissing (PI) for questions on the model or the project.
+Please contact [Pratik Gupte](p.r.gupte@rug.nl) or Christoph or Franjo for questions about the associated manuscript.
 
-## DO BIBTEX KEY
+## DO BIBTEX KEY -- WIP
 
 ## Simulation Source Code: Key Files
 
