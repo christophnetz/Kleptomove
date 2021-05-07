@@ -6,19 +6,19 @@ UPDATE TO REAL PREPRINT -- [![DOI:10.1101/2020.12.15.422876](https://img.shields
 
 UPDATE TO REAL ZENODO -- [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4287462.svg)](https://doi.org/10.5281/zenodo.4287462)
 
-This repository holds the source code for the _Kleptomove_ simulation, an individual-based, evolutionary model of the co-evolution of animal movement and competition strategies. See a description of the contents here. This simulation is Windows only.
+This repository holds the source code for the _Kleptomove_ simulation, an individual-based, evolutionary model of the co-evolution of animal movement and competition strategies, written by [Christoph Netz](https://www.rug.nl/staff/c.f.g.netz/), based on a previous model by Hanno Hildenbrandt, in the [Modelling Adaptive Response Mechanisms Group (Weissing Lab)](https://www.marmgroup.eu/) at the Groningen Institute for Evolutionary Life Science, at the University of Groningen.
 
 The source code for analyses of this simulation's output can be found on [Github](https://github.com/pratikunterwegs/kleptomove-ms), or archived on Zenodo.
 
 ## Contact and Attribution
 
-
+Please contact [Christoph Netz](c.f.g.netz@rug.nl)
 
 ## DO BIBTEX KEY
 
 ## Simulation Source Code: Key Files
 
-The simulation source code is in `cine/`, while code for a GUI is in `cinema/`.
+The simulation source code is in `cine/`, while code for a GUI is in `cinema/`. This simulation is Windows only.
 
 `simulation.cpp` runs the main simulation. Individual agents are defined in `individuals.h`, the landscape in `landscape.h`, and neural networks in `{any_ann.hpp, any_ann.cpp}`. Parameters are defined, read from command line and 
 written out through `{parameter.h, parameter.cpp}`, relying on `cmd_line.h`. Preliminary data analysis is performed in `{analysis.cpp, analysis.hpp}`, and output is generated via an observer chain in `{observer.h, cnObserver.h}` and `cnObserver.cpp`, relying on `{archive.cpp, archive.hpp}`.
