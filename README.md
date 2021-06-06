@@ -12,7 +12,7 @@ The source code for analyses of this simulation's output can be found on [Github
 
 ## Contact and Attribution
 
-Please contact [Christoph Netz](c.f.g.netz@rug.nl) and/or Franjo Weissing (PI) for questions on the model or the project.
+Please contact [Christoph Netz](c.f.g.netz@rug.nl) and Franjo Weissing ([PI](f.j.weissing@rug.nl)) for questions on the model or the project.
 Please contact [Pratik Gupte](p.r.gupte@rug.nl) or Christoph or Franjo for questions about the associated manuscript.
 
 ## DO BIBTEX KEY -- WIP
@@ -101,3 +101,7 @@ This code has no influence on the data produced during the simulation, and we wi
 ## `data/`
 
 This stores the simulation data locally.
+
+## Simulation Data
+
+These simulation data can be found at the University of Groningen Dataverse repository **HERE: ADD REPO HERE**.
