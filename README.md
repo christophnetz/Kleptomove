@@ -2,11 +2,11 @@
 
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 UPDATE TO REAL PREPRINT -- [![DOI:10.1101/2020.12.15.422876](https://img.shields.io/badge/bioRxiv-doi.org/10.1101/2020.12.15.422876-red?style=flat-square)](https://www.biorxiv.org/content/10.1101/2020.12.15.422876v3)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4904497.svg)](https://doi.org/10.5281/zenodo.4904497)
+**UPDATE TO REAL ZENODO**
 
 This repository holds the source code for the _Kleptomove_ simulation, an individual-based, evolutionary model of the co-evolution of animal movement and competition strategies, written by [Christoph Netz](https://www.rug.nl/staff/c.f.g.netz/), based on a previous model by Hanno Hildenbrandt, in the [Modelling Adaptive Response Mechanisms Group (Weissing Lab)](https://www.marmgroup.eu/) at the Groningen Institute for Evolutionary Life Science, at the University of Groningen.
 
-The source code for analyses of this simulation's output can be found on [Github](https://github.com/pratikunterwegs/kleptomove-ms), or archived on Zenodo.
+The source code for analyses of this simulation's output can be found on [Github](https://github.com/pratikunterwegs/kleptomove-ms), or archived on Zenodo: https://doi.org/10.5281/zenodo.4904497.
 
 ## Contact and Attribution
 
