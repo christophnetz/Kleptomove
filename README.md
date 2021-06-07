@@ -13,24 +13,6 @@ The source code for analyses of this simulation's output can be found on [Github
 Please contact [Christoph Netz](c.f.g.netz@rug.nl) and Franjo Weissing ([PI](f.j.weissing@rug.nl)) for questions on the model or the project.
 Please contact [Pratik Gupte](p.r.gupte@rug.nl) or Christoph or Franjo for questions about the associated manuscript.
 
-Please cite this simulation as
-
-```bibtex
-@software{netz_2021_kleptomove,
-  author       = {Christoph FG Netz and
-                  Pratik Rajan Gupte},
-  title        = {{Kleptomove: Source code for an individual-based 
-                   model of the co-evolution of animal movement and
-                   competition strategies}},
-  month        = jun,
-  year         = 2021,
-  publisher    = {Zenodo},
-  version      = {v0.9.1},
-  doi          = {10.5281/zenodo.4905476},
-  url          = {https://doi.org/10.5281/zenodo.4905476}
-}
-```
-
 ## Simulation Source Code: Key Files
 
 The simulation source code is in `cine/`, while code for a GUI is in `cinema/`. This simulation is Windows only.
