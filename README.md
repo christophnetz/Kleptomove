@@ -1,8 +1,7 @@
 # Source Code for the _Kleptomove_ Simulation
 
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-UPDATE TO REAL PREPRINT -- [![DOI:10.1101/2020.12.15.422876](https://img.shields.io/badge/bioRxiv-doi.org/10.1101/2020.12.15.422876-red?style=flat-square)](https://www.biorxiv.org/content/10.1101/2020.12.15.422876v3)
-**UPDATE TO REAL ZENODO**
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4905475.svg)](https://doi.org/10.5281/zenodo.4905475)
 
 This repository holds the source code for the _Kleptomove_ simulation, an individual-based, evolutionary model of the co-evolution of animal movement and competition strategies, written by [Christoph Netz](https://www.rug.nl/staff/c.f.g.netz/), based on a previous model by Hanno Hildenbrandt, in the [Modelling Adaptive Response Mechanisms Group (Weissing Lab)](https://www.marmgroup.eu/) at the Groningen Institute for Evolutionary Life Science, at the University of Groningen.
 
@@ -12,6 +11,24 @@ The source code for analyses of this simulation's output can be found on [Github
 
 Please contact [Christoph Netz](c.f.g.netz@rug.nl) and Franjo Weissing ([PI](f.j.weissing@rug.nl)) for questions on the model or the project.
 Please contact [Pratik Gupte](p.r.gupte@rug.nl) or Christoph or Franjo for questions about the associated manuscript.
+
+Please cite this simulation as
+
+```bibtex
+@software{netz_2021_kleptomove,
+  author       = {Christoph FG Netz and
+                  Pratik Rajan Gupte},
+  title        = {{Kleptomove: Source code for an individual-based 
+                   model of the co-evolution of animal movement and
+                   competition strategies}},
+  month        = jun,
+  year         = 2021,
+  publisher    = {Zenodo},
+  version      = {v0.9.1},
+  doi          = {10.5281/zenodo.4905476},
+  url          = {https://doi.org/10.5281/zenodo.4905476}
+}
+```
 
 ## Simulation Source Code: Key Files
 
